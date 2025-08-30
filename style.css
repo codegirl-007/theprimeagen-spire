@@ -2773,20 +2773,19 @@ h3 {
     position: absolute;
     top: 20px;
     right: 20px;
-    background: rgba(173, 216, 230, 0.95);
-    border: 2px solid #4A90A4;
+    background: linear-gradient(135deg, rgb(74, 47, 31) 0%, rgb(58, 31, 15) 100%);
+    border: 2px solid #FFFFFF;
     border-radius: 8px;
     padding: 12px;
     min-width: 140px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
     z-index: 10;
     backdrop-filter: blur(2px);
 }
 
 .legend-title {
     font-weight: bold;
-    font-size: 14px;
-    color: #2C3E50;
+    font-size: 16px;
+    color: #FFFFFF;
     margin-bottom: 8px;
     text-align: center;
 }
@@ -2795,8 +2794,9 @@ h3 {
     display: flex;
     align-items: center;
     margin-bottom: 4px;
-    font-size: 11px;
-    color: #2C3E50;
+    font-size: 13px;
+    color: #FFFFFF;
+    line-height: 1.5;
 }
 
 .legend-icon {

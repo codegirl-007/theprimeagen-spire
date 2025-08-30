@@ -282,7 +282,7 @@ export async function renderMap(root) {
   const getNodeDescription = (node) => {
     switch (node.kind) {
       case 'start':
-        return '<strong>Starting Point</strong>\nBegin your journey up the Primeagen Spire';
+        return '<strong>Starting Point</strong>\nBegin your journey up ThePrimeagen Spire';
       case 'battle':
         const enemy = ENEMIES[node.enemy];
         return `<strong>Battle</strong>\nFight: ${enemy?.name || 'Unknown Enemy'}\nHP: ${enemy?.maxHp || '?'}`;
@@ -402,7 +402,7 @@ export async function renderMap(root) {
             <div class="birthday-message">
               <h2>Happy Birthday Prime!</h2>
               <p>With coffee in hand and code on your side,<br>
-The Primeagen Spire’s a treacherous ride.  <br>
+ThePrimeagen Spire’s a treacherous ride.  <br>
 Gremlins await and errors conspire,  <br>
 But cake lies ahead at the top of the Spire. </p>
             </div>
@@ -1390,7 +1390,7 @@ export function renderWin(root) {
           <img src="assets/card-art/crown.png" alt="Victory Crown" class="crown-img">
         </div>
         <h1>VICTORY ACHIEVED!</h1>
-        <h2>The Primeagen Spire Has Been Conquered!</h2>
+        <h2>ThePrimeagen Spire Has Been Conquered!</h2>
         <p>ThePrimeagen's birthday celebration can continue in peace!</p>
       </div>
 
