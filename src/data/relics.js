@@ -5,7 +5,7 @@ export const RELICS = {
         hooks: { onTurnStart: (ctx) => ctx.draw(1) }
     },
     standing_desk: {
-        id: "standing_desk", name: "Motions",
+        id: "standing_desk", name: "Vim Motions",
         text: "+10 Max HP.",
         hooks: { onRunStart: (ctx) => { ctx.player.maxHp += 10; ctx.player.hp += 10; } }
     },
@@ -15,12 +15,12 @@ export const RELICS = {
         hooks: { onDamageTaken: (ctx, dmg) => Math.ceil(dmg * 0.9) }
     },
     coffee_thermos: {
-        id: "coffee_thermos", name: "Coffee Thermos",
+        id: "coffee_thermos", name: "Terminal Coffee Thermos",
         text: "Start each fight with Coffee Rush.",
         hooks: { onBattleStart: (ctx) => { ctx.player.energy += 2; ctx.log("Thermos: +2 energy") } }
     },
     cpp_compiler: {
-        id: "cpp_compiler", name: "C++ Compiler",
+        id: "cpp_compiler", name: "Haskell",
         text: "First attack each turn deals double.",
         state: { used: false },
         hooks: {
@@ -29,12 +29,12 @@ export const RELICS = {
         }
     },
     chat_mod_sword: {
-        id: "chat_mod_sword", name: "Chat Mod Sword",
+        id: "chat_mod_sword", name: "Worst Streamer Award",
         text: "Start fights with 1 Weak on all enemies.",
         hooks: { 
             onBattleStart: (ctx) => {
                 ctx.applyWeak(ctx.enemy, 1);
-                ctx.log("Chat Mod Sword: Enemy starts Weak!");
+                ctx.log("Worst Streamer Award: Enemy starts Weak!");
             }
         }
     },

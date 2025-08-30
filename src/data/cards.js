@@ -21,17 +21,17 @@ export const CARDS = {
     },
 
     coffee_rush: {
-        id: "coffee_rush", name: "Coffee Rush", cost: 0, type: "skill", text: "+2 Energy (this turn).",
+        id: "coffee_rush", name: "Terminal Coffee Rush", cost: 0, type: "skill", text: "+2 Energy (this turn).",
         effect: (ctx) => ctx.player.energy += 2,
         upgrades: "coffee_rush+"
     },
     "coffee_rush+": {
-        id: "coffee_rush+", name: "Coffee Rush+", cost: 0, type: "skill", text: "+3 Energy (this turn).",
+        id: "coffee_rush+", name: "Terminal Coffee Rush+", cost: 0, type: "skill", text: "+3 Energy (this turn).",
         effect: (ctx) => ctx.player.energy += 3
     },
 
     macro: {
-        id: "macro", name: "Macro Combo", cost: 1, type: "skill", text: "Replay last card for free (once/fight).",
+        id: "macro", name: "Macrobation", cost: 1, type: "skill", text: "Replay last card for free (once/fight).",
         oncePerFight: true,
         effect: (ctx) => { 
             if (ctx.lastCard && ctx.lastCard !== "macro") {
@@ -55,7 +55,7 @@ export const CARDS = {
     },
 
     type_safety: {
-        id: "type_safety", name: "Type Safety", cost: 1, type: "skill", text: "Gain 6 Block. If enemy intends attack → apply Weak(1).",
+        id: "type_safety", name: "Skill Issue", cost: 1, type: "skill", text: "Gain 6 Block. If enemy intends attack → apply Weak(1).",
         effect: (ctx) => { ctx.player.block += 6; if (ctx.intentIsAttack()) ctx.applyWeak(ctx.enemy, 1); }
     },
 
@@ -65,7 +65,7 @@ export const CARDS = {
     },
 
     segfault: {
-        id: "segfault", name: "Segfault Beam", cost: 2, type: "attack", text: "Deal 20. End your turn.",
+        id: "segfault", name: "Dark Mode", cost: 2, type: "attack", text: "Deal 20. End your turn.",
         effect: (ctx) => { ctx.deal(ctx.enemy, ctx.scalarFromWeak(20)); ctx.forceEndTurn() }
     },
 
@@ -83,17 +83,17 @@ export const CARDS = {
     },
 
     stack_overflow: {
-        id: "stack_overflow", name: "Stack Overflow", cost: 2, type: "attack", text: "Deal 1 per card in discard.",
+        id: "stack_overflow", name: "Colon Q", cost: 2, type: "attack", text: "Deal 1 per card in discard.",
         effect: (ctx) => ctx.deal(ctx.enemy, ctx.scalarFromWeak(Math.max(0, ctx.discard.length)))
     },
 
     infinite_vim: {
-        id: "infinite_vim", name: "Infinite Vim", cost: 1, type: "skill", text: "Next card costs 0.",
+        id: "infinite_vim", name: "Vibe Code", cost: 1, type: "skill", text: "Next card costs 0.",
         effect: (ctx) => ctx.flags.nextCardFree = true
     },
 
     debug_print: {
-        id: "debug_print", name: "Debug Print", cost: 0, type: "skill", text: "Draw 2. Exhaust.",
+        id: "debug_print", name: "Raw Dog", cost: 0, type: "skill", text: "Draw 2. Exhaust.",
         exhaust: true,
         effect: (ctx) => ctx.draw(2)
     },
