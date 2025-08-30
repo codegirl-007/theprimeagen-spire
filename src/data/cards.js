@@ -50,7 +50,7 @@ export const CARDS = {
     },
 
     refactor: {
-        id: "refactor", name: "Refactor Strike", cost: 1, type: "attack", text: "Deal 7. Draw 1.",
+        id: "refactor", name: "Refactor Strike", cost: 2, type: "attack", text: "Deal 7. Draw 1.",
         effect: (ctx) => { ctx.deal(ctx.enemy, ctx.scalarFromWeak(7)); ctx.draw(1); }
     },
 
@@ -99,7 +99,7 @@ export const CARDS = {
     },
 
     null_pointer: {
-        id: "null_pointer", name: "Null Pointer", cost: 1, type: "attack", text: "Deal 8. If enemy has no Block, deal 4 more.",
+        id: "null_pointer", name: "Null Pointer", cost: 2, type: "attack", text: "Deal 8. If enemy has no Block, deal 4 more.",
         effect: (ctx) => {
             let dmg = ctx.scalarFromWeak(8);
             if (ctx.enemy.block === 0) dmg += ctx.scalarFromWeak(4);
@@ -149,7 +149,7 @@ export const CARDS = {
     },
 
     hotfix: {
-        id: "hotfix", name: "Hotfix", cost: 1, type: "attack", text: "Deal 10. Can only be played if HP < 50%.",
+        id: "hotfix", name: "Hotfix", cost: 2, type: "attack", text: "Deal 10. Can only be played if HP < 50%.",
         effect: (ctx) => {
             if (ctx.player.hp <= ctx.player.maxHp * 0.5) {
                 ctx.deal(ctx.enemy, ctx.scalarFromWeak(10));

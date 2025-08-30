@@ -42,9 +42,9 @@ export async function renderBattle(root) {
 
   const intentInfo = {
     attack: { emoji: '', text: `Will attack for ${e.intent.value} damage`, color: 'danger' },
-    block: { emoji: '🛡️', text: `Will gain ${e.intent.value} block`, color: 'info' },
-    debuff: { emoji: '💀', text: 'Will apply a debuff', color: 'warning' }
-  }[e.intent.type] || { emoji: '❓', text: 'Unknown intent', color: 'neutral' };
+    block: { emoji: '', text: `Will gain ${e.intent.value} block`, color: 'info' },
+    debuff: { emoji: '', text: 'Will apply a debuff', color: 'warning' }
+  }[e.intent.type] || { emoji: '', text: 'Unknown intent', color: 'neutral' };
 
   app.innerHTML = `
     <div class="battle-scene">
@@ -1454,8 +1454,8 @@ export function renderWin(root) {
         <div class="victory-message">
           <div class="birthday-celebration">
             <h3>Birthday Celebration Complete!</h3>
-            <p>Thanks to your heroic efforts, ThePrimeagen's birthday party can continue!</p>
-            <p class="victory-quote">"May your code compile clean and your builds deploy smooth!"</p>
+            <p>Thanks to your heroic efforts in your old age. ThePrimeagen's boomer years shall continue!</p>
+            <p class="victory-quote">"Happy Birthday Prime! Hope you have a good one!"</p>
           </div>
         </div>
       </div>
