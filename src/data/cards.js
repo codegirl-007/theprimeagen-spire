@@ -33,7 +33,7 @@ export const CARDS = {
     macro: {
         id: "macro", name: "Macrobation", cost: 1, type: "skill", text: "Replay last card for free (once/fight).",
         oncePerFight: true,
-        effect: (ctx) => { 
+        effect: (ctx) => {
             if (ctx.lastCard && ctx.lastCard !== "macro") {
                 const card = ctx.player.hand.find(c => c.id === ctx.lastCard);
                 if (card) {
@@ -50,7 +50,7 @@ export const CARDS = {
     },
 
     refactor: {
-        id: "refactor", name: "Refactor Strike", cost: 2, type: "attack", text: "Deal 7. Draw 1.",
+        id: "refactor", name: "Segfault", cost: 2, type: "attack", text: "Deal 7. Draw 1.",
         effect: (ctx) => { ctx.deal(ctx.enemy, ctx.scalarFromWeak(7)); ctx.draw(1); }
     },
 
@@ -60,7 +60,7 @@ export const CARDS = {
     },
 
     chat_ban: {
-        id: "chat_ban", name: "Chat Ban", cost: 1, type: "skill", text: "Apply Weak(2).",
+        id: "chat_ban", name: "404", cost: 1, type: "skill", text: "Apply Weak(2).",
         effect: (ctx) => ctx.applyWeak(ctx.enemy, 2)
     },
 
@@ -70,15 +70,15 @@ export const CARDS = {
     },
 
     gc: {
-        id: "gc", name: "Garbage Collector", cost: 1, type: "skill", text: "Exhaust 1 card, draw 2.",
-        effect: (ctx) => { 
+        id: "gc", name: "[object Object]", cost: 1, type: "skill", text: "Exhaust 1 card, draw 2.",
+        effect: (ctx) => {
             ctx.promptExhaust(1);
             ctx.draw(2);
         }
     },
 
     async_await: {
-        id: "async_await", name: "Async/Await", cost: 1, type: "power", text: "Skip this turn. Next turn +2 Energy.",
+        id: "async_await", name: "Just One Game", cost: 1, type: "power", text: "Skip this turn. Next turn +2 Energy.",
         effect: (ctx) => { ctx.flags.skipThisTurn = true; ctx.flags.nextTurnEnergyBonus = (ctx.flags.nextTurnEnergyBonus || 0) + 2; }
     },
 
@@ -99,7 +99,7 @@ export const CARDS = {
     },
 
     null_pointer: {
-        id: "null_pointer", name: "Null Pointer", cost: 2, type: "attack", text: "Deal 8. If enemy has no Block, deal 4 more.",
+        id: "null_pointer", name: "Task failed successfully", cost: 2, type: "attack", text: "Deal 8. If enemy has no Block, deal 4 more.",
         effect: (ctx) => {
             let dmg = ctx.scalarFromWeak(8);
             if (ctx.enemy.block === 0) dmg += ctx.scalarFromWeak(4);
@@ -160,9 +160,9 @@ export const CARDS = {
     },
 
     rubber_duck: {
-        id: "rubber_duck", name: "Rubber Duck", cost: 0, type: "skill", text: "Heal 3. Draw 1.",
+        id: "rubber_duck", name: "Ligma", cost: 0, type: "skill", text: "Unalive yourself with -69 hit points. Courtesy of Defysall.",
         effect: (ctx) => {
-            ctx.player.hp = Math.min(ctx.player.maxHp, ctx.player.hp + 3);
+            ctx.player.hp = Math.min(ctx.player.maxHp, ctx.player.hp - 69);
             ctx.draw(1);
         }
     },
@@ -176,7 +176,7 @@ export const CARDS = {
     },
 
     unit_test: {
-        id: "unit_test", name: "Unit Test", cost: 1, type: "skill", text: "If enemy intends to attack, gain 8 Block.",
+        id: "unit_test", name: "Virgin", cost: 1, type: "skill", text: "If enemy intends to attack, gain 8 Block.",
         effect: (ctx) => {
             if (ctx.intentIsAttack()) {
                 ctx.player.block += 8;

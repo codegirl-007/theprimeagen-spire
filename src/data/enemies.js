@@ -24,7 +24,7 @@ export const ENEMIES = {
         id: "infinite_loop", name: "Beastco", maxHp: 35,
         avatar: "assets/avatars/2.png", // Dizzy/confused character
         background: "assets/backgrounds/throne room.png",
-        ai: (turn) => ({ type: "attack", value: 4 }), 
+        ai: (turn) => ({ type: "attack", value: 4 }),
     },
     merge_conflict_enemy: {
         id: "merge_conflict_enemy", name: "Codegirl", maxHp: 50,
@@ -58,7 +58,7 @@ export const ENEMIES = {
         ai: (turn) => ({ type: "attack", value: 10 + Math.floor(turn * 1.5) })
     },
     boss_birthday_bug: {
-        id: "boss_birthday_bug", name: "Teej", maxHp: 140,
+        id: "boss_birthday_bug", name: "Teej", maxHp: 120,
         avatar: "assets/avatars/boss_birthday_bug.png", // Demanding/angry character
         background: "assets/backgrounds/throne room.png", // Repeat background - fitting for boss
         ai: (turn) => {
