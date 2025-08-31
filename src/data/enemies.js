@@ -30,11 +30,11 @@ export const ENEMIES = {
         id: "merge_conflict_enemy", name: "Codegirl", maxHp: 50,
         avatar: "assets/avatars/merge_conflict_enemy.png", // Warrior with conflicted expression
         background: "assets/backgrounds/terrace.png", // Repeat background
-        ai: (turn) => turn <= 3 ? { type: "attack", value: 8 } : { type: "debuff", value: 1 },
+        ai: (turn) => turn <= 4 ? { type: "attack", value: 8 } : { type: "debuff", value: 1 },
         onDebuff: (ctx) => {
 
-            ctx.enemy.hp = Math.min(ctx.enemy.maxHp, ctx.enemy.hp + 15);
-            ctx.log("Merge Conflict splits! Enemy heals 15!");
+            ctx.enemy.hp = Math.min(ctx.enemy.maxHp, ctx.enemy.hp + 8);
+            ctx.log("Merge Conflict splits! Enemy heals 8!");
         }
     },
     bug_404: {
