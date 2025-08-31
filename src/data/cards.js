@@ -41,9 +41,9 @@ export const CARDS = {
                     card.cost = 0;
                     card.effect(ctx);
                     card.cost = savedCost;
-                    ctx.log(`Replayed ${card.name} for free!`);
+                    ctx.log(`Macro replays ${card.name} at no cost!`);
                 } else {
-                    ctx.log("No valid card to replay.");
+                    ctx.log("Macro fizzles - no valid card to replay.");
                 }
             }
         }
@@ -113,7 +113,7 @@ export const CARDS = {
             const prevHp = ctx.enemy.hp;
             ctx.deal(ctx.enemy, ctx.scalarFromWeak(5));
             if (prevHp > 0 && ctx.enemy.hp <= 0) {
-                ctx.log("Recursion triggered!");
+                ctx.log("Recursion activates and strikes again!");
 
                 ctx.enemy.hp = 1;
                 ctx.deal(ctx.enemy, ctx.scalarFromWeak(5));
@@ -139,7 +139,7 @@ export const CARDS = {
         effect: (ctx) => {
 
             ctx.draw(1);
-            ctx.log("Reviewed code, drew 1 card.");
+            ctx.log("Code review reveals useful insights. You draw a card.");
         }
     },
 
@@ -154,7 +154,7 @@ export const CARDS = {
             if (ctx.player.hp <= ctx.player.maxHp * 0.5) {
                 ctx.deal(ctx.enemy, ctx.scalarFromWeak(10));
             } else {
-                ctx.log("Can only hotfix in emergencies!");
+                ctx.log("Hotfix can only be deployed when HP is below 50%!");
             }
         }
     },
@@ -180,7 +180,7 @@ export const CARDS = {
         effect: (ctx) => {
             if (ctx.intentIsAttack()) {
                 ctx.player.block += 8;
-                ctx.log("Tests passed! Gained Block.");
+                ctx.log("Unit tests pass! You feel more confident and gain block.");
             }
         }
     },
@@ -190,7 +190,7 @@ export const CARDS = {
         effect: (ctx) => {
             ctx.deal(ctx.enemy, ctx.scalarFromWeak(25));
             ctx.player.hp = Math.max(1, ctx.player.hp - 5);
-            ctx.log("Deployed to prod... at what cost?");
+            ctx.log("Production deployment succeeds, but at what cost to your health?");
         }
     },
 
@@ -199,7 +199,7 @@ export const CARDS = {
         id: "sugar_crash", name: "Sugar Crash", cost: 1, type: "curse", text: "Unplayable. -1 Energy when drawn.",
         effect: (ctx) => {
             ctx.player.energy = Math.max(0, ctx.player.energy - 1);
-            ctx.log("Sugar crash! -1 Energy");
+            ctx.log("The sugar crash hits hard, draining your energy!");
         }
     },
 };

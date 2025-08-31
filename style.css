@@ -197,6 +197,81 @@ h3 {
     grid-template-rows: auto 1fr;
 }
 
+.fight-log-panel {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 500px;
+    height: 300px;
+    background: linear-gradient(135deg, rgba(42, 42, 58, 0.4) 0%, rgba(26, 26, 42, 0.4) 100%);
+    border: 2px solid #3a3a4a;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+}
+
+.fight-log-header {
+    background: linear-gradient(135deg, #3a3a4a 0%, #2a2a3a 100%);
+    padding: 8px 12px;
+    border-bottom: 1px solid #4a4a5a;
+    border-radius: 6px 6px 0 0;
+}
+
+.fight-log-title {
+    color: #e0e0e0;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.fight-log-content {
+    flex: 1;
+    padding: 8px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: #4a4a5a #2a2a3a;
+}
+
+.fight-log-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.fight-log-content::-webkit-scrollbar-track {
+    background: #2a2a3a;
+    border-radius: 3px;
+}
+
+.fight-log-content::-webkit-scrollbar-thumb {
+    background: #4a4a5a;
+    border-radius: 3px;
+}
+
+.fight-log-content::-webkit-scrollbar-thumb:hover {
+    background: #5a5a6a;
+}
+
+.log-entry {
+    color: #c0c0c0;
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1.4;
+    margin-bottom: 4px;
+    padding: 2px 4px;
+    border-radius: 3px;
+    word-wrap: break-word;
+}
+
+.log-entry:last-child {
+    margin-bottom: 0;
+}
+
+.log-entry:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
 
 .top-hud {
     position: relative;

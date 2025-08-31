@@ -17,7 +17,7 @@ export const RELICS = {
     coffee_thermos: {
         id: "coffee_thermos", name: "Terminal Coffee Thermos",
         text: "Start each fight with Coffee Rush.",
-        hooks: { onBattleStart: (ctx) => { ctx.player.energy += 2; ctx.log("Thermos: +2 energy") } }
+        hooks: { onBattleStart: (ctx) => { ctx.player.energy += 2; ctx.log("Your coffee thermos provides an energizing boost!") } }
     },
     cpp_compiler: {
         id: "cpp_compiler", name: "Haskell",
@@ -34,7 +34,7 @@ export const RELICS = {
         hooks: { 
             onBattleStart: (ctx) => {
                 ctx.applyWeak(ctx.enemy, 1);
-                ctx.log("Worst Streamer Award: Enemy starts Weak!");
+                ctx.log("Your Worst Streamer Award intimidates the enemy, making them weak!");
             }
         }
     },

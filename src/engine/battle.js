@@ -13,8 +13,8 @@ export function createBattle(ctx, enemyId) {
     const relicCtx = { 
         ...ctx, 
         draw: (n) => draw(ctx.player, n),
-        applyWeak: (who, amt) => { who.weak = (who.weak || 0) + amt; ctx.log(`Weak +${amt}`) },
-        applyVulnerable: (who, amt) => { who.vuln = (who.vuln || 0) + amt; ctx.log(`Vulnerable +${amt}`) }
+        applyWeak: (who, amt) => { who.weak = (who.weak || 0) + amt; ctx.log(`${who === ctx.player ? 'You are' : ctx.enemy.name + ' is'} weakened for ${amt} turn${amt > 1 ? 's' : ''}.`) },
+        applyVulnerable: (who, amt) => { who.vuln = (who.vuln || 0) + amt; ctx.log(`${who === ctx.player ? 'You are' : ctx.enemy.name + ' is'} vulnerable for ${amt} turn${amt > 1 ? 's' : ''}.`) }
     };
     for (const r of ctx.relicStates) r.hooks?.onBattleStart?.(relicCtx, r.state);
 
@@ -30,7 +30,7 @@ export function startPlayerTurn(ctx) {
 
     const relicCtx = { ...ctx, draw: (n) => draw(ctx.player, n) };
     for (const r of ctx.relicStates) r.hooks?.onTurnStart?.(relicCtx, r.state);
-    ctx.log(`Your turn. Energy ${ctx.player.energy}.`);
+    ctx.log(`Your turn begins. You have ${ctx.player.energy} energy to spend.`);
 
     ctx.render();
 }
@@ -44,11 +44,11 @@ export function playCard(ctx, handIndex) {
     if (ctx.flags.nextCardFree) {
         actualCost = 0;
         ctx.flags.nextCardFree = false;
-        ctx.log("Infinite Vim: Card costs 0!");
+        ctx.log("Infinite Vim makes your next card free!");
     }
     
-    if (ctx.player.energy < actualCost) { ctx.log("Not enough energy."); return; }
-    if (card.oncePerFight && card._used) { ctx.log("That macro already ran."); return; }
+    if (ctx.player.energy < actualCost) { ctx.log(`You need ${actualCost} energy but only have ${ctx.player.energy}.`); return; }
+    if (card.oncePerFight && card._used) { ctx.log(`${card.name} can only be used once per fight.`); return; }
 
     ctx.player.energy -= actualCost;
     ctx.lastCard = card.id;
@@ -79,7 +79,7 @@ export function playCard(ctx, handIndex) {
         if (!card.exhaust) {
             ctx.player.discard.push(used.id);
         } else {
-            ctx.log(`${used.name} exhausted.`);
+            ctx.log(`${used.name} is exhausted and removed from the fight.`);
         }
     }
 
@@ -102,10 +102,10 @@ export function enemyTurn(ctx) {
     } else if (e.intent.type === "block") {
         ENEMIES[e.id].onBlock?.(ctx, e.intent.value);
         e.block += e.intent.value;
-        ctx.log(`${e.name} gains ${e.intent.value} Block.`);
+        ctx.log(`${e.name} defends and gains ${e.intent.value} block.`);
     } else if (e.intent.type === "debuff") {
         ENEMIES[e.id].onDebuff?.(ctx, e.intent.value);
-        ctx.log(`${e.name} applies a debuff.`);
+        ctx.log(`${e.name} casts a debuffing spell.`);
     }
 
 
@@ -123,7 +123,7 @@ export function enemyTurn(ctx) {
 function applyDamage(ctx, target, raw, label) {
 
     if (target === ctx.enemy && ctx.enemy.id === "bug_404" && ctx.enemy.turn % 3 === 0) {
-        ctx.log("404 Bug dodges the attack!");
+        ctx.log(`${ctx.enemy.name} phases out and dodges your attack completely!`);
         return;
     }
     
@@ -136,7 +136,14 @@ function applyDamage(ctx, target, raw, label) {
     const hpLoss = Math.max(0, dmg - blocked);
     target.block -= blocked;
     target.hp = clamp(target.hp - hpLoss, 0, target.maxHp);
-    ctx.log(`${label}: ${dmg} → Block ${blocked} → HP -${hpLoss}`);
+    const isPlayer = target === ctx.player;
+    if (blocked > 0 && hpLoss > 0) {
+        ctx.log(`${label} for ${dmg} damage. ${blocked} blocked, ${hpLoss} damage taken.`);
+    } else if (blocked > 0) {
+        ctx.log(`${label} for ${dmg} damage, but it's completely blocked!`);
+    } else {
+        ctx.log(`${label} for ${dmg} damage!`);
+    }
     
 
     if (hpLoss > 0 && ctx.showDamageNumber) {
@@ -154,16 +161,16 @@ export function makeBattleContext(root) {
         log: (m) => root.log(m),
         render: () => root.render(),
         intentIsAttack: () => root.enemy.intent.type === "attack",
-        deal: (target, amount) => applyDamage(root, target, amount, "You hit"),
-        applyWeak: (who, amt) => { who.weak = (who.weak || 0) + amt; root.log(`Weak +${amt}`) },
-        applyVulnerable: (who, amt) => { who.vuln = (who.vuln || 0) + amt; root.log(`Vulnerable +${amt}`) },
+        deal: (target, amount) => applyDamage(root, target, amount, target === root.enemy ? "You attack" : `${root.enemy.name} hits you`),
+        applyWeak: (who, amt) => { who.weak = (who.weak || 0) + amt; root.log(`${who === root.player ? 'You are' : root.enemy.name + ' is'} weakened for ${amt} turn${amt > 1 ? 's' : ''}.`) },
+        applyVulnerable: (who, amt) => { who.vuln = (who.vuln || 0) + amt; root.log(`${who === root.player ? 'You are' : root.enemy.name + ' is'} vulnerable for ${amt} turn${amt > 1 ? 's' : ''}.`) },
         forceEndTurn: () => endTurn(root),
         promptExhaust: async (count) => { // MVP: exhaust first N non-basics
             while (count-- > 0 && root.player.hand.length > 0) {
                 const idx = root.player.hand.findIndex(c => !["strike", "defend"].includes(c.id));
                 const drop = idx >= 0 ? idx : 0;
                 const [ex] = root.player.hand.splice(drop, 1);
-                root.log(`Exhausted ${ex.name}`);
+                root.log(`${ex.name} is exhausted and removed from the fight.`);
             }
         },
         scalarFromWeak: (base) => (root.player.weak > 0 ? Math.floor(base * 0.75) : base),

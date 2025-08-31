@@ -24,7 +24,7 @@ export const ENEMIES = {
         id: "infinite_loop", name: "Beastco", maxHp: 35,
         avatar: "assets/avatars/2.png", // Dizzy/confused character
         background: "assets/backgrounds/throne room.png",
-        ai: (turn) => ({ type: "attack", value: 4 }), // Always attacks for small damage
+        ai: (turn) => ({ type: "attack", value: 4 }), 
     },
     merge_conflict_enemy: {
         id: "merge_conflict_enemy", name: "Codegirl", maxHp: 50,
@@ -34,7 +34,7 @@ export const ENEMIES = {
         onDebuff: (ctx) => {
 
             ctx.enemy.hp = Math.min(ctx.enemy.maxHp, ctx.enemy.hp + 8);
-            ctx.log("Merge Conflict splits! Enemy heals 8!");
+            ctx.log("Codegirl resolves the merge conflict and heals 8 HP!");
         }
     },
     bug_404: {
@@ -68,6 +68,6 @@ export const ENEMIES = {
             if (cyc === 3) return { type: "block", value: 0 };       // Crash → heal
             return { type: "attack", value: 22 };                  // Burst
         },
-        onBlock: (ctx) => { ctx.enemy.hp = Math.min(ctx.enemy.maxHp, ctx.enemy.hp + 8); ctx.log("Bug crashes, heals 8!"); }
+        onBlock: (ctx) => { ctx.enemy.hp = Math.min(ctx.enemy.maxHp, ctx.enemy.hp + 8); ctx.log("Teej crashes and reboots, healing 8 HP!"); }
     }
 };
