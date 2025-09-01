@@ -1,4 +1,15 @@
 
+// Simple audio utility
+function playSound(soundFile) {
+    try {
+        const audio = new Audio(`assets/sounds/${soundFile}`);
+        audio.volume = 0.3;
+        audio.play().catch(e => {}); // Silently fail if no audio
+    } catch (e) {
+        // Silently fail if audio not available
+    }
+}
+
 export function showDamageNumber(damage, target, isPlayer = false) {
   const targetElement = isPlayer ?
     document.querySelector('.player-battle-zone') :
@@ -225,6 +236,12 @@ export async function renderBattle(root) {
   `;
 
     app.querySelectorAll("[data-play]").forEach(btn => {
+        btn.addEventListener("mouseenter", () => {
+            if (btn.classList.contains('playable')) {
+                playSound('swipe.mp3');
+            }
+        });
+        
         btn.addEventListener("click", () => {
             const index = parseInt(btn.dataset.play, 10);
             const card = p.hand[index];
@@ -280,6 +297,7 @@ export async function renderBattle(root) {
                 // First press or different key - select the card
                 root.selectedCardIndex = cardIndex;
                 updateCardSelection(root);
+                playSound('swipe.mp3'); // Play swipe sound on keyboard selection
             }
         }
     };
