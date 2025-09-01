@@ -959,6 +959,15 @@ export function renderShop(root) {
                         root.log(`Bought ${card.name} for 50 gold.`);
                         btn.disabled = true;
                         btn.textContent = "SOLD";
+                        
+                        // Update gold display
+                        const goldDisplay = root.app.querySelector('.gold-amount');
+                        if (goldDisplay) {
+                            goldDisplay.textContent = root.player.gold;
+                        }
+                        
+                        // Update affordability of remaining items
+                        updateShopAffordability(root);
                     } else {
                         root.log("Not enough gold!");
                     }
@@ -980,6 +989,15 @@ export function renderShop(root) {
                         });
                         root.app.querySelector("[data-buy-relic]").disabled = true;
                         root.app.querySelector("[data-buy-relic]").textContent = "SOLD";
+                        
+                        // Update gold display
+                        const goldDisplay = root.app.querySelector('.gold-amount');
+                        if (goldDisplay) {
+                            goldDisplay.textContent = root.player.gold;
+                        }
+                        
+                        // Update affordability of remaining items
+                        updateShopAffordability(root);
                     } else {
                         root.log("Not enough gold!");
                     }
@@ -989,6 +1007,57 @@ export function renderShop(root) {
             root.app.querySelector("[data-leave]").addEventListener("click", () => root.afterNode());
         });
     });
+}
+
+function updateShopAffordability(root) {
+    // Update card affordability
+    root.app.querySelectorAll("[data-buy-card]").forEach(btn => {
+        if (!btn.disabled) {
+            const cardContainer = btn.closest('.shop-card-container');
+            const overlay = cardContainer.querySelector('.card-disabled-overlay');
+            
+            if (root.player.gold < 50) {
+                btn.classList.remove('playable');
+                btn.classList.add('unplayable');
+                if (!overlay) {
+                    const newOverlay = document.createElement('div');
+                    newOverlay.className = 'card-disabled-overlay';
+                    newOverlay.innerHTML = '<span>Need 50 gold</span>';
+                    cardContainer.appendChild(newOverlay);
+                }
+            } else {
+                btn.classList.remove('unplayable');
+                btn.classList.add('playable');
+                if (overlay) {
+                    overlay.remove();
+                }
+            }
+        }
+    });
+    
+    // Update relic affordability
+    const relicBtn = root.app.querySelector("[data-buy-relic]");
+    if (relicBtn && !relicBtn.disabled) {
+        const relicContainer = relicBtn.closest('.shop-relic-container');
+        const overlay = relicContainer.querySelector('.relic-disabled-overlay');
+        
+        if (root.player.gold < 100) {
+            relicBtn.classList.remove('affordable');
+            relicBtn.classList.add('unaffordable');
+            if (!overlay) {
+                const newOverlay = document.createElement('div');
+                newOverlay.className = 'relic-disabled-overlay';
+                newOverlay.innerHTML = '<span>Need 100 gold</span>';
+                relicContainer.appendChild(newOverlay);
+            }
+        } else {
+            relicBtn.classList.remove('unaffordable');
+            relicBtn.classList.add('affordable');
+            if (overlay) {
+                overlay.remove();
+            }
+        }
+    }
 }
 
 function shuffle(array) {
