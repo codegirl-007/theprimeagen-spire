@@ -28,6 +28,9 @@ export function startPlayerTurn(ctx) {
     ctx.flags.nextTurnEnergyPenalty = 0;
     draw(ctx.player, 5 - ctx.player.hand.length);
 
+    // Clear card selection when new turn starts
+    ctx.selectedCardIndex = null;
+
     const relicCtx = { ...ctx, draw: (n) => draw(ctx.player, n) };
     for (const r of ctx.relicStates) r.hooks?.onTurnStart?.(relicCtx, r.state);
     ctx.log(`Your turn begins. You have ${ctx.player.energy} energy to spend.`);

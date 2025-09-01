@@ -1739,6 +1739,27 @@ h3 {
     box-shadow: 0 0 15px rgba(111, 66, 193, 0.3);
 }
 
+.battle-card.card-selected {
+    transform: translateY(-80px) scale(1.15) rotate(0deg) !important;
+    z-index: 300;
+    margin-left: -60px;
+    margin-right: 40px;
+}
+
+.battle-card.card-selected ~ .battle-card {
+    transform: translateX(20px);
+}
+
+.battle-card.card-selected .card-glow {
+    opacity: 0.8;
+    filter: blur(6px);
+    transform: scale(1.05);
+}
+
+.battle-card.card-selected .card-frame {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+}
+
 .battle-card.playable:hover .card-glow {
     opacity: 0.8;
     filter: blur(6px);

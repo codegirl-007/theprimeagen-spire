@@ -230,6 +230,9 @@ export async function renderBattle(root) {
             const card = p.hand[index];
             if (p.energy >= card.cost) {
                 root.play(index);
+                // Clear selection when card is played via mouse
+                root.selectedCardIndex = null;
+                updateCardSelection(root);
             }
         });
     });
@@ -247,20 +250,36 @@ export async function renderBattle(root) {
         });
     }
     
+    // Initialize card selection state if not exists
+    if (!root.selectedCardIndex) {
+        root.selectedCardIndex = null;
+    }
+
     window.onkeydown = (e) => {
         if (e.key.toLowerCase() === "e") {
-
             try {
                 root.end();
             } catch (error) {
                 console.error("Error ending turn via keyboard:", error);
             }
         }
+        
         const n = parseInt(e.key, 10);
         if (n >= 1 && n <= p.hand.length) {
-            const card = p.hand[n - 1];
-            if (p.energy >= card.cost) {
-                root.play(n - 1);
+            const cardIndex = n - 1;
+            const card = p.hand[cardIndex];
+            
+            if (root.selectedCardIndex === cardIndex) {
+                // Second press of same key - play the card
+                if (p.energy >= card.cost) {
+                    root.play(cardIndex);
+                    root.selectedCardIndex = null; // Clear selection
+                    updateCardSelection(root);
+                }
+            } else {
+                // First press or different key - select the card
+                root.selectedCardIndex = cardIndex;
+                updateCardSelection(root);
             }
         }
     };
@@ -270,6 +289,9 @@ export async function renderBattle(root) {
   if (logContent) {
     logContent.scrollTop = logContent.scrollHeight;
     }
+    
+    // Apply initial card selection visual state
+    updateCardSelection(root);
 }
 
 export async function renderMap(root) {
@@ -1007,6 +1029,21 @@ export function renderShop(root) {
             root.app.querySelector("[data-leave]").addEventListener("click", () => root.afterNode());
         });
     });
+}
+
+function updateCardSelection(root) {
+    // Remove selection from all cards
+    root.app.querySelectorAll('.battle-card').forEach(card => {
+        card.classList.remove('card-selected');
+    });
+    
+    // Add selection to currently selected card
+    if (root.selectedCardIndex !== null) {
+        const selectedCard = root.app.querySelector(`[data-play="${root.selectedCardIndex}"]`);
+        if (selectedCard) {
+            selectedCard.classList.add('card-selected');
+        }
+    }
 }
 
 function updateShopAffordability(root) {
