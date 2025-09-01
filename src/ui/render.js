@@ -239,6 +239,8 @@ export async function renderBattle(root) {
         btn.addEventListener("mouseenter", () => {
             if (btn.classList.contains('playable')) {
                 playSound('swipe.mp3');
+                root.selectedCardIndex = null;
+                updateCardSelection(root);
             }
         });
         
