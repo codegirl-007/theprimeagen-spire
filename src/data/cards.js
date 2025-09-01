@@ -162,8 +162,9 @@ export const CARDS = {
     rubber_duck: {
         id: "rubber_duck", name: "Ligma", cost: 0, type: "skill", text: "Unalive yourself with -69 hit points. Courtesy of Defysall.",
         effect: (ctx) => {
-            ctx.player.hp = Math.min(ctx.player.maxHp, ctx.player.hp - 69);
+            ctx.player.hp = Math.max(0, ctx.player.hp - 69);
             ctx.draw(1);
+            ctx.log("Ligma balls! You take 69 damage!");
         }
     },
 
