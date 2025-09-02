@@ -1,6 +1,7 @@
 import { ENEMIES } from "../data/enemies.js";
 import { RELICS } from "../data/relics.js";
-import { draw, endTurnDiscard, clamp } from "./core.js";
+import { CARDS } from "../data/cards.js";
+import { draw, endTurnDiscard, clamp, cloneCard } from "./core.js";
 
 export function createBattle(ctx, enemyId) {
     const enemyData = ENEMIES[enemyId];
@@ -174,6 +175,31 @@ export function makeBattleContext(root) {
         showDamageNumber: root.showDamageNumber,
         lastCard: null,
         flags: {},
+        // New mechanics for advanced cards
+        moveFromDiscardToHand: (cardId) => {
+            const idx = root.player.discard.findIndex(id => id === cardId);
+            if (idx >= 0) {
+                const [id] = root.player.discard.splice(idx, 1);
+                const originalCard = CARDS[id];
+                if (originalCard) {
+                    const clonedCard = cloneCard(originalCard);
+                    root.player.hand.push(clonedCard);
+                    return true;
+                }
+            }
+            return false;
+        },
+        countCardType: (type) => {
+            const allCards = [...root.player.deck, ...root.player.hand.map(c => c.id), ...root.player.draw, ...root.player.discard];
+            return allCards.filter(id => CARDS[id]?.type === type).length;
+        },
+        replayCard: (card) => {
+            // Temporarily replay a card without removing it from hand
+            if (typeof card.effect === 'function') {
+                card.effect(root);
+                root.log(`${card.name} is replayed!`);
+            }
+        },
     };
 }
 

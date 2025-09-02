@@ -187,7 +187,7 @@ export const CARDS = {
     },
 
     production_deploy: {
-        id: "production_deploy", name: "Production Deploy", cost: 3, type: "attack", text: "Deal 25. Lose 5 HP.",
+        id: "production_deploy", name: "Production Deploy", cost: 2, type: "attack", text: "Deal 25. Lose 5 HP.",
         effect: (ctx) => {
             ctx.deal(ctx.enemy, ctx.scalarFromWeak(25));
             ctx.player.hp = Math.max(1, ctx.player.hp - 5);
@@ -203,13 +203,87 @@ export const CARDS = {
             ctx.log("The sugar crash hits hard, draining your energy!");
         }
     },
+
+    stack_overflow: {
+        id: "stack_overflow", name: "Stack Overflow", cost: 1, type: "attack", text: "Deal damage equal to cards in hand.",
+        effect: (ctx) => ctx.deal(ctx.enemy, ctx.scalarFromWeak(ctx.player.hand.length))
+    },
+
+    ctrl_z: {
+        id: "ctrl_z", name: "Ctrl+Z", cost: 1, type: "skill", text: "Return a random card from discard to hand.",
+        effect: (ctx) => {
+            if (ctx.player.discard.length > 0) {
+                const randomId = ctx.player.discard[Math.floor(Math.random() * ctx.player.discard.length)];
+                if (ctx.moveFromDiscardToHand(randomId)) {
+                    ctx.log(`Ctrl+Z brings back ${CARDS[randomId].name}!`);
+                } else {
+                    ctx.log("Ctrl+Z failed to undo anything.");
+                }
+            } else {
+                ctx.log("Nothing to undo!");
+            }
+        }
+    },
+
+    rubber_duck: {
+        id: "rubber_duck", name: "Rubber Duck Debug", cost: 0, type: "skill", text: "Draw 1. Reveal enemy intent.",
+        effect: (ctx) => {
+            ctx.draw(1);
+            const intent = ctx.enemy.intent;
+            ctx.log(`Rubber duck reveals: Enemy will ${intent.type} for ${intent.value || 'unknown'} next turn.`);
+        }
+    },
+
+    infinite_loop: {
+        id: "infinite_loop", name: "Infinite Loop", cost: 2, type: "skill", text: "Play the same card twice this turn. Exhaust.",
+        exhaust: true,
+        effect: (ctx) => {
+            if (ctx.lastCard && ctx.lastCard !== "infinite_loop") {
+                const card = ctx.player.hand.find(c => c.id === ctx.lastCard);
+                if (card) {
+                    ctx.replayCard(card);
+                } else {
+                    ctx.log("Infinite loop has nothing to repeat!");
+                }
+            } else {
+                ctx.log("Infinite loop needs a previous card to repeat!");
+            }
+        }
+    },
+
+    npm_audit: {
+        id: "npm_audit", name: "npm audit", cost: 1, type: "skill", text: "Gain 3 Block per curse in deck.",
+        effect: (ctx) => {
+            const curseCount = ctx.countCardType("curse");
+            const blockGain = curseCount * 3;
+            ctx.player.block += blockGain;
+            ctx.log(`npm audit found ${curseCount} vulnerabilities. Gain ${blockGain} Block.`);
+        }
+    },
+
+    git_push_force: {
+        id: "git_push_force", name: "git push --force", cost: 0, type: "attack", text: "Deal 15. Put random card from hand on top of draw pile.",
+        effect: (ctx) => {
+            ctx.deal(ctx.enemy, ctx.scalarFromWeak(15));
+            if (ctx.player.hand.length > 1) { // Don't remove this card itself
+                const otherCards = ctx.player.hand.filter(c => c.id !== "git_push_force");
+                if (otherCards.length > 0) {
+                    const randomCard = otherCards[Math.floor(Math.random() * otherCards.length)];
+                    const handIdx = ctx.player.hand.findIndex(c => c === randomCard);
+                    const [card] = ctx.player.hand.splice(handIdx, 1);
+                    ctx.player.draw.push(card.id);
+                    ctx.log(`${card.name} was force-pushed back to your deck!`);
+                }
+            }
+        }
+    },
 };
 
 
 export const STARTER_DECK = [
-    "segfault", "raw_dog", "coffee_rush",
-    "skill_issue", "vibe_code", "404",
-    "git_commit", "ligma", "task_failed_successfully", "virgin"
+    "strike", "strike", "defend", "defend",
+    "segfault", "coffee_rush", "skill_issue", "git_commit",
+    "ligma", "raw_dog"
 ];
 
 export const CARD_POOL = [
@@ -217,5 +291,6 @@ export const CARD_POOL = [
     "dark_mode", "object_object", "just_one_game", "colon_q", "vibe_code",
     "raw_dog", "task_failed_successfully", "recursion", "git_commit", "memory_leak",
     "code_review", "pair_programming", "hotfix", "ligma", "merge_conflict",
-    "virgin", "production_deploy"
+    "virgin", "production_deploy", "stack_overflow", "ctrl_z", "rubber_duck",
+    "infinite_loop", "npm_audit", "git_push_force"
 ];

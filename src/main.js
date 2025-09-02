@@ -131,10 +131,6 @@ const root = {
     },
 
     save() {
-        if (this._battleInProgress) {
-            return;
-        }
-        
         try {
             const saveData = {
                 player: this.player,
@@ -142,6 +138,7 @@ const root = {
                 relicStates: this.relicStates,
                 completedNodes: this.completedNodes,
                 logs: this.logs.slice(-50), // Keep last 50 logs
+                battleInProgress: this._battleInProgress || false,
                 timestamp: Date.now()
             };
             localStorage.setItem('birthday-spire-save', JSON.stringify(saveData));
@@ -160,6 +157,7 @@ const root = {
                 this.relicStates = data.relicStates || [];
                 this.completedNodes = data.completedNodes || [];
                 this.logs = data.logs || [];
+                this._battleInProgress = data.battleInProgress || false;
                 
 
                 this.restoreCardEffects();
@@ -382,12 +380,21 @@ function showCountdown(birthday) {
 }
 
 function loadNormalGame() {
-    // Clear old saves to prevent card ID conflicts after refactoring
-    root.clearOldSaves();
-    
     const hasLoadedData = root.load();
     if (hasLoadedData) {
-        renderMap(root);
+        // If we were in a battle, resume it
+        if (root._battleInProgress) {
+            const node = root.map.nodes.find(n => n.id === root.nodeId);
+            if (node && (node.kind === "battle" || node.kind === "elite" || node.kind === "boss")) {
+                root.go(root.nodeId);
+            } else {
+                // Battle state inconsistent, go to map
+                root._battleInProgress = false;
+                renderMap(root);
+            }
+        } else {
+            renderMap(root);
+        }
     } else {
         root.reset();
     }
