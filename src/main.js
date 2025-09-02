@@ -131,7 +131,6 @@ const root = {
     },
 
     save() {
-
         if (this._battleInProgress) {
             return;
         }
@@ -190,21 +189,6 @@ const root = {
         if (this.player.hand) {
             this.player.hand.forEach(restoreCard);
         }
-        if (this.player.deck) {
-            this.player.deck.forEach(id => {
-
-            });
-        }
-        if (this.player.draw) {
-            this.player.draw.forEach(id => {
-
-            });
-        }
-        if (this.player.discard) {
-            this.player.discard.forEach(id => {
-
-            });
-        }
     },
 
     clearSave() {
@@ -251,8 +235,7 @@ function initializeGame() {
             case 'victory':
             case 'win':
                 renderWin(root);
-                return; // Exit early to prevent any other code from running
-                break;
+                return;
             case 'defeat':
             case 'lose':
                 renderLose(root);
@@ -298,10 +281,10 @@ function setupMockData() {
     root.player.maxHp = 50;
     root.player.gold = 150;
     root.player.energy = 3;
-    root.player.deck = ['strike', 'defend', 'coffee_rush', 'debug_print', 'refactor', 'unit_test'];
-    root.player.hand = ['strike', 'coffee_rush', 'debug_print'];
-    root.player.draw = ['defend', 'refactor'];
-    root.player.discard = ['unit_test'];
+    root.player.deck = ['strike', 'defend', 'coffee_rush', 'raw_dog', 'segfault', 'virgin'];
+    root.player.hand = ['strike', 'coffee_rush', 'raw_dog'];
+    root.player.draw = ['defend', 'segfault'];
+    root.player.discard = ['virgin'];
     
     attachRelics(root, ['coffee_thermos', 'cpp_compiler']);
     

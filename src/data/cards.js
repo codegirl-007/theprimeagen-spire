@@ -49,57 +49,57 @@ export const CARDS = {
         }
     },
 
-    refactor: {
-        id: "refactor", name: "Segfault", cost: 2, type: "attack", text: "Deal 7. Draw 1.",
+    segfault: {
+        id: "segfault", name: "Segfault", cost: 2, type: "attack", text: "Deal 7. Draw 1.",
         effect: (ctx) => { ctx.deal(ctx.enemy, ctx.scalarFromWeak(7)); ctx.draw(1); }
     },
 
-    type_safety: {
-        id: "type_safety", name: "Skill Issue", cost: 1, type: "skill", text: "Gain 6 Block. If enemy intends attack → apply Weak(1).",
+    skill_issue: {
+        id: "skill_issue", name: "Skill Issue", cost: 1, type: "skill", text: "Gain 6 Block. If enemy intends attack → apply Weak(1).",
         effect: (ctx) => { ctx.player.block += 6; if (ctx.intentIsAttack()) ctx.applyWeak(ctx.enemy, 1); }
     },
 
-    chat_ban: {
-        id: "chat_ban", name: "404", cost: 1, type: "skill", text: "Apply Weak(2).",
+    "404": {
+        id: "404", name: "404", cost: 1, type: "skill", text: "Apply Weak(2).",
         effect: (ctx) => ctx.applyWeak(ctx.enemy, 2)
     },
 
-    segfault: {
-        id: "segfault", name: "Dark Mode", cost: 2, type: "attack", text: "Deal 20. End your turn.",
+    dark_mode: {
+        id: "dark_mode", name: "Dark Mode", cost: 2, type: "attack", text: "Deal 20. End your turn.",
         effect: (ctx) => { ctx.deal(ctx.enemy, ctx.scalarFromWeak(20)); ctx.forceEndTurn() }
     },
 
-    gc: {
-        id: "gc", name: "[object Object]", cost: 1, type: "skill", text: "Exhaust 1 card, draw 2.",
+    object_object: {
+        id: "object_object", name: "[object Object]", cost: 1, type: "skill", text: "Exhaust 1 card, draw 2.",
         effect: (ctx) => {
             ctx.promptExhaust(1);
             ctx.draw(2);
         }
     },
 
-    async_await: {
-        id: "async_await", name: "Just One Game", cost: 1, type: "power", text: "Skip this turn. Next turn +2 Energy.",
+    just_one_game: {
+        id: "just_one_game", name: "Just One Game", cost: 1, type: "power", text: "Skip this turn. Next turn +2 Energy.",
         effect: (ctx) => { ctx.flags.skipThisTurn = true; ctx.flags.nextTurnEnergyBonus = (ctx.flags.nextTurnEnergyBonus || 0) + 2; }
     },
 
-    stack_overflow: {
-        id: "stack_overflow", name: "Colon Q", cost: 2, type: "attack", text: "Deal 1 per card in discard.",
+    colon_q: {
+        id: "colon_q", name: "Colon Q", cost: 2, type: "attack", text: "Deal 1 per card in discard.",
         effect: (ctx) => ctx.deal(ctx.enemy, ctx.scalarFromWeak(Math.max(0, ctx.discard.length)))
     },
 
-    infinite_vim: {
-        id: "infinite_vim", name: "Vibe Code", cost: 1, type: "skill", text: "Next card costs 0.",
+    vibe_code: {
+        id: "vibe_code", name: "Vibe Code", cost: 1, type: "skill", text: "Next card costs 0.",
         effect: (ctx) => ctx.flags.nextCardFree = true
     },
 
-    debug_print: {
-        id: "debug_print", name: "Raw Dog", cost: 0, type: "skill", text: "Draw 2. Exhaust.",
+    raw_dog: {
+        id: "raw_dog", name: "Raw Dog", cost: 0, type: "skill", text: "Draw 2. Exhaust.",
         exhaust: true,
         effect: (ctx) => ctx.draw(2)
     },
 
-    null_pointer: {
-        id: "null_pointer", name: "Task failed successfully", cost: 2, type: "attack", text: "Deal 8. If enemy has no Block, deal 4 more.",
+    task_failed_successfully: {
+        id: "task_failed_successfully", name: "Task failed successfully", cost: 2, type: "attack", text: "Deal 8. If enemy has no Block, deal 4 more.",
         effect: (ctx) => {
             let dmg = ctx.scalarFromWeak(8);
             if (ctx.enemy.block === 0) dmg += ctx.scalarFromWeak(4);
@@ -159,8 +159,8 @@ export const CARDS = {
         }
     },
 
-    rubber_duck: {
-        id: "rubber_duck", name: "Ligma", cost: 0, type: "skill", text: "Unalive yourself with -69 hit points. Courtesy of Defysall.",
+    ligma: {
+        id: "ligma", name: "Ligma", cost: 0, type: "skill", text: "Unalive yourself with -69 hit points. Courtesy of Defysall.",
         effect: (ctx) => {
             ctx.player.hp = Math.max(0, ctx.player.hp - 69);
             ctx.draw(1);
@@ -176,8 +176,8 @@ export const CARDS = {
         }
     },
 
-    unit_test: {
-        id: "unit_test", name: "Virgin", cost: 1, type: "skill", text: "If enemy intends to attack, gain 8 Block.",
+    virgin: {
+        id: "virgin", name: "Virgin", cost: 1, type: "skill", text: "If enemy intends to attack, gain 8 Block.",
         effect: (ctx) => {
             if (ctx.intentIsAttack()) {
                 ctx.player.block += 8;
@@ -207,15 +207,15 @@ export const CARDS = {
 
 
 export const STARTER_DECK = [
-    "refactor", "debug_print", "coffee_rush",
-    "type_safety", "infinite_vim", "chat_ban",
-    "git_commit", "rubber_duck", "null_pointer", "unit_test"
+    "segfault", "raw_dog", "coffee_rush",
+    "skill_issue", "vibe_code", "404",
+    "git_commit", "ligma", "task_failed_successfully", "virgin"
 ];
 
 export const CARD_POOL = [
-    "coffee_rush", "macro", "refactor", "type_safety", "chat_ban",
-    "segfault", "gc", "async_await", "stack_overflow", "infinite_vim",
-    "debug_print", "null_pointer", "recursion", "git_commit", "memory_leak",
-    "code_review", "pair_programming", "hotfix", "rubber_duck", "merge_conflict",
-    "unit_test", "production_deploy"
+    "coffee_rush", "macro", "segfault", "skill_issue", "404",
+    "dark_mode", "object_object", "just_one_game", "colon_q", "vibe_code",
+    "raw_dog", "task_failed_successfully", "recursion", "git_commit", "memory_leak",
+    "code_review", "pair_programming", "hotfix", "ligma", "merge_conflict",
+    "virgin", "production_deploy"
 ];

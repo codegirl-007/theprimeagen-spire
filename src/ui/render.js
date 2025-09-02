@@ -1154,12 +1154,12 @@ function getCardArt(cardId) {
     coffee_rush: 'Monk_5.png', // Energy boost
     'coffee_rush+': 'Monk_6.png', // Upgraded energy
     macro: 'Monk_7.png', // Replay magic
-    refactor: 'Monk_8.png', // Refactoring tool
-    type_safety: 'Monk_9.png', // Protection
-    chat_ban: 'Monk_10.png', // Ban/restriction
+    segfault: 'Monk_8.png', // Refactoring tool
+    skill_issue: 'Monk_9.png', // Protection
+    "404": 'Monk_10.png', // Ban/restriction
 
     segfault: 'Monk_11.png', // Powerful attack
-    null_pointer: 'Monk_12.png', // Precise strike
+    task_failed_successfully: 'Monk_12.png', // Precise strike
     recursion: 'Monk_13.png', // Repetition
     merge_conflict: 'Monk_14.png', // Dual attack
     hotfix: 'Monk_15.png', // Emergency fix
@@ -1168,14 +1168,14 @@ function getCardArt(cardId) {
     gc: 'Monk_17.png', // Cleanup
     async_await: 'Monk_18.png', // Time manipulation
     stack_overflow: 'Monk_19.png', // Knowledge overflow
-    infinite_vim: 'Monk_20.png', // Infinite power
-    debug_print: 'Monk_21.png', // Information
+    vibe_code: 'Monk_20.png', // Infinite power
+    raw_dog: 'Monk_21.png', // Information
     git_commit: 'Monk_22.png', // Recording
     memory_leak: 'Monk_23.png', // Draining effect
     code_review: 'Monk_24.png', // Investigation
     pair_programming: 'Monk_25.png', // Cooperation
-    rubber_duck: 'Monk_26.png', // Helpful companion
-    unit_test: 'Monk_27.png', // Testing/verification
+    ligma: 'Monk_26.png', // Helpful companion
+    virgin: 'Monk_27.png', // Testing/verification
 
     sugar_crash: 'Monk_28.png' // Negative effect
   };
@@ -1192,11 +1192,11 @@ function getCardArt(cardId) {
 function getCardArtFallback(cardId) {
   const fallbacks = {
     strike: '👊', defend: '🛡️', coffee_rush: '☕', macro: '🔄',
-    refactor: '⚡', type_safety: '🔒', chat_ban: '🚫', segfault: '💥',
-    gc: '🗑️', async_await: '⏳', stack_overflow: '📚', infinite_vim: '♾️',
-    debug_print: '🐛', null_pointer: '❌', recursion: '🔁', git_commit: '📝',
+    segfault: '⚡', skill_issue: '🔒', "404": '🚫', dark_mode: '💥',
+    object_object: '🗑️', just_one_game: '⏳', colon_q: '📚', vibe_code: '♾️',
+    raw_dog: '🐛', task_failed_successfully: '❌', recursion: '🔁', git_commit: '📝',
     memory_leak: '🕳️', code_review: '👀', pair_programming: '👥', hotfix: '🚨',
-    rubber_duck: '🦆', merge_conflict: '⚔️', unit_test: '✅', production_deploy: '🚀',
+    ligma: '🦆', merge_conflict: '⚔️', virgin: '✅', production_deploy: '🚀',
     sugar_crash: '🍰'
   };
   return fallbacks[cardId] || '🃏';
