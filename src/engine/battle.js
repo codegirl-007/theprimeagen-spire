@@ -74,8 +74,14 @@ export function playCard(ctx, handIndex) {
         return;
     }
     
-    card.effect(ctx);
-    card._used = true;
+    try {
+        card.effect(ctx);
+        card._used = true;
+    } catch (error) {
+        console.error('Card effect error:', error, 'Card:', card);
+        ctx.log(`Error playing ${card.name || 'Unknown card'}: ${error.message}`);
+        return;
+    }
 
 
     if (card.type !== "power") {
@@ -105,14 +111,29 @@ export function enemyTurn(ctx) {
         if (e.weak > 0) dmg = Math.floor(dmg * 0.75);
         applyDamage(ctx, ctx.player, dmg, `${e.name} attacks`);
     } else if (e.intent.type === "block") {
-        ENEMIES[e.id].onBlock?.(ctx, e.intent.value);
-        e.block += e.intent.value;
-        ctx.log(`${e.name} defends and gains ${e.intent.value} block.`);
+        try {
+            ENEMIES[e.id].onBlock?.(ctx, e.intent.value);
+            e.block += e.intent.value;
+            ctx.log(`${e.name} defends and gains ${e.intent.value} block.`);
+        } catch (error) {
+            console.error('Enemy block effect error:', error, 'Enemy:', e.id);
+            ctx.log(`${e.name} tries to defend but fumbles!`);
+        }
     } else if (e.intent.type === "debuff") {
-        ENEMIES[e.id].onDebuff?.(ctx, e.intent.value);
-        ctx.log(`${e.name} casts a debuffing spell.`);
+        try {
+            ENEMIES[e.id].onDebuff?.(ctx, e.intent.value);
+            ctx.log(`${e.name} casts a debuffing spell.`);
+        } catch (error) {
+            console.error('Enemy debuff effect error:', error, 'Enemy:', e.id);
+            ctx.log(`${e.name} tries to cast a spell but it fizzles!`);
+        }
     } else if (e.intent.type === "heal") {
-        ENEMIES[e.id].onHeal?.(ctx, e.intent.value);
+        try {
+            ENEMIES[e.id].onHeal?.(ctx, e.intent.value);
+        } catch (error) {
+            console.error('Enemy heal effect error:', error, 'Enemy:', e.id);
+            ctx.log(`${e.name} tries to heal but something goes wrong!`);
+        }
     }
 
 
@@ -123,7 +144,16 @@ export function enemyTurn(ctx) {
     if (ctx.player.hp <= 0) { ctx.onLose(); return; }
 
     e.turn++;
-    e.intent = ENEMIES[e.id].ai(e.turn);
+    try {
+        e.intent = ENEMIES[e.id].ai(e.turn);
+        if (!e.intent || !e.intent.type) {
+            throw new Error('Invalid enemy intent returned');
+        }
+    } catch (error) {
+        console.error('Enemy AI error:', error, 'Enemy:', e.id);
+        ctx.log(`Enemy AI malfunction! ${e.name} does nothing this turn.`);
+        e.intent = { type: "block", value: 0 }; // Safe fallback
+    }
     startPlayerTurn(ctx);
 }
 

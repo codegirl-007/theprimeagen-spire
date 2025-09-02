@@ -331,7 +331,7 @@ export const CARDS = {
             ctx.draw(1);
             ctx.log(`Clean code heals the soul! Heal ${healAmount} HP and draw 1.`);
         }
-    },
+    }
 };
 
 

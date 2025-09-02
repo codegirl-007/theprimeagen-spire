@@ -18,7 +18,7 @@ const root = {
     enemy: null,
 
     log(m) { this.logs.push(m); this.logs = this.logs.slice(-200); },
-    render() { renderBattle(this); },
+    async render() { await renderBattle(this); },
     play(i) { playCard(this, i); },
     showDamageNumber: showDamageNumber,
     end() { endTurn(this); },
@@ -44,7 +44,7 @@ const root = {
             } else if (node.kind === "event") {
                 renderEvent(this);
             } else if (node.kind === "start") {
-                renderMap(this);
+                await renderMap(this);
             }
         }
     },
@@ -66,10 +66,10 @@ const root = {
             await renderWin(this); return;
         }
 
-        renderMap(this);
+        await renderMap(this);
     },
 
-    takeReward(idx) {
+    async takeReward(idx) {
         const card = this._pendingChoices[idx];
         if (card) {
             this.player.deck.push(card.id);
@@ -77,12 +77,12 @@ const root = {
         }
         this._pendingChoices = null;
         this.save();
-        renderMap(this);
+        await renderMap(this);
     },
-    skipReward() { 
+    async skipReward() { 
         this._pendingChoices = null; 
         this.save();
-        renderMap(this); 
+        await renderMap(this); 
     },
 
     async onWin() {
@@ -107,7 +107,7 @@ const root = {
                 this.completedNodes = [];
                 this.log(`🎉 Act ${this.currentAct === "act2" ? "II" : "I"} Complete! Advancing to the next challenge...`);
                 this.save();
-                renderMap(this);
+                await renderMap(this);
             } else {
                 // Final victory
                 this.save(); // Save progress before clearing on victory
@@ -140,11 +140,11 @@ const root = {
         renderRelicSelection(this);
     },
 
-    selectStartingRelic(relicId) {
+    async selectStartingRelic(relicId) {
         attachRelics(this, [relicId]);
         this.log(`Selected starting relic: ${relicId}`);
         this.save();
-        renderMap(this);
+        await renderMap(this);
     },
 
     save() {
@@ -170,16 +170,57 @@ const root = {
             const saveData = localStorage.getItem('birthday-spire-save');
             if (saveData) {
                 const data = JSON.parse(saveData);
-                this.player = data.player;
-                this.nodeId = data.nodeId;
-                this.currentAct = data.currentAct || "act1";
-                this.map = MAPS[this.currentAct];
-                this.relicStates = data.relicStates || [];
-                this.completedNodes = data.completedNodes || [];
-                this.logs = data.logs || [];
-                this._battleInProgress = data.battleInProgress || false;
                 
-
+                // Validate essential save data
+                if (!data || typeof data !== 'object') {
+                    throw new Error('Invalid save data format');
+                }
+                
+                if (!data.player || typeof data.player !== 'object') {
+                    throw new Error('Invalid player data');
+                }
+                
+                if (!data.nodeId || typeof data.nodeId !== 'string') {
+                    throw new Error('Invalid node ID');
+                }
+                
+                // Validate current act and ensure map exists
+                const actId = data.currentAct || "act1";
+                if (!MAPS[actId]) {
+                    console.warn(`Invalid act ${actId}, falling back to act1`);
+                    this.currentAct = "act1";
+                } else {
+                    this.currentAct = actId;
+                }
+                
+                this.map = MAPS[this.currentAct];
+                
+                // Validate that the nodeId exists in the current map
+                const nodeExists = this.map.nodes.some(n => n.id === data.nodeId);
+                if (!nodeExists) {
+                    console.warn(`Node ${data.nodeId} not found in ${this.currentAct}, starting from beginning`);
+                    this.nodeId = this.map.nodes.find(n => n.kind === "start").id;
+                } else {
+                    this.nodeId = data.nodeId;
+                }
+                
+                // Validate player data has required fields
+                if (typeof data.player.hp !== 'number' || data.player.hp < 0) {
+                    throw new Error('Invalid player HP');
+                }
+                if (typeof data.player.maxHp !== 'number' || data.player.maxHp <= 0) {
+                    throw new Error('Invalid player max HP');
+                }
+                if (!Array.isArray(data.player.deck)) {
+                    throw new Error('Invalid player deck');
+                }
+                
+                this.player = data.player;
+                this.relicStates = Array.isArray(data.relicStates) ? data.relicStates : [];
+                this.completedNodes = Array.isArray(data.completedNodes) ? data.completedNodes : [];
+                this.logs = Array.isArray(data.logs) ? data.logs : [];
+                this._battleInProgress = Boolean(data.battleInProgress);
+                
                 this.restoreCardEffects();
                 
                 this.log('Game loaded from save.');
@@ -187,6 +228,8 @@ const root = {
             }
         } catch (e) {
             console.warn('Failed to load game:', e);
+            console.warn('Clearing corrupted save data');
+            this.clearSave();
         }
         return false;
     },
@@ -227,8 +270,8 @@ function pickCards(n) {
 function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[a[i], a[j]] = [a[j], a[i]] } return a; }
 
 const _createBattle = root.go.bind(root);
-root.go = function(nextId) {
-    _createBattle(nextId);
+root.go = async function(nextId) {
+    await _createBattle(nextId);
     const node = this.map.nodes.find(n => n.id === this.nodeId);
     if (node && (node.kind === "battle" || node.kind === "elite" || node.kind === "boss")) {
         const ctx = makeBattleContext(this);
@@ -304,11 +347,11 @@ async function initializeGame() {
                 return;
             default:
                 console.warn(`Unknown screen: ${screenParam}. Loading normal game.`);
-                loadNormalGame();
+                await loadNormalGame();
                 return;
         }
     } else {
-        loadNormalGame();
+        await loadNormalGame();
     }
 }
 
@@ -406,21 +449,21 @@ function showCountdown(birthday) {
     }, 1000);
 }
 
-function loadNormalGame() {
+async function loadNormalGame() {
     const hasLoadedData = root.load();
     if (hasLoadedData) {
         // If we were in a battle, resume it
         if (root._battleInProgress) {
             const node = root.map.nodes.find(n => n.id === root.nodeId);
             if (node && (node.kind === "battle" || node.kind === "elite" || node.kind === "boss")) {
-                root.go(root.nodeId);
+                await root.go(root.nodeId);
             } else {
                 // Battle state inconsistent, go to map
                 root._battleInProgress = false;
-                renderMap(root);
+                await renderMap(root);
             }
         } else {
-            renderMap(root);
+            await renderMap(root);
         }
     } else {
         root.reset();
