@@ -233,6 +233,26 @@ root.go = function(nextId) {
 function initializeGame() {
     const urlParams = new URLSearchParams(window.location.search);
     const screenParam = urlParams.get('screen');
+    const dev = urlParams.get('dev');
+    
+    // Check if it's ThePrimeagen's birthday yet (September 9, 2025)
+    // Skip countdown if ?dev=true is in URL
+    const now = new Date();
+    const birthday = new Date('2025-09-09T00:00:00');
+    
+    console.log('Current date:', now);
+    console.log('Birthday date:', birthday);
+    console.log('Before birthday?', now < birthday);
+    console.log('Dev mode?', dev);
+    
+    if (now < birthday && dev !== 'true') {
+        console.log('Showing countdown!');
+        showCountdown(birthday);
+        return;
+    } else {
+        console.log('Showing game - either past birthday or dev mode');
+    }
+    
     if (screenParam) {
         setupMockData();
         
@@ -300,6 +320,65 @@ function setupMockData() {
         'Mock data initialized',
         'Ready for screen testing!'
     ];
+}
+
+function showCountdown(birthday) {
+    document.body.innerHTML = `
+        <div class="countdown-screen">
+            <div class="countdown-content">
+                <div class="countdown-timer">
+                    <div class="countdown-message">
+                        <p>Your epic birthday surprise launches in:</p>
+                    </div>
+                    
+                    <div class="countdown-display">
+                        <div class="time-unit">
+                            <div class="time-number" id="days">--</div>
+                            <div class="time-label">Days</div>
+                        </div>
+                        <div class="time-separator">:</div>
+                        <div class="time-unit">
+                            <div class="time-number" id="hours">--</div>
+                            <div class="time-label">Hours</div>
+                        </div>
+                        <div class="time-separator">:</div>
+                        <div class="time-unit">
+                            <div class="time-number" id="minutes">--</div>
+                            <div class="time-label">Minutes</div>
+                        </div>
+                        <div class="time-separator">:</div>
+                        <div class="time-unit">
+                            <div class="time-number" id="seconds">--</div>
+                            <div class="time-label">Seconds</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Start the countdown timer
+    const timer = setInterval(() => {
+        const now = new Date();
+        const timeLeft = birthday - now;
+        
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            // Birthday reached! Reload to show the game
+            window.location.reload();
+            return;
+        }
+        
+        const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+        
+        document.getElementById('days').textContent = days.toString().padStart(2, '0');
+        document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+        document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+        document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+    }, 1000);
 }
 
 function loadNormalGame() {

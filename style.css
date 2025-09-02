@@ -5182,3 +5182,144 @@ h3 {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
+
+/* Birthday Countdown Styles */
+.countdown-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.countdown-content {
+    text-align: center;
+    max-width: 900px;
+    padding: 40px;
+}
+
+.countdown-timer {
+    margin-top: 40px;
+}
+
+.countdown-message h2 {
+    color: #ffd700;
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
+.countdown-message p {
+    color: #d0d0d0;
+    font-size: 1.3em;
+    margin-bottom: 40px;
+}
+
+.countdown-display {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin: 40px 0;
+    flex-wrap: wrap;
+}
+
+.time-unit {
+    background: #000;
+    border: 2px solid #fff;
+    border-radius: 15px;
+    padding: 20px;
+    min-width: 100px;
+}
+
+.time-number {
+    font-size: 3em;
+    font-weight: bold;
+    color: #ffd700;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+}
+
+.time-label {
+    font-size: 1.1em;
+    color: #d0d0d0;
+    margin-top: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.time-separator {
+    font-size: 3em;
+    color: #ffd700;
+    align-self: center;
+    animation: blink 2s infinite;
+}
+
+.birthday-preview {
+    margin-top: 50px;
+    padding: 30px;
+    background: rgba(58, 47, 31, 0.6);
+    border-radius: 15px;
+    border: 1px solid #5a4a2a;
+}
+
+.birthday-preview p {
+    color: #d0d0d0;
+    font-size: 1.2em;
+    margin-bottom: 20px;
+}
+
+.preview-icons {
+    font-size: 2em;
+    letter-spacing: 15px;
+    animation: float 3s ease-in-out infinite;
+    margin-bottom: 20px;
+}
+
+.dev-hint {
+    color: #888;
+    font-size: 0.9em;
+}
+
+.dev-hint code {
+    background: rgba(0,0,0,0.3);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.3; }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+@media (max-width: 768px) {
+    .countdown-display {
+        gap: 10px;
+    }
+    
+    .time-unit {
+        min-width: 80px;
+        padding: 15px;
+    }
+    
+    .time-number {
+        font-size: 2em;
+    }
+    
+    .countdown-message h2 {
+        font-size: 1.8em;
+    }
+    
+    .preview-icons {
+        letter-spacing: 10px;
+    }
+}
