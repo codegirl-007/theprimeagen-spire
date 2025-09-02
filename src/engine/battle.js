@@ -125,13 +125,6 @@ export function enemyTurn(ctx) {
 }
 
 function applyDamage(ctx, target, raw, label) {
-
-    if (target === ctx.enemy && ctx.enemy.id === "bug_404" && ctx.enemy.turn % 3 === 0) {
-        ctx.log(`${ctx.enemy.name} phases out and dodges your attack completely!`);
-        return;
-    }
-    
-
     let dmg = raw;
     for (const r of ctx.relicStates) {
         if (r.hooks?.onDamageTaken && target === ctx.player) dmg = r.hooks.onDamageTaken(ctx, dmg);
