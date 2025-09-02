@@ -193,6 +193,11 @@ const root = {
 
     clearSave() {
         localStorage.removeItem('birthday-spire-save');
+    },
+    
+    // Clear any old saves with outdated card IDs
+    clearOldSaves() {
+        localStorage.removeItem('birthday-spire-save');
     }
 };
 
@@ -298,6 +303,9 @@ function setupMockData() {
 }
 
 function loadNormalGame() {
+    // Clear old saves to prevent card ID conflicts after refactoring
+    root.clearOldSaves();
+    
     const hasLoadedData = root.load();
     if (hasLoadedData) {
         renderMap(root);

@@ -1158,16 +1158,16 @@ function getCardArt(cardId) {
     skill_issue: 'Monk_9.png', // Protection
     "404": 'Monk_10.png', // Ban/restriction
 
-    segfault: 'Monk_11.png', // Powerful attack
+    dark_mode: 'Monk_11.png', // Powerful attack
     task_failed_successfully: 'Monk_12.png', // Precise strike
     recursion: 'Monk_13.png', // Repetition
     merge_conflict: 'Monk_14.png', // Dual attack
     hotfix: 'Monk_15.png', // Emergency fix
     production_deploy: 'Monk_16.png', // High risk/reward
 
-    gc: 'Monk_17.png', // Cleanup
-    async_await: 'Monk_18.png', // Time manipulation
-    stack_overflow: 'Monk_19.png', // Knowledge overflow
+    object_object: 'Monk_17.png', // Cleanup
+    just_one_game: 'Monk_18.png', // Time manipulation
+    colon_q: 'Monk_19.png', // Knowledge overflow
     vibe_code: 'Monk_20.png', // Infinite power
     raw_dog: 'Monk_21.png', // Information
     git_commit: 'Monk_22.png', // Recording
