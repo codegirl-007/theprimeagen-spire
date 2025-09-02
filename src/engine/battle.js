@@ -111,6 +111,8 @@ export function enemyTurn(ctx) {
     } else if (e.intent.type === "debuff") {
         ENEMIES[e.id].onDebuff?.(ctx, e.intent.value);
         ctx.log(`${e.name} casts a debuffing spell.`);
+    } else if (e.intent.type === "heal") {
+        ENEMIES[e.id].onHeal?.(ctx, e.intent.value);
     }
 
 

@@ -47,6 +47,8 @@ export async function renderBattle(root) {
 
 
   const { ENEMIES } = await import("../data/enemies.js");
+  const { CARDS } = await import("../data/cards.js");
+  const { RELICS } = await import("../data/relics.js");
   const enemyData = ENEMIES[e.id];
   const backgroundImage = enemyData?.background || null;
 
@@ -54,7 +56,8 @@ export async function renderBattle(root) {
   const intentInfo = {
     attack: { emoji: '', text: `Will attack for ${e.intent.value} damage`, color: 'danger' },
     block: { emoji: '', text: `Will gain ${e.intent.value} block`, color: 'info' },
-    debuff: { emoji: '', text: 'Will apply a debuff', color: 'warning' }
+    debuff: { emoji: '', text: 'Will apply a debuff', color: 'warning' },
+    heal: { emoji: '', text: `Will heal for ${e.intent.value} HP`, color: 'success' }
   }[e.intent.type] || { emoji: '', text: 'Unknown intent', color: 'neutral' };
 
   app.innerHTML = `
@@ -198,7 +201,7 @@ export async function renderBattle(root) {
                       </div>
                       
                       <div class="card-artwork">
-                        <div class="card-art-icon">${getCardArt(card.id)}</div>
+                        <div class="card-art-icon">${getCardArt(card.id, CARDS)}</div>
                         <div class="card-type-badge ${cardType}">${card.type}</div>
                       </div>
                       
@@ -317,6 +320,7 @@ export async function renderBattle(root) {
 export async function renderMap(root) {
   const { CARDS } = await import("../data/cards.js");
   const { ENEMIES } = await import("../data/enemies.js");
+  const { RELICS } = await import("../data/relics.js");
   const m = root.map;
   const currentId = root.nodeId;
 
@@ -439,8 +443,8 @@ export async function renderMap(root) {
           <img src="assets/card-art/runestone.png" alt="Relics" class="status-icon-img">
           <div class="relics-inline">
             ${root.relicStates.map(r => `
-              <div class="relic-inline" title="${getRelicText(r.id)}">
-                ${getRelicEmoji(r.id)}
+              <div class="relic-inline" title="${getRelicText(r.id, RELICS)}">
+                ${getRelicArt(r.id, RELICS)}
               </div>
             `).join('')}
           </div>
@@ -481,6 +485,20 @@ May this birthday bring joy in each moment you’ve got.  </em></p>
               </div>
             </div>
           </div>
+          <div class = "map-act-container">
+          <div class="act-progress-indicator">
+            <div class="act-progress-bar">
+              <div class="act-step ${root.currentAct === 'act1' ? 'current' : 'completed'}">
+                <div class="act-number">Act I</div>
+                <div class="act-name">Junior Dev</div>
+              </div>
+              <div class="act-connector ${root.currentAct === 'act2' ? 'active' : ''}"></div>
+              <div class="act-step ${root.currentAct === 'act2' ? 'current' : root.currentAct === 'act1' ? 'locked' : 'completed'}">
+                <div class="act-number">Act II</div>
+                <div class="act-name">Corporate Ladder</div>
+              </div>
+            </div>
+          </div>
           
           <div class="spire-map">
 
@@ -496,37 +514,37 @@ May this birthday bring joy in each moment you’ve got.  </em></p>
           <svg class="spire-paths" viewBox="0 0 1000 800" preserveAspectRatio="xMidYMid meet">
 
             ${(() => {
-              // Use positions directly from the map data
-              const getNodePos = (nodeId) => {
-                const node = m.nodes.find(n => n.id === nodeId);
-                return node ? { x: node.x, y: node.y } : null;
-              };
-              
-              return m.nodes.map(node => {
-                if (!node.next || node.next.length === 0) return '';
+      // Use positions directly from the map data
+      const getNodePos = (nodeId) => {
+        const node = m.nodes.find(n => n.id === nodeId);
+        return node ? { x: node.x, y: node.y } : null;
+      };
 
-                return node.next.map(nextId => {
-                  const fromPos = { x: node.x, y: node.y };
-                  const toPos = getNodePos(nextId);
-                  if (!fromPos || !toPos) return '';
+      return m.nodes.map(node => {
+        if (!node.next || node.next.length === 0) return '';
 
-                  const isActivePath = (node.id === currentId && nextIds.includes(nextId)) ||
-                    (parseInt(nextId.replace('n', '')) <= parseInt(currentId.replace('n', '')));
+        return node.next.map(nextId => {
+          const fromPos = { x: node.x, y: node.y };
+          const toPos = getNodePos(nextId);
+          if (!fromPos || !toPos) return '';
 
-                  return `<line x1="${fromPos.x}" y1="${fromPos.y}" x2="${toPos.x}" y2="${toPos.y}" 
+          const isActivePath = (node.id === currentId && nextIds.includes(nextId)) ||
+            (parseInt(nextId.replace('n', '')) <= parseInt(currentId.replace('n', '')));
+
+          return `<line x1="${fromPos.x}" y1="${fromPos.y}" x2="${toPos.x}" y2="${toPos.y}" 
                                        class="spire-path ${isActivePath ? 'active' : ''}" 
                                        stroke="${isActivePath ? '#8B7355' : '#4A3A2A'}" 
                                        stroke-width="2" 
                                        stroke-dasharray="8,4"
                                        opacity="${isActivePath ? '1' : '0.6'}"/>`;
-                }).join('');
-              }).join('');
-            })()}
+        }).join('');
+      }).join('');
+    })()}
           </svg>
           
           <div class="spire-nodes">
             ${(() => {
-              // Use positions directly from map data
+      // Use positions directly from map data
 
       return m.nodes.map(n => {
         const isNext = nextIds.includes(n.id);
@@ -561,6 +579,7 @@ May this birthday bring joy in each moment you’ve got.  </em></p>
           </div>
         </div>
       </div>
+      </div>
 
       <div class="deck-stack-container">
         <div class="deck-stack-header">
@@ -585,7 +604,7 @@ May this birthday bring joy in each moment you’ve got.  </em></p>
                       <div class="card-title">${card.name}</div>
                       <div class="card-cost-orb">${card.cost}</div>
                     </div>
-                    <div class="card-art">${getCardArt(cardId)}</div>
+                    <div class="card-art">${getCardArt(cardId, CARDS)}</div>
                   <div class="card-description-box">
                     <div class="card-text">${card.text}</div>
                   </div>
@@ -662,7 +681,8 @@ May this birthday bring joy in each moment you’ve got.  </em></p>
   });
 }
 
-export function renderReward(root, choices) {
+export async function renderReward(root, choices) {
+  const { CARDS } = await import("../data/cards.js");
   root.app.innerHTML = `
     <div class="reward-screen">
       <h1>Choose a Card</h1>
@@ -680,7 +700,7 @@ export function renderReward(root, choices) {
     </div>
                   
                   <div class="card-artwork">
-                    <div class="card-art-icon">${getCardArt(c.id)}</div>
+                    <div class="card-art-icon">${getCardArt(c.id, CARDS)}</div>
                     <div class="card-type-badge ${cardType}">${c.type}</div>
                   </div>
                   
@@ -709,7 +729,8 @@ export function renderReward(root, choices) {
   root.app.querySelector("[data-skip]").addEventListener("click", () => root.skipReward());
 }
 
-export function renderRest(root) {
+export async function renderRest(root) {
+  const { CARDS } = await import("../data/cards.js");
   root.app.innerHTML = `
     <div class="rest-screen">
       <div class="rest-header">
@@ -804,7 +825,7 @@ export function renderUpgrade(root) {
                             </div>
                             
                             <div class="card-artwork">
-                              <div class="card-art-icon">${getCardArt(card.id)}</div>
+                              <div class="card-art-icon">${getCardArt(card.id, CARDS)}</div>
                               <div class="card-type-badge ${card.type}">${card.type}</div>
                             </div>
                             
@@ -826,7 +847,7 @@ export function renderUpgrade(root) {
                             </div>
                             
                             <div class="card-artwork">
-                              <div class="card-art-icon">${getCardArt(upgradedCard.id)}</div>
+                              <div class="card-art-icon">${getCardArt(upgradedCard.id, CARDS)}</div>
                               <div class="card-type-badge ${upgradedCard.type}">${upgradedCard.type}</div>
                             </div>
                             
@@ -913,7 +934,7 @@ export function renderShop(root) {
                               </div>
                               
                               <div class="card-artwork">
-                                <div class="card-art-icon">${getCardArt(card.id)}</div>
+                                <div class="card-art-icon">${getCardArt(card.id, CARDS)}</div>
                                 <div class="card-type-badge ${cardType}">${card.type}</div>
                               </div>
                               
@@ -943,7 +964,7 @@ export function renderShop(root) {
                   <div class="shop-relics">
                     <div class="shop-relic-container">
                       <div class="shop-relic ${(root.player.gold || 100) >= 100 ? 'affordable' : 'unaffordable'}" data-buy-relic>
-                        <div class="relic-icon">${getRelicEmoji(shopRelic.id)}</div>
+                        <div class="relic-icon">${getRelicArt(shopRelic.id, RELICS)}</div>
                         <div class="relic-info">
                           <h3>${shopRelic.name}</h3>
                           <p>${shopRelic.text}</p>
@@ -952,7 +973,6 @@ export function renderShop(root) {
                           <img src="assets/card-art/bag_of_gold.png" alt="Gold" class="price-icon">
                           <span>100</span>
                         </div>
-                        ${(root.player.gold || 100) < 100 ? `<div class="relic-disabled-overlay"><span>Need 100 gold</span></div>` : ''}
                       </div>
                     </div>
                   </div>
@@ -1105,122 +1125,36 @@ function shuffle(array) {
   return array;
 }
 
-function getRelicEmoji(relicId) {
-  const relicArt = {
-    mech_kb: '<img src="assets/skill-art/Monk_29.png" alt="Kinesis" class="relic-skill-art">',
-    standing_desk: '<img src="assets/skill-art/Monk_30.png" alt="Motions" class="relic-skill-art">',
-    prime_hat: '<img src="assets/skill-art/Monk_31.png" alt="VS Code" class="relic-skill-art">',
-    coffee_thermos: '<img src="assets/skill-art/Monk_32.png" alt="Coffee Thermos" class="relic-skill-art">',
-    cpp_compiler: '<img src="assets/skill-art/Monk_33.png" alt="CPP Compiler" class="relic-skill-art">',
-    chat_mod_sword: '<img src="assets/skill-art/Monk_34.png" alt="Chat Mod Sword" class="relic-skill-art">'
-  };
-  return relicArt[relicId] || '💎';
-}
-
-function getRelicName(relicId) {
-  const names = {
-    mech_kb: 'Kinesis',
-    standing_desk: 'Motions',
-    prime_hat: 'VS Code',
-    coffee_thermos: 'Coffee Thermos',
-    cpp_compiler: 'C++ Compiler',
-    chat_mod_sword: 'Chat Mod Sword'
-  };
-  return names[relicId] || relicId;
-}
-
-function getRelicText(relicId) {
-  const texts = {
-    mech_kb: '+1 card draw each turn.',
-    standing_desk: '+10 Max HP.',
-    prime_hat: '-10% damage taken.',
-    coffee_thermos: 'Start each fight with Coffee Rush.',
-    cpp_compiler: 'First attack each turn deals double.',
-    chat_mod_sword: 'Start fights with 1 Weak on all enemies.'
-  };
-  return texts[relicId] || 'Unknown relic';
-}
-
-function getCardArt(cardId) {
-
-  const artMappings = {
-
-    strike: 'Monk_1.png',
-    'strike+': 'Monk_2.png',
-
-    defend: 'Monk_3.png',
-    'defend+': 'Monk_4.png',
-
-    coffee_rush: 'Monk_5.png', // Energy boost
-    'coffee_rush+': 'Monk_6.png', // Upgraded energy
-    macro: 'Monk_7.png', // Replay magic
-    segfault: 'Monk_8.png', // Refactoring tool
-    skill_issue: 'Monk_9.png', // Protection
-    "404": 'Monk_10.png', // Ban/restriction
-
-    dark_mode: 'Monk_11.png', // Powerful attack
-    task_failed_successfully: 'Monk_12.png', // Precise strike
-    recursion: 'Monk_13.png', // Repetition
-    merge_conflict: 'Monk_14.png', // Dual attack
-    hotfix: 'Monk_15.png', // Emergency fix
-    production_deploy: 'Monk_16.png', // High risk/reward
-
-    object_object: 'Monk_17.png', // Cleanup
-    just_one_game: 'Monk_18.png', // Time manipulation
-    colon_q: 'Monk_19.png', // Knowledge overflow
-    vibe_code: 'Monk_20.png', // Infinite power
-    raw_dog: 'Monk_21.png', // Information
-    git_commit: 'Monk_22.png', // Recording
-    memory_leak: 'Monk_23.png', // Draining effect
-    code_review: 'Monk_24.png', // Investigation
-    pair_programming: 'Monk_25.png', // Cooperation
-    ligma: 'Monk_26.png', // Helpful companion
-    virgin: 'Monk_27.png', // Testing/verification
-
-    sugar_crash: 'Monk_28.png' // Negative effect
-  };
-
-  const imagePath = artMappings[cardId];
-  if (imagePath) {
-    return `<img src="assets/skill-art/${imagePath}" alt="${cardId}" class="card-art-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
-                <span class="card-art-fallback" style="display: none;">${getCardArtFallback(cardId)}</span>`;
+function getRelicArt(relicId, RELICS = null) {
+  if (RELICS && RELICS[relicId]?.art) {
+    const imagePath = RELICS[relicId].art;
+    return `<img src="assets/skill-art/${imagePath}" alt="${relicId}" class="relic-skill-art">`;
   }
-
-  return getCardArtFallback(cardId);
+  return '💎';
 }
 
-function getCardArtFallback(cardId) {
-  const fallbacks = {
-    strike: '👊', defend: '🛡️', coffee_rush: '☕', macro: '🔄',
-    segfault: '⚡', skill_issue: '🔒', "404": '🚫', dark_mode: '💥',
-    object_object: '🗑️', just_one_game: '⏳', colon_q: '📚', vibe_code: '♾️',
-    raw_dog: '🐛', task_failed_successfully: '❌', recursion: '🔁', git_commit: '📝',
-    memory_leak: '🕳️', code_review: '👀', pair_programming: '👥', hotfix: '🚨',
-    ligma: '🦆', merge_conflict: '⚔️', virgin: '✅', production_deploy: '🚀',
-    sugar_crash: '🍰'
-  };
-  return fallbacks[cardId] || '🃏';
+function getRelicName(relicId, RELICS = null) {
+  return RELICS?.[relicId]?.name || relicId;
+}
+
+function getRelicText(relicId, RELICS = null) {
+  return RELICS?.[relicId]?.text || 'Unknown relic';
+}
+
+function getCardArt(cardId, CARDS = null) {
+  if (CARDS && CARDS[cardId]?.art) {
+    const imagePath = CARDS[cardId].art;
+    return `<img src="assets/skill-art/${imagePath}" alt="${cardId}" class="card-art-image">`;
+  }
+  
+  // Fallback for cases where CARDS is not passed (shouldn't happen in normal operation)
+  return `<span>🃏</span>`;
 }
 
 function getEnemyArt(enemyId, ENEMIES = null) {
-
   const enemyData = ENEMIES?.[enemyId];
   const avatarPath = enemyData?.avatar || `assets/avatars/${enemyId}.png`;
-  return `<img src="${avatarPath}" alt="${enemyId}" class="enemy-avatar-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
-            <span class="enemy-fallback-emoji" style="display: none;">${getEnemyFallbackEmoji(enemyId)}</span>`;
-}
-
-function getEnemyFallbackEmoji(enemyId) {
-      const arts = {
-        old_man_judo: '👹',
-        beastco: '🌀',
-        codegirl: '⚔️',
-        defyusall: '🚫',
-        lithium: '⚡',
-        nightshadedude: '😈',
-        teej: '🎂👾'
-    };
-  return arts[enemyId] || '👾';
+  return `<img src="${avatarPath}" alt="${enemyId}" class="enemy-avatar-img">`;
 }
 
 function getEnemyType(enemyId) {
@@ -1285,7 +1219,7 @@ export function renderRelicSelection(root) {
       return `
                 <div class="relic-option" data-relic="${relicId}">
                   <div class="relic-portrait">
-                    <div class="relic-icon">${getRelicEmoji(relicId)}</div>
+                    <div class="relic-icon">${getRelicArt(relicId, RELICS)}</div>
                   </div>
                   <div class="relic-info">
                     <div class="relic-name">${relic.name}</div>
@@ -1491,7 +1425,8 @@ export function renderEvent(root) {
   });
 }
 
-export function renderWin(root) {
+export async function renderWin(root) {
+  const { RELICS } = await import("../data/relics.js");
   const finalStats = {
     totalTurns: root.turnCount || 0,
     cardsPlayed: root.cardsPlayedCount || 0,
@@ -1560,9 +1495,9 @@ export function renderWin(root) {
           <div class="relics-showcase">
             ${root.relicStates.length > 0 ?
       root.relicStates.map(r => `
-                <div class="relic-showcase-item" title="${getRelicText(r.id)}">
-                  <div class="relic-showcase-icon">${getRelicEmoji(r.id)}</div>
-                  <div class="relic-showcase-name">${getRelicName(r.id)}</div>
+                <div class="relic-showcase-item" title="${getRelicText(r.id, RELICS)}">
+                  <div class="relic-showcase-icon">${getRelicArt(r.id, RELICS)}</div>
+                  <div class="relic-showcase-name">${getRelicName(r.id, RELICS)}</div>
                 </div>
               `).join('') :
       '<div class="no-relics">No relics collected this run</div>'
@@ -1590,7 +1525,8 @@ export function renderWin(root) {
   root.app.querySelector("[data-replay]").addEventListener("click", () => root.reset());
 }
 
-export function renderLose(root) {
+export async function renderLose(root) {
+  const { RELICS } = await import("../data/relics.js");
   const finalStats = {
     totalTurns: root.turnCount || 0,
     cardsPlayed: root.cardsPlayedCount || 0,
@@ -1659,7 +1595,7 @@ Better luck on the next run!</p>
           <div class="relics-showcase">
             ${root.relicStates.map(relic => `
               <div class="relic-showcase-item">
-                <div class="relic-showcase-icon">${getRelicEmoji(relic.id)}</div>
+                <div class="relic-showcase-icon">${getRelicArt(relic.id, RELICS)}</div>
                 <div class="relic-showcase-name">${relic.id.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</div>
               </div>
             `).join('')}

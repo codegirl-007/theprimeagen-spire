@@ -11,6 +11,7 @@ const app = document.getElementById("app");
 
 const root = {
     app, logs: [], map: MAPS.act1, nodeId: "n1",
+    currentAct: "act1",
     player: makePlayer(),
     relicStates: [],
     completedNodes: [],
@@ -23,7 +24,7 @@ const root = {
     end() { endTurn(this); },
 
 
-    go(nextId) {
+    async go(nextId) {
         this.nodeId = nextId; // Always set nodeId (needed for battle logic)
         const node = this.map.nodes.find(n => n.id === nextId);
         if (!node) return;
@@ -32,12 +33,12 @@ const root = {
 
             this._battleInProgress = true;
             createBattle(this, node.enemy);
-            renderBattle(this);
+            await renderBattle(this);
         } else {
 
             this.save();
             if (node.kind === "rest") {
-                renderRest(this);
+                await renderRest(this);
             } else if (node.kind === "shop") {
                 renderShop(this);
             } else if (node.kind === "event") {
@@ -48,7 +49,7 @@ const root = {
         }
     },
 
-    afterNode() {
+    async afterNode() {
         if (this.nodeId && !this.completedNodes.includes(this.nodeId)) {
             this.completedNodes.push(this.nodeId);
         }
@@ -58,11 +59,11 @@ const root = {
         if (node.kind === "battle" || node.kind === "elite") {
             const choices = pickCards(3);
             this._pendingChoices = choices;
-            renderReward(this, choices);
+            await renderReward(this, choices);
             return;
         }
         if (node.kind === "boss") {
-            renderWin(this); return;
+            await renderWin(this); return;
         }
 
         renderMap(this);
@@ -84,7 +85,7 @@ const root = {
         renderMap(this); 
     },
 
-    onWin() {
+    async onWin() {
         this.log("Enemy defeated! 🎉");
 
         const goldReward = Math.floor(Math.random() * 20) + 15; // 15-35 gold
@@ -96,9 +97,23 @@ const root = {
         
         const node = this.map.nodes.find(n => n.id === this.nodeId);
         if (node.kind === "boss") { 
-            this.save(); // Save progress before clearing on victory
-            this.clearSave(); // Clear save on victory
-            renderWin(this); 
+            // Check if there's a next act
+            const nextAct = this.currentAct === "act1" ? "act2" : null;
+            if (nextAct && MAPS[nextAct]) {
+                // Advance to next act
+                this.currentAct = nextAct;
+                this.map = MAPS[nextAct];
+                this.nodeId = this.map.nodes.find(n => n.kind === "start").id;
+                this.completedNodes = [];
+                this.log(`🎉 Act ${this.currentAct === "act2" ? "II" : "I"} Complete! Advancing to the next challenge...`);
+                this.save();
+                renderMap(this);
+            } else {
+                // Final victory
+                this.save(); // Save progress before clearing on victory
+                this.clearSave(); // Clear save on victory
+                await renderWin(this); 
+            }
         }
         else {
 
@@ -106,17 +121,19 @@ const root = {
             this.afterNode();
         }
     },
-    onLose() { 
+    async onLose() { 
 
         this._battleInProgress = false;
         this.clearSave(); // Clear save on defeat
-        renderLose(this); 
+        await renderLose(this); 
     },
 
     reset() {
         this.logs = [];
         this.player = makePlayer();
         initDeck(this.player);
+        this.currentAct = "act1";
+        this.map = MAPS.act1;
         this.nodeId = "n1";
         this.completedNodes = [];
 
@@ -135,6 +152,7 @@ const root = {
             const saveData = {
                 player: this.player,
                 nodeId: this.nodeId,
+                currentAct: this.currentAct,
                 relicStates: this.relicStates,
                 completedNodes: this.completedNodes,
                 logs: this.logs.slice(-50), // Keep last 50 logs
@@ -154,6 +172,8 @@ const root = {
                 const data = JSON.parse(saveData);
                 this.player = data.player;
                 this.nodeId = data.nodeId;
+                this.currentAct = data.currentAct || "act1";
+                this.map = MAPS[this.currentAct];
                 this.relicStates = data.relicStates || [];
                 this.completedNodes = data.completedNodes || [];
                 this.logs = data.logs || [];
@@ -228,7 +248,7 @@ root.go = function(nextId) {
 };
 
 
-function initializeGame() {
+async function initializeGame() {
     const urlParams = new URLSearchParams(window.location.search);
     const screenParam = urlParams.get('screen');
     const dev = urlParams.get('dev');
@@ -238,17 +258,10 @@ function initializeGame() {
     const now = new Date();
     const birthday = new Date('2025-09-09T00:00:00');
     
-    console.log('Current date:', now);
-    console.log('Birthday date:', birthday);
-    console.log('Before birthday?', now < birthday);
-    console.log('Dev mode?', dev);
     
     if (now < birthday && dev !== 'true') {
-        console.log('Showing countdown!');
         showCountdown(birthday);
         return;
-    } else {
-        console.log('Showing game - either past birthday or dev mode');
     }
     
     if (screenParam) {
@@ -257,20 +270,20 @@ function initializeGame() {
         switch (screenParam.toLowerCase()) {
             case 'victory':
             case 'win':
-                renderWin(root);
+                await renderWin(root);
                 return;
             case 'defeat':
             case 'lose':
-                renderLose(root);
+                await renderLose(root);
                 return;
             case 'map':
-                renderMap(root);
+                await renderMap(root);
                 return;
             case 'shop':
                 renderShop(root);
                 return;
             case 'rest':
-                renderRest(root);
+                await renderRest(root);
                 return;
             case 'event':
                 renderEvent(root);
@@ -279,7 +292,7 @@ function initializeGame() {
                 root.go('n2'); // Battle node
                 return;
             case 'upgrade':
-                renderRest(root);
+                await renderRest(root);
                 setTimeout(() => {
                     const upgradeBtn = root.app.querySelector("[data-act='upgrade']");
                     if (upgradeBtn) upgradeBtn.click();
@@ -311,13 +324,27 @@ function setupMockData() {
     
     attachRelics(root, ['coffee_thermos', 'cpp_compiler']);
     
-    root.completedNodes = ['n1', 'n2', 'n4'];
-    root.nodeId = 'n7';
-    root.logs = [
-        'Game loaded for testing',
-        'Mock data initialized',
-        'Ready for screen testing!'
-    ];
+    // Test Act 2 if ?act2=true is in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('act2') === 'true') {
+        root.currentAct = 'act2';
+        root.map = MAPS.act2;
+        root.completedNodes = ['a2n1', 'a2n2'];
+        root.nodeId = 'a2n5';
+        root.logs = [
+            'Game loaded for testing',
+            'Mock data initialized',
+            'Testing Act 2: The Corporate Ladder!'
+        ];
+    } else {
+        root.completedNodes = ['n1', 'n2', 'n4'];
+        root.nodeId = 'n7';
+        root.logs = [
+            'Game loaded for testing',
+            'Mock data initialized',
+            'Ready for screen testing!'
+        ];
+    }
 }
 
 function showCountdown(birthday) {
