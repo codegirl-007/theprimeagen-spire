@@ -118,11 +118,6 @@ export async function renderBattle(root) {
     app.innerHTML = `
     <div class="battle-scene">
 
-      <div class="battle-background">
-        <div class="bg-particles"></div>
-        <div class="bg-glow"></div>
-      </div>
-
       <div class="battle-arena" ${backgroundImage ? `style="background-image: url('${backgroundImage}'); background-size: cover; background-position: center; background-repeat: no-repeat;"` : ''}>
       
       <div class="enemy-battle-zone">
