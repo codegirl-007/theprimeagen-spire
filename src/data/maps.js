@@ -23,18 +23,19 @@ export const MAPS = {
         id: "act2", name: "Birthday Spire — Act II: The Corporate Ladder",
         nodes: [
             { id: "a2n1", kind: "start", next: ["a2n2", "a2n3"], x: 500, y: 760 },
-            { id: "a2n2", kind: "battle", enemy: "teej", next: ["a2n5"], x: 300, y: 695 },
+            { id: "a2n2", kind: "battle", enemy: "teej", next: ["a2n5"], x: 350, y: 695 },
             { id: "a2n3", kind: "event", next: ["a2n5"], x: 650, y: 695 },
             { id: "a2n5", kind: "battle", enemy: "begin", next: ["a2n4", "a2n7"], x: 500, y: 600 },
             { id: "a2n4", kind: "shop", next: ["a2n6"], x: 350, y: 525 },
             { id: "a2n7", kind: "rest", next: ["a2n6"], x: 650, y: 525 },
             { id: "a2n6", kind: "battle", enemy: "adam", next: ["a2n8"], x: 500, y: 460 },
-            { id: "a2n8", kind: "battle", enemy: "david", next: ["a2n9", "a2n10"], x: 500, y: 360 },
-            { id: "a2n9", kind: "rest", next: ["a2n11"], x: 350, y: 320 },
-            { id: "a2n10", kind: "shop", next: ["a2n11"], x: 650, y: 320 },
-            { id: "a2n11", kind: "elite", enemy: "dax", next: ["a2n12"], x: 500, y: 250 },
-            { id: "a2n12", kind: "rest", next: ["a2n13"], x: 500, y: 140 },
-            { id: "a2n13", kind: "boss", enemy: "taylor", next: [], x: 500, y: 40 },
+            { id: "a2n8", kind: "battle", enemy: "david", next: ["a2n9", "a2n10"], x: 500, y: 375 },
+            { id: "a2n9", kind: "rest", next: ["a2n11"], x: 350, y: 330 },
+            { id: "a2n10", kind: "shop", next: ["a2n11"], x: 650, y: 330 },
+            { id: "a2n11", kind: "elite", enemy: "dax", next: ["a2n12"], x: 500, y: 280 },
+            { id: "a2n12", kind: "rest", next: ["a2n13"], x: 500, y: 195 },
+            { id: "a2n13", kind: "elite", enemy: "taylor", next: ["a2n14"], x: 500, y: 115 },
+            { id: "a2n14", kind: "boss", enemy: "dhh", next: [], x: 500, y: 40 }
         ]
     }
 };
