@@ -2469,27 +2469,9 @@ h3 {
     background-attachment: fixed;
     display: flex;
     flex-direction: column;
-    padding: 60px 40px 40px 40px;
     font-family: 'Arial', sans-serif;
     position: relative;
     overflow: hidden;
-}
-
-.game-screen.relic-select::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 1;
-}
-
-
-
-.game-screen.relic-select > * {
-    position: relative;
-    z-index: 2;
 }
 
 .game-header {
@@ -2759,7 +2741,6 @@ h3 {
 
 .welcome-panel {
     width: 500px;
-    margin-right: 20px;
     display: flex;
     flex-direction: column;
     gap: 25px;
@@ -5418,8 +5399,8 @@ h3 {
 /* Messages Button */
 .messages-button {
     position: absolute;
-    top: 20px;
-    right: 20px;
+    top: 10px;
+    right: 10px;
     background: linear-gradient(135deg, #8B4513 0%, #D2691E 50%, #CD853F 100%);
     border: 2px solid var(--accent);
     border-radius: 12px;
