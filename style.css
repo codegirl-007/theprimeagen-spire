@@ -2771,7 +2771,7 @@ h3 {
         linear-gradient(135deg, #2a2a3a 0%, #1a1a2a 100%);
     border: 3px solid #d4af37;
     border-radius: 16px;
-    padding: 25px;
+    padding: 25px 13px;
     text-align: center;
     box-shadow: 
         0 8px 24px rgba(0, 0, 0, 0.4),
@@ -5408,5 +5408,275 @@ h3 {
     
     .preview-icons {
         letter-spacing: 10px;
+    }
+}
+
+/* =================================
+   MESSAGES BUTTON & MODAL STYLES
+   ================================= */
+
+/* Messages Button */
+.messages-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #8B4513 0%, #D2691E 50%, #CD853F 100%);
+    border: 2px solid var(--accent);
+    border-radius: 12px;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    font-family: inherit;
+    z-index: 10;
+}
+
+.messages-button:hover {
+    background: linear-gradient(135deg, #A0522D 0%, #F4A460 50%, #DEB887 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+.messages-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Message Count Badge */
+.message-count-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    min-width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    animation: badgePulse 2s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+.messages-button:hover .message-count-badge {
+    animation: none;
+    transform: scale(1.05);
+}
+
+/* Messages Modal */
+.messages-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.messages-modal {
+    background: var(--panel);
+    border: 3px solid var(--accent);
+    border-radius: 16px;
+    max-width: 700px;
+    width: 90%;
+    max-height: 80vh;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.messages-modal-header {
+    background: linear-gradient(135deg, var(--accent) 0%, #B8860B 100%);
+    color: var(--bg);
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 12px 12px 0 0;
+}
+
+.messages-modal-header h2 {
+    margin: 0;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.messages-close-btn {
+    background: none;
+    border: none;
+    color: var(--bg);
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+}
+
+.messages-close-btn:hover {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.messages-modal-content {
+    padding: 20px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+/* Individual Message Items */
+.message-item {
+    background: var(--bg2);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+}
+
+.message-item:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.message-item:last-child {
+    margin-bottom: 0;
+}
+
+.message-from {
+    color: var(--accent);
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+}
+
+.message-text {
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 1.05em;
+    white-space: pre-wrap; /* Preserve line breaks */
+}
+
+/* No Messages Placeholder */
+.no-messages-placeholder {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text);
+}
+
+.no-messages-placeholder p {
+    font-size: 1.1em;
+    margin-bottom: 15px;
+    opacity: 0.8;
+}
+
+.no-messages-placeholder code {
+    background: var(--bg);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+}
+
+/* Scrollbar Styling for Modal Content */
+.messages-modal-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.messages-modal-content::-webkit-scrollbar-track {
+    background: var(--bg);
+    border-radius: 4px;
+}
+
+.messages-modal-content::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+}
+
+.messages-modal-content::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
+}
+
+/* Responsive Design for Messages Modal */
+@media (max-width: 768px) {
+    .messages-button {
+        top: 10px;
+        right: 10px;
+        padding: 10px 16px;
+        font-size: 14px;
+    }
+    
+    .message-count-badge {
+        top: -6px;
+        right: -6px;
+        min-width: 18px;
+        height: 18px;
+        font-size: 11px;
+    }
+    
+    .messages-modal {
+        width: 95%;
+        margin: 20px;
+        max-height: 85vh;
+    }
+    
+    .messages-modal-header {
+        padding: 15px;
+    }
+    
+    .messages-modal-header h2 {
+        font-size: 1.3em;
+    }
+    
+    .messages-modal-content {
+        padding: 15px;
+        max-height: 65vh;
+    }
+    
+    .message-item {
+        padding: 15px;
     }
 }

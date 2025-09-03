@@ -523,7 +523,7 @@ const tests = {
             // If we get here, the card was played successfully
             // But curse cards should be blocked at the game level, not in the effect
             // So this test just verifies the effect exists and doesn't crash
-            return { success: true, message: 'Curse effect executed (should be blocked by game)' };
+            return { success: true, message: 'Curse effect executed' };
         } catch (error) {
             throw new Error(`Unexpected error in curse effect: ${error.message}`);
         }

@@ -10,6 +10,61 @@ function playSound(soundFile) {
     }
 }
 
+async function showMessagesModal() {
+    const { getAllMessages } = await import("../data/messages.js");
+    const messages = getAllMessages();
+    
+    const modal = document.createElement('div');
+    modal.className = 'messages-modal-overlay';
+    modal.innerHTML = `
+        <div class="messages-modal">
+            <div class="messages-modal-header">
+                <h2>Messages for Prime</h2>
+                <button class="messages-close-btn" aria-label="Close">×</button>
+            </div>
+            <div class="messages-modal-content">
+                ${messages.length > 0 ? messages.map((msg, index) => `
+                    <div class="message-item">
+                        <div class="message-from">From: ${msg.from}</div>
+                        <div class="message-text">${msg.message}</div>
+                    </div>
+                `).join('') : `
+                    <div class="no-messages-placeholder">
+                        <p>No messages added yet!</p>
+                        <p>Add your birthday messages to <code>src/data/messages.js</code></p>
+                    </div>
+                `}
+            </div>
+        </div>
+    `;
+    
+    // Close functionality
+    const closeModal = () => {
+        modal.remove();
+    };
+    
+    const closeBtn = modal.querySelector('.messages-close-btn');
+    closeBtn.addEventListener('click', closeModal);
+    
+    // Close on overlay click
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    
+    // Close on Escape key
+    const handleEscape = (e) => {
+        if (e.key === 'Escape') {
+            closeModal();
+            document.removeEventListener('keydown', handleEscape);
+        }
+    };
+    document.addEventListener('keydown', handleEscape);
+    
+    // Add to DOM
+    document.body.appendChild(modal);
+}
+
+
 export function showDamageNumber(damage, target, isPlayer = false) {
     const targetElement = isPlayer ?
         document.querySelector('.player-battle-zone') :
@@ -322,6 +377,7 @@ export async function renderMap(root) {
     const { CARDS } = await import("../data/cards.js");
     const { ENEMIES } = await import("../data/enemies.js");
     const { RELICS } = await import("../data/relics.js");
+    const { getAllMessages } = await import("../data/messages.js");
     const m = root.map;
     const currentId = root.nodeId;
 
@@ -382,6 +438,10 @@ export async function renderMap(root) {
     root.app.innerHTML = `
     <div class="map-screen">
       <div class="map-header-section">
+        <button class="messages-button" data-action="show-messages">
+          Inbox
+          <span class="message-count-badge">${getAllMessages().length}</span>
+        </button>
         <div class="game-logo">
           <svg width="600" height="240" viewBox="0 0 600 240" xmlns="http://www.w3.org/2000/svg">
             <defs>
@@ -626,6 +686,12 @@ May this birthday bring joy in each moment you’ve got.  </em></p>
         if (!el.dataset.node) return;
         el.addEventListener("click", () => root.go(el.dataset.node));
     });
+
+    // Add Messages button event listener
+    const messagesBtn = root.app.querySelector("[data-action='show-messages']");
+    if (messagesBtn) {
+        messagesBtn.addEventListener("click", () => showMessagesModal());
+    }
 
     window.showTooltip = function(event) {
         const tooltip = document.getElementById('custom-tooltip');
