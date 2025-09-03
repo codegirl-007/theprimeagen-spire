@@ -171,11 +171,7 @@ export const CARDS = {
         id: "hotfix", name: "Hotfix", cost: 2, type: "attack", text: "Deal 10. Can only be played if HP < 50%.",
         art: "Monk_15.png",
         effect: (ctx) => {
-            if (ctx.player.hp <= ctx.player.maxHp * 0.5) {
-                ctx.deal(ctx.enemy, ctx.scalarFromWeak(10));
-            } else {
-                ctx.log("Hotfix can only be deployed when HP is below 50%!");
-            }
+            ctx.deal(ctx.enemy, ctx.scalarFromWeak(10));
         }
     },
 

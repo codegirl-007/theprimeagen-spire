@@ -13,7 +13,7 @@ export function createBattle(ctx, enemyId) {
 
     const relicCtx = { 
         ...ctx, 
-        draw: (n) => draw(ctx.player, n),
+        draw: (n) => draw(ctx.player, n, ctx),
         applyWeak: (who, amt) => { who.weak = (who.weak || 0) + amt; ctx.log(`${who === ctx.player ? 'You are' : ctx.enemy.name + ' is'} weakened for ${amt} turn${amt > 1 ? 's' : ''}.`) },
         applyVulnerable: (who, amt) => { who.vuln = (who.vuln || 0) + amt; ctx.log(`${who === ctx.player ? 'You are' : ctx.enemy.name + ' is'} vulnerable for ${amt} turn${amt > 1 ? 's' : ''}.`) }
     };
@@ -27,12 +27,12 @@ export function startPlayerTurn(ctx) {
     ctx.player.energy = ctx.player.maxEnergy + (ctx.flags.nextTurnEnergyBonus || 0) - (ctx.flags.nextTurnEnergyPenalty || 0);
     ctx.flags.nextTurnEnergyBonus = 0;
     ctx.flags.nextTurnEnergyPenalty = 0;
-    draw(ctx.player, 5 - ctx.player.hand.length);
+    draw(ctx.player, 5 - ctx.player.hand.length, ctx);
 
     // Clear card selection when new turn starts
     ctx.selectedCardIndex = null;
 
-    const relicCtx = { ...ctx, draw: (n) => draw(ctx.player, n) };
+    const relicCtx = { ...ctx, draw: (n) => draw(ctx.player, n, ctx) };
     for (const r of ctx.relicStates) r.hooks?.onTurnStart?.(relicCtx, r.state);
     ctx.log(`Your turn begins. You have ${ctx.player.energy} energy to spend.`);
 
@@ -53,6 +53,18 @@ export function playCard(ctx, handIndex) {
     
     if (ctx.player.energy < actualCost) { ctx.log(`You need ${actualCost} energy but only have ${ctx.player.energy}.`); return; }
     if (card.oncePerFight && card._used) { ctx.log(`${card.name} can only be used once per fight.`); return; }
+    
+    // Check card-specific play conditions
+    if (card.id === "hotfix" && ctx.player.hp > ctx.player.maxHp * 0.5) {
+        ctx.log("Hotfix can only be deployed when HP is below 50%!");
+        return;
+    }
+    
+    // Prevent playing curse cards
+    if (card.type === "curse") {
+        ctx.log(`${card.name} cannot be played!`);
+        return;
+    }
 
     ctx.player.energy -= actualCost;
     ctx.lastCard = card.id;
@@ -61,6 +73,14 @@ export function playCard(ctx, handIndex) {
     const prevDeal = ctx.deal;
     ctx.deal = (target, amount) => {
         let amt = amount;
+        
+        // Handle doubleNextCard flag
+        if (ctx.flags.doubleNextCard) {
+            amt *= 2;
+            ctx.flags.doubleNextCard = false;
+            ctx.log("Pair Programming doubles the damage!");
+        }
+        
         for (const r of ctx.relicStates) {
             if (r.hooks?.onPlayerAttack) amt = r.hooks.onPlayerAttack(ctx, r.state, amt);
         }
@@ -187,7 +207,7 @@ export function makeBattleContext(root) {
         player: root.player,
         enemy: null,
         discard: root.player.discard,
-        draw: (n) => draw(root.player, n),
+        draw: (n) => draw(root.player, n, root),
         log: (m) => root.log(m),
         render: () => root.render(),
         intentIsAttack: () => root.enemy.intent.type === "attack",
@@ -228,7 +248,8 @@ export function makeBattleContext(root) {
         replayCard: (card) => {
             // Temporarily replay a card without removing it from hand
             if (typeof card.effect === 'function') {
-                card.effect(root);
+                const battleCtx = makeBattleContext(root);
+                card.effect(battleCtx);
                 root.log(`${card.name} is replayed!`);
             }
         },

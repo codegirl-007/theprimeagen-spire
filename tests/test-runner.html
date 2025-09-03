@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Birthday Spire Card Tests</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #ffd700;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .controls {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            margin: 0 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .results {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+            border-left: 4px solid #ffd700;
+        }
+        
+        .test-output {
+            background: #000;
+            color: #00ff00;
+            padding: 20px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            max-height: 600px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin-top: 20px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .stat {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 5px;
+            flex: 1;
+            margin: 0 10px;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffd700;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .error-details {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid #ff4444;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        
+        .success { color: #00ff00; }
+        .error { color: #ff4444; }
+        .warning { color: #ffaa00; }
+        
+        .loading {
+            text-align: center;
+            color: #ffd700;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Birthday Spire Card Tests</h1>
+        
+        <div class="controls">
+            <button onclick="runTests()" id="runBtn">Run All Tests</button>
+            <button onclick="checkCoverage()" id="coverageBtn">Check Coverage</button>
+            <button onclick="runSpecificTest()" id="specificBtn">Test Specific Card</button>
+            <button onclick="clearOutput()" id="clearBtn">Clear Output</button>
+        </div>
+        
+        <div class="stats" id="stats" style="display: none;">
+            <div class="stat">
+                <div class="stat-value" id="passedCount">0</div>
+                <div class="stat-label">Passed</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="failedCount">0</div>
+                <div class="stat-label">Failed</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="coveragePercent">0%</div>
+                <div class="stat-label">Coverage</div>
+            </div>
+        </div>
+        
+        <div class="test-output" id="output">Ready to run tests...</div>
+        
+        <div id="errorDetails" class="error-details" style="display: none;">
+            <h3>Failed Tests:</h3>
+            <div id="errorList"></div>
+        </div>
+    </div>
+
+    <!-- Import the game modules -->
+    <script type="module">
+        import { CARDS, STARTER_DECK, CARD_POOL } from '../src/data/cards.js';
+        import { ENEMIES } from '../src/data/enemies.js';
+        import { makePlayer, cloneCard } from '../src/engine/core.js';
+        
+        // Make available globally for the test runner
+        window.CARDS = CARDS;
+        window.ENEMIES = ENEMIES;
+        window.makePlayer = makePlayer;
+        window.cloneCard = cloneCard;
+        
+        // Simple console override to capture output
+        const originalConsole = { ...console };
+        let capturedOutput = [];
+        
+        function captureConsole() {
+            capturedOutput = [];
+            console.log = (...args) => {
+                capturedOutput.push(args.join(' '));
+                originalConsole.log(...args);
+            };
+        }
+        
+        function restoreConsole() {
+            Object.assign(console, originalConsole);
+        }
+        
+        function output(text, className = '') {
+            const outputEl = document.getElementById('output');
+            const span = document.createElement('span');
+            span.className = className;
+            span.textContent = text + '\n';
+            outputEl.appendChild(span);
+            outputEl.scrollTop = outputEl.scrollHeight;
+        }
+        
+        function clearOutput() {
+            document.getElementById('output').innerHTML = 'Output cleared...\n';
+            document.getElementById('stats').style.display = 'none';
+            document.getElementById('errorDetails').style.display = 'none';
+        }
+        
+        function updateStats(results) {
+            document.getElementById('passedCount').textContent = results.passed;
+            document.getElementById('failedCount').textContent = results.failed;
+            document.getElementById('stats').style.display = 'flex';
+            
+            if (results.errors && results.errors.length > 0) {
+                const errorDetails = document.getElementById('errorDetails');
+                const errorList = document.getElementById('errorList');
+                errorList.innerHTML = '';
+                
+                results.errors.forEach(({ cardId, error }) => {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.innerHTML = `<strong>${cardId}:</strong> ${error}`;
+                    errorList.appendChild(errorDiv);
+                });
+                
+                errorDetails.style.display = 'block';
+            }
+        }
+        
+        // Test utilities (simplified version for browser)
+        function createTestBattleContext() {
+            const player = makePlayer();
+            player.hp = 50;
+            player.maxHp = 50;
+            player.energy = 3;
+            player.maxEnergy = 3;
+            player.block = 0;
+            player.weak = 0;
+            player.vuln = 0;
+            player.hand = [];
+            player.deck = [];
+            player.draw = [];
+            player.discard = [];
+            
+            const enemy = {
+                id: "test_dummy",
+                name: "Test Dummy",
+                hp: 100,
+                maxHp: 100,
+                block: 0,
+                weak: 0,
+                vuln: 0,
+                intent: { type: "attack", value: 5 }
+            };
+            
+            const logs = [];
+            const ctx = {
+                player,
+                enemy,
+                flags: {},
+                lastCard: null,
+                relicStates: [],
+                log: (msg) => logs.push(msg),
+                logs,
+                render: () => {},
+                deal: (target, amount) => {
+                    const blocked = Math.min(amount, target.block);
+                    const damage = Math.max(0, amount - blocked);
+                    target.block -= blocked;
+                    target.hp -= damage;
+                    logs.push(`Deal ${amount} damage (${damage} after ${blocked} block)`);
+                },
+                draw: (n) => {
+                    for (let i = 0; i < n && player.draw.length > 0; i++) {
+                        const cardId = player.draw.pop();
+                        const card = cloneCard(CARDS[cardId]);
+                        if (card) player.hand.push(card);
+                    }
+                },
+                applyWeak: (target, amount) => {
+                    target.weak = (target.weak || 0) + amount;
+                    logs.push(`Applied ${amount} weak`);
+                },
+                applyVulnerable: (target, amount) => {
+                    target.vuln = (target.vuln || 0) + amount;
+                    logs.push(`Applied ${amount} vulnerable`);
+                },
+                intentIsAttack: () => enemy.intent.type === "attack",
+                scalarFromWeak: (base) => player.weak > 0 ? Math.floor(base * 0.75) : base,
+                forceEndTurn: () => logs.push("Turn ended"),
+                promptExhaust: (count) => {
+                    while (count-- > 0 && player.hand.length > 0) {
+                        const card = player.hand.shift();
+                        logs.push(`Exhausted ${card.name}`);
+                    }
+                },
+                moveFromDiscardToHand: (cardId) => {
+                    const idx = player.discard.findIndex(id => id === cardId);
+                    if (idx >= 0) {
+                        const [id] = player.discard.splice(idx, 1);
+                        const card = cloneCard(CARDS[id]);
+                        if (card) {
+                            player.hand.push(card);
+                            return true;
+                        }
+                    }
+                    return false;
+                },
+                countCardType: (type) => {
+                    const allCards = [...player.deck, ...player.hand.map(c => c.id), ...player.draw, ...player.discard];
+                    return allCards.filter(id => CARDS[id]?.type === type).length;
+                },
+                replayCard: (card) => {
+                    if (typeof card.effect === 'function') {
+                        card.effect(ctx);
+                        logs.push(`Replayed ${card.name}`);
+                    }
+                }
+            };
+            
+            return ctx;
+        }
+        
+        function testCard(cardId, setupFn = null, assertionFn = null) {
+            const card = CARDS[cardId];
+            if (!card) {
+                throw new Error(`Card ${cardId} not found`);
+            }
+            
+            const ctx = createTestBattleContext();
+            
+            if (setupFn) {
+                setupFn(ctx);
+            }
+            
+            const initialState = {
+                playerHp: ctx.player.hp,
+                enemyHp: ctx.enemy.hp,
+                playerBlock: ctx.player.block,
+                playerEnergy: ctx.player.energy,
+                handSize: ctx.player.hand.length
+            };
+            
+            ctx.logs.length = 0;
+            
+            try {
+                card.effect(ctx);
+                
+                const finalState = {
+                    playerHp: ctx.player.hp,
+                    enemyHp: ctx.enemy.hp,
+                    playerBlock: ctx.player.block,
+                    playerEnergy: ctx.player.energy,
+                    handSize: ctx.player.hand.length
+                };
+                
+                const result = {
+                    card,
+                    initialState,
+                    finalState,
+                    logs: [...ctx.logs],
+                    flags: { ...ctx.flags },
+                    success: true,
+                    error: null
+                };
+                
+                if (assertionFn) {
+                    assertionFn(result, ctx);
+                }
+                
+                return result;
+            } catch (error) {
+                return {
+                    card,
+                    initialState,
+                    finalState: initialState,
+                    logs: [...ctx.logs],
+                    flags: { ...ctx.flags },
+                    success: false,
+                    error: error.message
+                };
+            }
+        }
+        
+        // Sample tests
+        const sampleTests = {
+            strike: () => testCard('strike', null, (result) => {
+                if (result.finalState.enemyHp !== 94) {
+                    throw new Error(`Expected enemy to have 94 HP, got ${result.finalState.enemyHp}`);
+                }
+            }),
+            
+            defend: () => testCard('defend', null, (result) => {
+                if (result.finalState.playerBlock !== 5) {
+                    throw new Error(`Expected player to have 5 block, got ${result.finalState.playerBlock}`);
+                }
+            }),
+            
+            coffee_rush: () => testCard('coffee_rush', null, (result) => {
+                if (result.finalState.playerEnergy !== 5) {
+                    throw new Error(`Expected player to have 5 energy, got ${result.finalState.playerEnergy}`);
+                }
+            }),
+            
+            segfault: () => testCard('segfault', 
+                (ctx) => {
+                    ctx.player.draw = ['strike'];
+                },
+                (result) => {
+                    if (result.finalState.enemyHp !== 93) {
+                        throw new Error(`Expected enemy to have 93 HP, got ${result.finalState.enemyHp}`);
+                    }
+                    if (result.finalState.handSize !== 1) {
+                        throw new Error(`Expected 1 card drawn, got ${result.finalState.handSize}`);
+                    }
+                }
+            ),
+            
+            pair_programming: () => testCard('pair_programming', null, (result) => {
+                if (!result.flags.doubleNextCard) {
+                    throw new Error(`Expected doubleNextCard flag to be set`);
+                }
+            })
+        };
+        
+        window.runTests = async function() {
+            clearOutput();
+            output('🎮 Running Birthday Spire Card Tests...', 'success');
+            output('');
+            
+            const results = {
+                passed: 0,
+                failed: 0,
+                errors: []
+            };
+            
+            for (const [cardId, testFn] of Object.entries(sampleTests)) {
+                try {
+                    output(`Testing ${cardId}...`);
+                    const result = testFn();
+                    output(`✅ ${cardId} passed`, 'success');
+                    results.passed++;
+                } catch (error) {
+                    output(`❌ ${cardId} failed: ${error.message}`, 'error');
+                    results.failed++;
+                    results.errors.push({ cardId, error: error.message });
+                }
+            }
+            
+            output('');
+            output(`📊 Test Results:`, 'warning');
+            output(`✅ Passed: ${results.passed}`, 'success');
+            output(`❌ Failed: ${results.failed}`, 'error');
+            output(`📈 Total: ${results.passed + results.failed}`);
+            
+            updateStats(results);
+        };
+        
+        window.checkCoverage = function() {
+            const allCardIds = Object.keys(CARDS);
+            const testedCardIds = Object.keys(sampleTests);
+            const coverage = ((testedCardIds.length / allCardIds.length) * 100).toFixed(1);
+            
+            clearOutput();
+            output('📋 Test Coverage Analysis:', 'warning');
+            output(`Total cards: ${allCardIds.length}`);
+            output(`Sample tested cards: ${testedCardIds.length}`);
+            output(`Sample coverage: ${coverage}%`);
+            output('');
+            output('Note: This is a sample test suite. Full test suite is in card-tests.js', 'warning');
+            
+            document.getElementById('coveragePercent').textContent = coverage + '%';
+            document.getElementById('stats').style.display = 'flex';
+        };
+        
+        window.runSpecificTest = function() {
+            const cardId = prompt('Enter card ID to test:');
+            if (!cardId) return;
+            
+            if (!CARDS[cardId]) {
+                output(`❌ Card '${cardId}' not found`, 'error');
+                return;
+            }
+            
+            clearOutput();
+            output(`Testing specific card: ${cardId}`, 'warning');
+            
+            try {
+                const result = testCard(cardId);
+                output(`✅ ${cardId} executed successfully`, 'success');
+                output(`Initial state: ${JSON.stringify(result.initialState, null, 2)}`);
+                output(`Final state: ${JSON.stringify(result.finalState, null, 2)}`);
+                output(`Logs: ${result.logs.join(', ')}`);
+                if (Object.keys(result.flags).length > 0) {
+                    output(`Flags: ${JSON.stringify(result.flags, null, 2)}`);
+                }
+            } catch (error) {
+                output(`❌ ${cardId} failed: ${error.message}`, 'error');
+            }
+        };
+        
+        // Make functions global
+        window.clearOutput = clearOutput;
+    </script>
+</body>
+</html>

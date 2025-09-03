@@ -11,7 +11,7 @@ export function initDeck(player, extraIds = []) {
     player.hand = [];
 }
 
-export function draw(player, n = 5) {
+export function draw(player, n = 5, battleCtx = null) {
     for (let i = 0; i < n; i++) {
         if (player.draw.length === 0) {
             if (player.discard.length === 0) break;
@@ -29,6 +29,12 @@ export function draw(player, n = 5) {
         
         if (clonedCard) {
             player.hand.push(clonedCard);
+            
+            // Handle curse card draw effects
+            if (battleCtx && originalCard.type === "curse" && originalCard.id === "sugar_crash") {
+                player.energy = Math.max(0, player.energy - 1);
+                battleCtx.log("Sugar Crash drains 1 energy when drawn!");
+            }
         }
     }
 }
@@ -40,13 +46,13 @@ export function endTurnDiscard(player) {
     player.energy = player.maxEnergy;
 }
 
-export function cloneCard(c) { 
+export function cloneCard(c) {
 
     if (!c) {
         console.error('Attempting to clone null/undefined card');
         return null;
     }
-    
+
 
     const cloned = {
         id: c.id,
@@ -61,7 +67,7 @@ export function cloneCard(c) {
         exhaust: c.exhaust,
         _used: false
     };
-    
+
     return cloned;
 }
 export function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[a[i], a[j]] = [a[j], a[i]] } return a; }
