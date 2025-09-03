@@ -22,8 +22,15 @@ export const ENEMIES = {
             ctx.log("Codegirl resolves the merge conflict and heals 8 HP!");
         }
     },
+    lowkeyabu: {
+        id: "lowkeyabu", name: "LowKeyAbu", maxHp: 85,
+        avatar: "assets/avatars/7.png", // Powerful demon/witch
+        background: "assets/backgrounds/castle.png", // Repeat background
+        ai: (turn) => turn % 3 === 1 ? { type: "debuff", value: 1 } : { type: "attack", value: 10 },
+        onDebuff: (ctx) => ctx.applyVulnerable(ctx.player, 1)
+    },
     nightshadedude: {
-        id: "nightshadedude", name: "Nightshadedude", maxHp: 85,
+        id: "nightshadedude", name: "Nightshadedude", maxHp: 120,
         avatar: "assets/avatars/11.png", // Powerful demon/witch
         background: "assets/backgrounds/dead forest.png", // Repeat background
         ai: (turn) => turn % 3 === 1 ? { type: "debuff", value: 1 } : { type: "attack", value: 14 },
@@ -57,28 +64,28 @@ export const ENEMIES = {
     },
 
     // ACT 2 ENEMIES - Harder versions
-    senior_dev: {
-        id: "senior_dev", name: "Senior Dev", maxHp: 65,
+    teej: {
+        id: "teej", name: "Teej", maxHp: 65,
         avatar: "assets/avatars/elite_ts_demon.png",
         background: "assets/backgrounds/castle.png",
         ai: (turn) => turn % 3 === 0 ? { type: "debuff", value: 2 } : { type: "attack", value: turn % 2 === 0 ? 12 : 14 },
         onDebuff: (ctx) => ctx.applyWeak(ctx.player, 2)
     },
-    tech_lead: {
-        id: "tech_lead", name: "Tech Lead", maxHp: 80,
+    begin: {
+        id: "begin", name: "Begin", maxHp: 80,
         avatar: "assets/avatars/infinite_loop.png",
         background: "assets/backgrounds/dead forest.png",
         ai: (turn) => (turn % 2 === 0) ? { type: "attack", value: 16 } : { type: "block", value: 12 }
     },
-    code_reviewer: {
-        id: "code_reviewer", name: "Code Reviewer", maxHp: 70,
+    adam: {
+        id: "adam", name: "Adam", maxHp: 70,
         avatar: "assets/avatars/chat_gremlin.png",
         background: "assets/backgrounds/terrace.png",
         ai: (turn) => turn % 4 === 0 ? { type: "debuff", value: 1 } : { type: "attack", value: 13 },
-        onDebuff: (ctx) => { ctx.applyVulnerable(ctx.player, 1); ctx.log("Code Reviewer finds bugs in your logic!"); }
+        onDebuff: (ctx) => { ctx.applyVulnerable(ctx.player, 1); ctx.log("Adam finds bugs in your logic!"); }
     },
-    scrum_master: {
-        id: "scrum_master", name: "Scrum Master", maxHp: 90,
+    david: {
+        id: "david", name: "David", maxHp: 90,
         avatar: "assets/avatars/js_blob.png",
         background: "assets/backgrounds/castle.png",
         ai: (turn) => {
@@ -87,10 +94,10 @@ export const ENEMIES = {
             if (cyc === 1) return { type: "attack", value: 11 };
             return { type: "debuff", value: 1 };
         },
-        onDebuff: (ctx) => { ctx.flags.nextTurnEnergyPenalty = (ctx.flags.nextTurnEnergyPenalty || 0) + 1; ctx.log("Scrum Master schedules another meeting! Lose 1 energy next turn."); }
+        onDebuff: (ctx) => { ctx.flags.nextTurnEnergyPenalty = (ctx.flags.nextTurnEnergyPenalty || 0) + 1; ctx.log("David schedules another meeting! Lose 1 energy next turn."); }
     },
-    architect: {
-        id: "architect", name: "The Architect", maxHp: 150,
+    dax: {
+        id: "dax", name: "Dax", maxHp: 150,
         avatar: "assets/avatars/bug_404.png",
         background: "assets/backgrounds/throne room.png",
         ai: (turn) => {
@@ -101,7 +108,23 @@ export const ENEMIES = {
             if (cyc === 4) return { type: "attack", value: 30 };
             return { type: "attack", value: 20 };
         },
-        onDebuff: (ctx) => { ctx.applyWeak(ctx.player, 2); ctx.applyVulnerable(ctx.player, 1); ctx.log("The Architect redesigns your entire approach!"); },
-        onBlock: (ctx) => { ctx.enemy.hp = Math.min(ctx.enemy.maxHp, ctx.enemy.hp + 12); ctx.log("The Architect refactors and optimizes, healing 12 HP!"); }
+        onDebuff: (ctx) => { ctx.applyWeak(ctx.player, 2); ctx.applyVulnerable(ctx.player, 1); ctx.log("Dax redesigns your entire approach!"); },
+        onBlock: (ctx) => { ctx.enemy.hp = Math.min(ctx.enemy.maxHp, ctx.enemy.hp + 12); ctx.log("Dax refactors and optimizes, healing 12 HP!"); }
+    },
+    taylor: {
+        id: "taylor", name: "Taylor Otwell", maxHp: 150,
+        avatar: "assets/avatars/bug_404.png",
+        background: "assets/backgrounds/throne room.png",
+        ai: (turn) => {
+            const cyc = turn % 5;
+            if (cyc === 1) return { type: "debuff", value: 2 };
+            if (cyc === 2) return { type: "attack", value: 25 };
+            if (cyc === 3) return { type: "block", value: 15 };
+            if (cyc === 4) return { type: "attack", value: 30 };
+            return { type: "attack", value: 20 };
+        },
+        onDebuff: (ctx) => { ctx.applyWeak(ctx.player, 2); ctx.applyVulnerable(ctx.player, 1); ctx.log("Taylor redesigns your entire approach!"); },
+        onBlock: (ctx) => { ctx.enemy.hp = Math.min(ctx.enemy.maxHp, ctx.enemy.hp + 12); ctx.log("Taylor refactors and optimizes, healing 12 HP!"); }
     }
+
 };

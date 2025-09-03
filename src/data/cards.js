@@ -1,5 +1,3 @@
-
-
 export const CARDS = {
     strike: {
         id: "strike", name: "Strike", cost: 1, type: "attack", text: "Deal 6.", target: "enemy",
@@ -158,7 +156,6 @@ export const CARDS = {
         id: "code_review", name: "Code Review", cost: 1, type: "skill", text: "Look at top 3 cards. Put 1 in hand, rest on bottom of deck.",
         art: "Monk_24.png",
         effect: (ctx) => {
-
             ctx.draw(1);
             ctx.log("Code review reveals useful insights. You draw a card.");
         }
@@ -338,7 +335,7 @@ export const CARDS = {
 export const STARTER_DECK = [
     "strike", "strike", "defend", "defend",
     "segfault", "coffee_rush", "skill_issue", "git_commit",
-    "stack_trace", "raw_dog"
+    "stack_trace", "stack_trace"
 ];
 
 export const CARD_POOL = [

@@ -1,66 +1,66 @@
 
 // Simple audio utility
 function playSound(soundFile) {
-  try {
-    const audio = new Audio(`assets/sounds/${soundFile}`);
-    audio.volume = 0.3;
-    audio.play().catch(e => { }); // Silently fail if no audio
-  } catch (e) {
-    // Silently fail if audio not available
-  }
+    try {
+        const audio = new Audio(`assets/sounds/${soundFile}`);
+        audio.volume = 0.3;
+        audio.play().catch(e => { console.log(e) }); // Silently fail if no audio
+    } catch (e) {
+        // Silently fail if audio not available
+    }
 }
 
 export function showDamageNumber(damage, target, isPlayer = false) {
-  const targetElement = isPlayer ?
-    document.querySelector('.player-battle-zone') :
-    document.querySelector('.enemy-battle-zone');
+    const targetElement = isPlayer ?
+        document.querySelector('.player-battle-zone') :
+        document.querySelector('.enemy-battle-zone');
 
-  if (!targetElement) return;
+    if (!targetElement) return;
 
-  const damageNumber = document.createElement('div');
-  damageNumber.className = 'damage-number';
-  damageNumber.textContent = damage;
-
-
-  const rect = targetElement.getBoundingClientRect();
-  damageNumber.style.left = `${rect.left + rect.width / 2}px`;
-  damageNumber.style.top = `${rect.top + rect.height / 2}px`;
-
-  document.body.appendChild(damageNumber);
+    const damageNumber = document.createElement('div');
+    damageNumber.className = 'damage-number';
+    damageNumber.textContent = damage;
 
 
-  requestAnimationFrame(() => {
-    damageNumber.classList.add('damage-number-animate');
-  });
+    const rect = targetElement.getBoundingClientRect();
+    damageNumber.style.left = `${rect.left + rect.width / 2}px`;
+    damageNumber.style.top = `${rect.top + rect.height / 2}px`;
+
+    document.body.appendChild(damageNumber);
 
 
-  setTimeout(() => {
-    if (damageNumber.parentNode) {
-      damageNumber.parentNode.removeChild(damageNumber);
-    }
-  }, 1000);
+    requestAnimationFrame(() => {
+        damageNumber.classList.add('damage-number-animate');
+    });
+
+
+    setTimeout(() => {
+        if (damageNumber.parentNode) {
+            damageNumber.parentNode.removeChild(damageNumber);
+        }
+    }, 1000);
 }
 
 export async function renderBattle(root) {
-  const app = root.app;
-  const p = root.player, e = root.enemy;
+    const app = root.app;
+    const p = root.player, e = root.enemy;
 
 
-  const { ENEMIES } = await import("../data/enemies.js");
-  const { CARDS } = await import("../data/cards.js");
-  const { RELICS } = await import("../data/relics.js");
-  const enemyData = ENEMIES[e.id];
-  const backgroundImage = enemyData?.background || null;
+    const { ENEMIES } = await import("../data/enemies.js");
+    const { CARDS } = await import("../data/cards.js");
+    const { RELICS } = await import("../data/relics.js");
+    const enemyData = ENEMIES[e.id];
+    const backgroundImage = enemyData?.background || null;
 
 
-  const intentInfo = {
-    attack: { emoji: '', text: `Will attack for ${e.intent.value} damage`, color: 'danger' },
-    block: { emoji: '', text: `Will gain ${e.intent.value} block`, color: 'info' },
-    debuff: { emoji: '', text: 'Will apply a debuff', color: 'warning' },
-    heal: { emoji: '', text: `Will heal for ${e.intent.value} HP`, color: 'success' }
-  }[e.intent.type] || { emoji: '', text: 'Unknown intent', color: 'neutral' };
+    const intentInfo = {
+        attack: { emoji: '', text: `Will attack for ${e.intent.value} damage`, color: 'danger' },
+        block: { emoji: '', text: `Will gain ${e.intent.value} block`, color: 'info' },
+        debuff: { emoji: '', text: 'Will apply a debuff', color: 'warning' },
+        heal: { emoji: '', text: `Will heal for ${e.intent.value} HP`, color: 'success' }
+    }[e.intent.type] || { emoji: '', text: 'Unknown intent', color: 'neutral' };
 
-  app.innerHTML = `
+    app.innerHTML = `
     <div class="battle-scene">
 
       <div class="battle-background">
@@ -168,8 +168,8 @@ export async function renderBattle(root) {
                 <span class="energy-label">⚡</span>
                 <div class="energy-orbs">
                   ${Array.from({ length: p.maxEnergy }, (_, i) =>
-    `<div class="energy-orb ${i < p.energy ? 'active' : 'inactive'}"></div>`
-  ).join('')}
+        `<div class="energy-orb ${i < p.energy ? 'active' : 'inactive'}"></div>`
+    ).join('')}
                 </div>
               </div>
             </div>
@@ -187,11 +187,11 @@ export async function renderBattle(root) {
           
           <div class="cards-battlefield">
             ${p.hand.length === 0 ?
-      '<div class="no-cards-message">🎴 No cards in hand - End turn to draw new cards</div>' :
-      p.hand.map((card, i) => {
-        const canPlay = p.energy >= card.cost;
-        const cardType = card.type === 'attack' ? 'attack' : card.type === 'skill' ? 'skill' : 'power';
-        return `
+            '<div class="no-cards-message">🎴 No cards in hand - End turn to draw new cards</div>' :
+            p.hand.map((card, i) => {
+                const canPlay = p.energy >= card.cost;
+                const cardType = card.type === 'attack' ? 'attack' : card.type === 'skill' ? 'skill' : 'power';
+                return `
                   <div class="battle-card ${cardType} ${!canPlay ? 'unplayable' : 'playable'}" data-play="${i}">
                     <div class="card-glow"></div>
                     <div class="card-frame">
@@ -212,8 +212,8 @@ export async function renderBattle(root) {
                     ${!canPlay ? `<div class="card-disabled-overlay"><span>Need ${card.cost} energy</span></div>` : ''}
                   </div>
                 `;
-      }).join('')
-    }
+            }).join('')
+        }
           </div>
 
           <div class="hand-controls">
@@ -238,147 +238,148 @@ export async function renderBattle(root) {
     </div>
   `;
 
-  app.querySelectorAll("[data-play]").forEach(btn => {
-    btn.addEventListener("mouseenter", () => {
-      if (btn.classList.contains('playable')) {
-        playSound('swipe.mp3');
-        root.selectedCardIndex = null;
-        updateCardSelection(root);
-      }
+    app.querySelectorAll("[data-play]").forEach(btn => {
+        btn.addEventListener("mouseenter", () => {
+            if (btn.classList.contains('playable')) {
+                playSound('swipe.mp3');
+                root.selectedCardIndex = null;
+                updateCardSelection(root);
+            }
+        });
+
+        btn.addEventListener("click", () => {
+            const index = parseInt(btn.dataset.play, 10);
+            const card = p.hand[index];
+            if (p.energy >= card.cost) {
+                playSound('played-card.mp3')
+                root.play(index);
+                // Clear selection when card is played via mouse
+                root.selectedCardIndex = null;
+                updateCardSelection(root);
+            }
+        });
     });
 
-    btn.addEventListener("click", () => {
-      const index = parseInt(btn.dataset.play, 10);
-      const card = p.hand[index];
-      if (p.energy >= card.cost) {
-        root.play(index);
-        // Clear selection when card is played via mouse
-        root.selectedCardIndex = null;
-        updateCardSelection(root);
-      }
-    });
-  });
+    const endTurnBtn = app.querySelector("[data-action='end']");
+    if (endTurnBtn) {
 
-  const endTurnBtn = app.querySelector("[data-action='end']");
-  if (endTurnBtn) {
+        endTurnBtn.addEventListener("click", () => {
 
-    endTurnBtn.addEventListener("click", () => {
-
-      try {
-        root.end();
-      } catch (error) {
-        console.error("Error ending turn:", error);
-      }
-    });
-  }
-
-  // Initialize card selection state if not exists
-  if (!root.selectedCardIndex) {
-    root.selectedCardIndex = null;
-  }
-
-  window.onkeydown = (e) => {
-    if (e.key.toLowerCase() === "e") {
-      try {
-        root.end();
-      } catch (error) {
-        console.error("Error ending turn via keyboard:", error);
-      }
+            try {
+                root.end();
+            } catch (error) {
+                console.error("Error ending turn:", error);
+            }
+        });
     }
 
-    const n = parseInt(e.key, 10);
-    if (n >= 1 && n <= p.hand.length) {
-      const cardIndex = n - 1;
-      const card = p.hand[cardIndex];
+    // Initialize card selection state if not exists
+    if (!root.selectedCardIndex) {
+        root.selectedCardIndex = null;
+    }
 
-      if (root.selectedCardIndex === cardIndex) {
-        // Second press of same key - play the card
-        if (p.energy >= card.cost) {
-          root.play(cardIndex);
-          root.selectedCardIndex = null; // Clear selection
-          updateCardSelection(root);
+    window.onkeydown = (e) => {
+        if (e.key.toLowerCase() === "e") {
+            try {
+                root.end();
+            } catch (error) {
+                console.error("Error ending turn via keyboard:", error);
+            }
         }
-      } else {
-        // First press or different key - select the card
-        root.selectedCardIndex = cardIndex;
-        updateCardSelection(root);
-        playSound('swipe.mp3'); // Play swipe sound on keyboard selection
-      }
+
+        const n = parseInt(e.key, 10);
+        if (n >= 1 && n <= p.hand.length) {
+            const cardIndex = n - 1;
+            const card = p.hand[cardIndex];
+
+            if (root.selectedCardIndex === cardIndex) {
+                // Second press of same key - play the card
+                if (p.energy >= card.cost) {
+                    root.play(cardIndex);
+                    root.selectedCardIndex = null; // Clear selection
+                    updateCardSelection(root);
+                }
+            } else {
+                // First press or different key - select the card
+                root.selectedCardIndex = cardIndex;
+                updateCardSelection(root);
+                playSound('swipe.mp3'); // Play swipe sound on keyboard selection
+            }
+        }
+    };
+
+    // Auto-scroll fight log to bottom
+    const logContent = document.getElementById('fight-log-content');
+    if (logContent) {
+        logContent.scrollTop = logContent.scrollHeight;
     }
-  };
 
-  // Auto-scroll fight log to bottom
-  const logContent = document.getElementById('fight-log-content');
-  if (logContent) {
-    logContent.scrollTop = logContent.scrollHeight;
-  }
-
-  // Apply initial card selection visual state
-  updateCardSelection(root);
+    // Apply initial card selection visual state
+    updateCardSelection(root);
 }
 
 export async function renderMap(root) {
-  const { CARDS } = await import("../data/cards.js");
-  const { ENEMIES } = await import("../data/enemies.js");
-  const { RELICS } = await import("../data/relics.js");
-  const m = root.map;
-  const currentId = root.nodeId;
+    const { CARDS } = await import("../data/cards.js");
+    const { ENEMIES } = await import("../data/enemies.js");
+    const { RELICS } = await import("../data/relics.js");
+    const m = root.map;
+    const currentId = root.nodeId;
 
-  const currentNode = m.nodes.find(n => n.id === currentId);
-  const nextIds = currentNode ? currentNode.next : [];
+    const currentNode = m.nodes.find(n => n.id === currentId);
+    const nextIds = currentNode ? currentNode.next : [];
 
-  const getNodeEmoji = (kind) => {
-    const emojis = {
-      start: '<img src="assets/card-art/staff.png" alt="Start" class="node-icon-img">',
-      battle: '<img src="assets/card-art/crossed_swords.png" alt="Battle" class="node-icon-img">',
-      elite: '<img src="assets/card-art/crown.png" alt="Battle" class="node-icon-img">',
-      boss: '<img src="assets/card-art/skull.png" alt="Boss" class="node-icon-img">',
-      rest: '<img src="assets/card-art/potion_heal.png" alt="Rest" class="node-icon-img">',
-      shop: '<img src="assets/card-art/diamond.png" alt="Shop" class="node-icon-img">',
-      event: '<img src="assets/card-art/crystal_cluster.png" alt="Event" class="node-icon-img">'
+    const getNodeEmoji = (kind) => {
+        const emojis = {
+            start: '<img src="assets/card-art/staff.png" alt="Start" class="node-icon-img">',
+            battle: '<img src="assets/card-art/crossed_swords.png" alt="Battle" class="node-icon-img">',
+            elite: '<img src="assets/card-art/crown.png" alt="Battle" class="node-icon-img">',
+            boss: '<img src="assets/card-art/skull.png" alt="Boss" class="node-icon-img">',
+            rest: '<img src="assets/card-art/potion_heal.png" alt="Rest" class="node-icon-img">',
+            shop: '<img src="assets/card-art/diamond.png" alt="Shop" class="node-icon-img">',
+            event: '<img src="assets/card-art/crystal_cluster.png" alt="Event" class="node-icon-img">'
+        };
+        return emojis[kind] || '❓';
     };
-    return emojis[kind] || '❓';
-  };
 
-  const getNodeDescription = (node) => {
-    switch (node.kind) {
-      case 'start':
-        return '<strong>Starting Point</strong>\nBegin your journey up ThePrimeagen Spire';
-      case 'battle':
-        const enemy = ENEMIES[node.enemy];
-        return `<strong>Battle</strong>\nFight: ${enemy?.name || 'Unknown Enemy'}\nHP: ${enemy?.maxHp || '?'}`;
-      case 'elite':
-        const elite = ENEMIES[node.enemy];
-        return `<strong>Elite Battle</strong>\nFight: ${elite?.name || 'Unknown Elite'}\nHP: ${elite?.maxHp || '?'}\nTough enemy with better rewards`;
-      case 'boss':
-        const boss = ENEMIES[node.enemy];
-        return `<strong>Boss Battle</strong>\nFight: ${boss?.name || 'Unknown Boss'}\nHP: ${boss?.maxHp || '?'}\nFinal challenge of the act`;
-      case 'rest':
-        return '<strong>Rest Site</strong>\nHeal up to 30% max HP\nor upgrade a card';
-      case 'shop':
-        return '<strong>Shop</strong>\nSpend your hard-earned gold';
-      case 'event':
-        return '<strong>Random Event</strong>\nBirthday-themed encounter\nUnknown outcome\nPotential rewards or challenges';
-      default:
-        return '<strong>Unknown</strong>\nMysterious node';
-    }
-  };
+    const getNodeDescription = (node) => {
+        switch (node.kind) {
+            case 'start':
+                return '<strong>Starting Point</strong>\nBegin your journey up ThePrimeagen Spire';
+            case 'battle':
+                const enemy = ENEMIES[node.enemy];
+                return `<strong>Battle</strong>\nFight: ${enemy?.name || 'Unknown Enemy'}\nHP: ${enemy?.maxHp || '?'}`;
+            case 'elite':
+                const elite = ENEMIES[node.enemy];
+                return `<strong>Elite Battle</strong>\nFight: ${elite?.name || 'Unknown Elite'}\nHP: ${elite?.maxHp || '?'}\nTough enemy with better rewards`;
+            case 'boss':
+                const boss = ENEMIES[node.enemy];
+                return `<strong>Boss Battle</strong>\nFight: ${boss?.name || 'Unknown Boss'}\nHP: ${boss?.maxHp || '?'}\nFinal challenge of the act`;
+            case 'rest':
+                return '<strong>Rest Site</strong>\nHeal up to 30% max HP\nor upgrade a card';
+            case 'shop':
+                return '<strong>Shop</strong>\nSpend your hard-earned gold';
+            case 'event':
+                return '<strong>Random Event</strong>\nBirthday-themed encounter\nUnknown outcome\nPotential rewards or challenges';
+            default:
+                return '<strong>Unknown</strong>\nMysterious node';
+        }
+    };
 
-  const getNodeTooltipData = (node) => {
-    const description = getNodeDescription(node);
-    let avatarPath = null;
+    const getNodeTooltipData = (node) => {
+        const description = getNodeDescription(node);
+        let avatarPath = null;
 
-    if (['battle', 'elite', 'boss'].includes(node.kind) && node.enemy) {
-      const enemy = ENEMIES[node.enemy];
-      if (enemy?.avatar) {
-        avatarPath = enemy.avatar;
-      }
-    }
+        if (['battle', 'elite', 'boss'].includes(node.kind) && node.enemy) {
+            const enemy = ENEMIES[node.enemy];
+            if (enemy?.avatar) {
+                avatarPath = enemy.avatar;
+            }
+        }
 
-    return { description, avatarPath };
-  };
+        return { description, avatarPath };
+    };
 
-  root.app.innerHTML = `
+    root.app.innerHTML = `
     <div class="map-screen">
       <div class="map-header-section">
         <div class="game-logo">
@@ -514,52 +515,52 @@ May this birthday bring joy in each moment you’ve got.  </em></p>
           <svg class="spire-paths" viewBox="0 0 1000 800" preserveAspectRatio="xMidYMid meet">
 
             ${(() => {
-      // Use positions directly from the map data
-      const getNodePos = (nodeId) => {
-        const node = m.nodes.find(n => n.id === nodeId);
-        return node ? { x: node.x, y: node.y } : null;
-      };
+            // Use positions directly from the map data
+            const getNodePos = (nodeId) => {
+                const node = m.nodes.find(n => n.id === nodeId);
+                return node ? { x: node.x, y: node.y } : null;
+            };
 
-      return m.nodes.map(node => {
-        if (!node.next || node.next.length === 0) return '';
+            return m.nodes.map(node => {
+                if (!node.next || node.next.length === 0) return '';
 
-        return node.next.map(nextId => {
-          const fromPos = { x: node.x, y: node.y };
-          const toPos = getNodePos(nextId);
-          if (!fromPos || !toPos) return '';
+                return node.next.map(nextId => {
+                    const fromPos = { x: node.x, y: node.y };
+                    const toPos = getNodePos(nextId);
+                    if (!fromPos || !toPos) return '';
 
-          const isActivePath = (node.id === currentId && nextIds.includes(nextId)) ||
-            (parseInt(nextId.replace('n', '')) <= parseInt(currentId.replace('n', '')));
+                    const isActivePath = (node.id === currentId && nextIds.includes(nextId)) ||
+                        (parseInt(nextId.replace('n', '')) <= parseInt(currentId.replace('n', '')));
 
-          return `<line x1="${fromPos.x}" y1="${fromPos.y}" x2="${toPos.x}" y2="${toPos.y}" 
+                    return `<line x1="${fromPos.x}" y1="${fromPos.y}" x2="${toPos.x}" y2="${toPos.y}" 
                                        class="spire-path ${isActivePath ? 'active' : ''}" 
                                        stroke="${isActivePath ? '#8B7355' : '#4A3A2A'}" 
                                        stroke-width="2" 
                                        stroke-dasharray="8,4"
                                        opacity="${isActivePath ? '1' : '0.6'}"/>`;
-        }).join('');
-      }).join('');
-    })()}
+                }).join('');
+            }).join('');
+        })()}
           </svg>
           
           <div class="spire-nodes">
             ${(() => {
-      // Use positions directly from map data
+            // Use positions directly from map data
 
-      return m.nodes.map(n => {
-        const isNext = nextIds.includes(n.id);
-        const isCurrent = n.id === currentId;
-        const isCompleted = root.completedNodes.includes(n.id);
-        const locked = (!isNext && !isCurrent && !isCompleted);
+            return m.nodes.map(n => {
+                const isNext = nextIds.includes(n.id);
+                const isCurrent = n.id === currentId;
+                const isCompleted = root.completedNodes.includes(n.id);
+                const locked = (!isNext && !isCurrent && !isCompleted);
 
-        const pos = { x: n.x, y: n.y };
-        if (!pos.x || !pos.y) return '';
+                const pos = { x: n.x, y: n.y };
+                if (!pos.x || !pos.y) return '';
 
-        const leftPercent = (pos.x / 1000) * 100;
-        const topPercent = (pos.y / 800) * 100;
-        const tooltipData = getNodeTooltipData(n);
+                const leftPercent = (pos.x / 1000) * 100;
+                const topPercent = (pos.y / 800) * 100;
+                const tooltipData = getNodeTooltipData(n);
 
-        return `
+                return `
                   <div class="spire-node ${isCurrent ? 'current' : ''} ${isNext ? 'available' : ''} ${isCompleted ? 'completed' : ''} ${locked ? 'locked' : ''}" 
                        style="left: ${leftPercent}%; top: ${topPercent}%; transform: translate(-50%, -50%);"
                        data-node="${isNext ? n.id : ''}"
@@ -574,8 +575,8 @@ May this birthday bring joy in each moment you’ve got.  </em></p>
                     ${isCurrent ? '<div class="current-indicator">★</div>' : ''}
                   </div>
                 `;
-      }).join('');
-    })()}
+            }).join('');
+        })()}
           </div>
         </div>
       </div>
@@ -587,17 +588,17 @@ May this birthday bring joy in each moment you’ve got.  </em></p>
         </div>
         <div class="deck-stack" data-tooltip="Hover to view deck">
           ${Object.entries(
-      root.player.deck.reduce((acc, cardId) => {
-        acc[cardId] = (acc[cardId] || 0) + 1;
-        return acc;
-      }, {})
-    ).map(([cardId, count], index) => {
-      const card = CARDS[cardId];
-      if (!card) return '';
+            root.player.deck.reduce((acc, cardId) => {
+                acc[cardId] = (acc[cardId] || 0) + 1;
+                return acc;
+            }, {})
+        ).map(([cardId, count], index) => {
+            const card = CARDS[cardId];
+            if (!card) return '';
 
-      const cardType = card.type === 'attack' ? 'attack' : card.type === 'skill' ? 'skill' : 'power';
+            const cardType = card.type === 'attack' ? 'attack' : card.type === 'skill' ? 'skill' : 'power';
 
-      return `
+            return `
               <div class="deck-stack-card ${cardType}" style="--card-index: ${index}">
                   <div class="card-frame">
                     <div class="card-header-row">
@@ -612,7 +613,7 @@ May this birthday bring joy in each moment you’ve got.  </em></p>
                 </div>
               </div>
             `;
-    }).join('')}
+        }).join('')}
         </div>
         </div>
     </div>
@@ -621,20 +622,20 @@ May this birthday bring joy in each moment you’ve got.  </em></p>
     </div>
   `;
 
-  root.app.querySelectorAll("[data-node]").forEach(el => {
-    if (!el.dataset.node) return;
-    el.addEventListener("click", () => root.go(el.dataset.node));
-  });
+    root.app.querySelectorAll("[data-node]").forEach(el => {
+        if (!el.dataset.node) return;
+        el.addEventListener("click", () => root.go(el.dataset.node));
+    });
 
-  window.showTooltip = function (event) {
-    const tooltip = document.getElementById('custom-tooltip');
-    const node = event.target.closest('.spire-node');
-    const content = node.dataset.tooltip;
-    const avatarPath = node.dataset.avatar;
+    window.showTooltip = function(event) {
+        const tooltip = document.getElementById('custom-tooltip');
+        const node = event.target.closest('.spire-node');
+        const content = node.dataset.tooltip;
+        const avatarPath = node.dataset.avatar;
 
-    let tooltipHTML = '';
-    if (avatarPath) {
-      tooltipHTML = `
+        let tooltipHTML = '';
+        if (avatarPath) {
+            tooltipHTML = `
                 <div class="tooltip-with-avatar">
                     <div class="tooltip-avatar">
                         <img src="${avatarPath}" alt="Enemy Avatar" class="tooltip-avatar-img" 
@@ -643,53 +644,53 @@ May this birthday bring joy in each moment you’ve got.  </em></p>
                     <div class="tooltip-content">${content}</div>
                 </div>
             `;
-    } else {
-      tooltipHTML = content;
-    }
+        } else {
+            tooltipHTML = content;
+        }
 
-    tooltip.innerHTML = tooltipHTML;
-    tooltip.style.display = 'block';
-
-
-    const rect = node.getBoundingClientRect();
-    tooltip.style.left = (rect.right + 15) + 'px';
-    tooltip.style.top = (rect.top + rect.height / 2 - tooltip.offsetHeight / 2) + 'px';
+        tooltip.innerHTML = tooltipHTML;
+        tooltip.style.display = 'block';
 
 
-    const tooltipRect = tooltip.getBoundingClientRect();
-    if (tooltipRect.right > window.innerWidth) {
-      tooltip.style.left = (rect.left - tooltip.offsetWidth - 15) + 'px';
-    }
-    if (tooltipRect.top < 0) {
-      tooltip.style.top = '10px';
-    }
-    if (tooltipRect.bottom > window.innerHeight) {
-      tooltip.style.top = (window.innerHeight - tooltip.offsetHeight - 10) + 'px';
-    }
-  };
-
-  window.hideTooltip = function () {
-    const tooltip = document.getElementById('custom-tooltip');
-    tooltip.style.display = 'none';
-  };
+        const rect = node.getBoundingClientRect();
+        tooltip.style.left = (rect.right + 15) + 'px';
+        tooltip.style.top = (rect.top + rect.height / 2 - tooltip.offsetHeight / 2) + 'px';
 
 
-  const resetBtn = root.app.querySelector("[data-reset]");
-  resetBtn.addEventListener("click", () => {
-    root.clearSave();
-    root.reset();
-  });
+        const tooltipRect = tooltip.getBoundingClientRect();
+        if (tooltipRect.right > window.innerWidth) {
+            tooltip.style.left = (rect.left - tooltip.offsetWidth - 15) + 'px';
+        }
+        if (tooltipRect.top < 0) {
+            tooltip.style.top = '10px';
+        }
+        if (tooltipRect.bottom > window.innerHeight) {
+            tooltip.style.top = (window.innerHeight - tooltip.offsetHeight - 10) + 'px';
+        }
+    };
+
+    window.hideTooltip = function() {
+        const tooltip = document.getElementById('custom-tooltip');
+        tooltip.style.display = 'none';
+    };
+
+
+    const resetBtn = root.app.querySelector("[data-reset]");
+    resetBtn.addEventListener("click", () => {
+        root.clearSave();
+        root.reset();
+    });
 }
 
 export async function renderReward(root, choices) {
-  const { CARDS } = await import("../data/cards.js");
-  root.app.innerHTML = `
+    const { CARDS } = await import("../data/cards.js");
+    root.app.innerHTML = `
     <div class="reward-screen">
       <h1>Choose a Card</h1>
       <div class="reward-cards-container">
         ${choices.map((c, idx) => {
-    const cardType = c.type === 'attack' ? 'attack' : c.type === 'skill' ? 'skill' : 'power';
-    return `
+        const cardType = c.type === 'attack' ? 'attack' : c.type === 'skill' ? 'skill' : 'power';
+        return `
             <div class="reward-card-wrapper" data-pick="${idx}">
               <div class="battle-card ${cardType} reward-card">
                 <div class="card-glow"></div>
@@ -713,25 +714,25 @@ export async function renderReward(root, choices) {
               </div>
             </div>
           `;
-  }).join("")}
+    }).join("")}
       </div>
       <div class="reward-actions">
         <button class="btn secondary skip-btn" data-skip>Skip Reward</button>
       </div>
     </div>
   `;
-  root.app.querySelectorAll("[data-pick]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const idx = parseInt(btn.dataset.pick, 10);
-      root.takeReward(idx);
+    root.app.querySelectorAll("[data-pick]").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const idx = parseInt(btn.dataset.pick, 10);
+            root.takeReward(idx);
+        });
     });
-  });
-  root.app.querySelector("[data-skip]").addEventListener("click", () => root.skipReward());
+    root.app.querySelector("[data-skip]").addEventListener("click", () => root.skipReward());
 }
 
 export async function renderRest(root) {
-  const { CARDS } = await import("../data/cards.js");
-  root.app.innerHTML = `
+    const { CARDS } = await import("../data/cards.js");
+    root.app.innerHTML = `
     <div class="rest-screen">
       <div class="rest-header">
         <h1>Rest and Recover</h1>
@@ -761,35 +762,35 @@ export async function renderRest(root) {
       </div>
     </div>
   `;
-  root.app.querySelector("[data-act='heal']").addEventListener("click", () => {
-    const heal = Math.floor(root.player.maxHp * 0.2);
-    root.player.hp = Math.min(root.player.maxHp, root.player.hp + heal);
-    root.log(`Rested: +${heal} HP`);
-    root.afterNode();
-  });
-  root.app.querySelector("[data-act='upgrade']").addEventListener("click", () => {
-    renderUpgrade(root);
-  });
+    root.app.querySelector("[data-act='heal']").addEventListener("click", () => {
+        const heal = Math.floor(root.player.maxHp * 0.2);
+        root.player.hp = Math.min(root.player.maxHp, root.player.hp + heal);
+        root.log(`Rested: +${heal} HP`);
+        root.afterNode();
+    });
+    root.app.querySelector("[data-act='upgrade']").addEventListener("click", () => {
+        renderUpgrade(root);
+    });
 }
 
 export function renderUpgrade(root) {
-  import("../data/cards.js").then(({ CARDS }) => {
-    const upgradableCards = root.player.deck
-      .map((cardId, index) => ({ cardId, index }))
-      .filter(({ cardId }) => {
-        const card = CARDS[cardId];
+    import("../data/cards.js").then(({ CARDS }) => {
+        const upgradableCards = root.player.deck
+            .map((cardId, index) => ({ cardId, index }))
+            .filter(({ cardId }) => {
+                const card = CARDS[cardId];
 
-        return card?.upgrades && !cardId.endsWith('+');
-      })
-      .slice(0, 3); // Show max 3 options
+                return card?.upgrades && !cardId.endsWith('+');
+            })
+            .slice(0, 3); // Show max 3 options
 
-    if (upgradableCards.length === 0) {
-      root.log("No cards can be upgraded.");
-      root.afterNode();
-      return;
-    }
+        if (upgradableCards.length === 0) {
+            root.log("No cards can be upgraded.");
+            root.afterNode();
+            return;
+        }
 
-    root.app.innerHTML = `
+        root.app.innerHTML = `
         <div class="upgrade-screen">
           <div class="upgrade-header">
         <h1>⬆️ Upgrade a Card</h1>
@@ -798,14 +799,14 @@ export function renderUpgrade(root) {
           
           <div class="upgrade-options">
           ${upgradableCards.map(({ cardId, index }) => {
-      const card = CARDS[cardId];
-      const upgradedCard = CARDS[card.upgrades];
+            const card = CARDS[cardId];
+            const upgradedCard = CARDS[card.upgrades];
 
-      if (!upgradedCard) {
-        return ''; // Skip if no upgrade found
-      }
+            if (!upgradedCard) {
+                return ''; // Skip if no upgrade found
+            }
 
-      return `
+            return `
                 <div class="upgrade-option" data-upgrade="${index}">
                   <div class="upgrade-preview">
                     <div class="upgrade-action-header">
@@ -861,7 +862,7 @@ export function renderUpgrade(root) {
                   </div>
                 </div>
             `;
-    }).join("")}
+        }).join("")}
         </div>
           
           <div class="upgrade-actions">
@@ -870,38 +871,38 @@ export function renderUpgrade(root) {
         </div>
       `;
 
-    root.app.querySelectorAll("[data-upgrade]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const deckIndex = parseInt(btn.dataset.upgrade, 10);
-        const oldCardId = root.player.deck[deckIndex];
-        const newCardId = CARDS[oldCardId].upgrades;
-        root.player.deck[deckIndex] = newCardId;
-        root.log(`Upgraded ${CARDS[oldCardId].name} → ${CARDS[newCardId].name}`);
-        root.afterNode();
-      });
+        root.app.querySelectorAll("[data-upgrade]").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const deckIndex = parseInt(btn.dataset.upgrade, 10);
+                const oldCardId = root.player.deck[deckIndex];
+                const newCardId = CARDS[oldCardId].upgrades;
+                root.player.deck[deckIndex] = newCardId;
+                root.log(`Upgraded ${CARDS[oldCardId].name} → ${CARDS[newCardId].name}`);
+                root.afterNode();
+            });
+        });
+        root.app.querySelector("[data-skip]").addEventListener("click", () => root.afterNode());
     });
-    root.app.querySelector("[data-skip]").addEventListener("click", () => root.afterNode());
-  });
 }
 
 export function renderShop(root) {
-  import("../data/cards.js").then(({ CARDS, CARD_POOL }) => {
-    import("../data/relics.js").then(({ RELICS, START_RELIC_CHOICES }) => {
+    import("../data/cards.js").then(({ CARDS, CARD_POOL }) => {
+        import("../data/relics.js").then(({ RELICS, START_RELIC_CHOICES }) => {
 
-      const availableCards = CARD_POOL.filter(cardId => {
+            const availableCards = CARD_POOL.filter(cardId => {
 
-        const ownedCount = root.player.deck.filter(deckCardId => deckCardId === cardId).length;
+                const ownedCount = root.player.deck.filter(deckCardId => deckCardId === cardId).length;
 
-        return ownedCount < 3;
-      });
+                return ownedCount < 3;
+            });
 
-      const cardsToShow = availableCards.length >= 3 ? availableCards : CARD_POOL;
-      const shopCards = shuffle(cardsToShow.slice()).slice(0, 3).map(id => CARDS[id]);
-      const ownedRelicIds = root.relicStates.map(r => r.id);
-      const availableRelics = START_RELIC_CHOICES.filter(id => !ownedRelicIds.includes(id));
-      const shopRelic = availableRelics.length > 0 ? RELICS[availableRelics[0]] : null;
+            const cardsToShow = availableCards.length >= 3 ? availableCards : CARD_POOL;
+            const shopCards = shuffle(cardsToShow.slice()).slice(0, 3).map(id => CARDS[id]);
+            const ownedRelicIds = root.relicStates.map(r => r.id);
+            const availableRelics = START_RELIC_CHOICES.filter(id => !ownedRelicIds.includes(id));
+            const shopRelic = availableRelics.length > 0 ? RELICS[availableRelics[0]] : null;
 
-      root.app.innerHTML = `
+            root.app.innerHTML = `
             <div class="shop-screen">
               <div class="shop-header">
                 <h1>Merchant's Shop</h1>
@@ -920,10 +921,10 @@ export function renderShop(root) {
                   </div>
                   <div class="shop-cards">
                     ${shopCards.map((card, idx) => {
-        const cardType = card.type === 'attack' ? 'attack' : card.type === 'skill' ? 'skill' : 'power';
-        const canAfford = (root.player.gold || 100) >= 50;
-        const ownedCount = root.player.deck.filter(deckCardId => deckCardId === card.id).length;
-        return `
+                const cardType = card.type === 'attack' ? 'attack' : card.type === 'skill' ? 'skill' : 'power';
+                const canAfford = (root.player.gold || 100) >= 50;
+                const ownedCount = root.player.deck.filter(deckCardId => deckCardId === card.id).length;
+                return `
                         <div class="shop-card-container">
                           <div class="battle-card ${cardType} ${canAfford ? 'playable' : 'unplayable'} shop-card" data-buy-card="${idx}">
                             <div class="card-glow"></div>
@@ -951,7 +952,7 @@ export function renderShop(root) {
                           </div>
                         </div>
                       `;
-      }).join("")}
+            }).join("")}
                   </div>
                 </div>
                 
@@ -989,185 +990,185 @@ export function renderShop(root) {
             </div>
           `;
 
-      if (!root.player.gold) root.player.gold = 100;
+            if (!root.player.gold) root.player.gold = 100;
 
-      root.app.querySelectorAll("[data-buy-card]").forEach(btn => {
-        btn.addEventListener("click", () => {
-          const idx = parseInt(btn.dataset.buyCard, 10);
-          const card = shopCards[idx];
-          if (root.player.gold >= 50) {
-            root.player.gold -= 50;
-            root.player.deck.push(card.id);
-            root.log(`Bought ${card.name} for 50 gold.`);
-            btn.disabled = true;
-            btn.textContent = "SOLD";
+            root.app.querySelectorAll("[data-buy-card]").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const idx = parseInt(btn.dataset.buyCard, 10);
+                    const card = shopCards[idx];
+                    if (root.player.gold >= 50) {
+                        root.player.gold -= 50;
+                        root.player.deck.push(card.id);
+                        root.log(`Bought ${card.name} for 50 gold.`);
+                        btn.disabled = true;
+                        btn.textContent = "SOLD";
 
-            // Update gold display
-            const goldDisplay = root.app.querySelector('.gold-amount');
-            if (goldDisplay) {
-              goldDisplay.textContent = root.player.gold;
-            }
+                        // Update gold display
+                        const goldDisplay = root.app.querySelector('.gold-amount');
+                        if (goldDisplay) {
+                            goldDisplay.textContent = root.player.gold;
+                        }
 
-            // Update affordability of remaining items
-            updateShopAffordability(root);
-          } else {
-            root.log("Not enough gold!");
-          }
-        });
-      });
-
-
-      if (shopRelic) {
-        root.app.querySelector("[data-buy-relic]").addEventListener("click", () => {
-          if (root.player.gold >= 100) {
-            root.player.gold -= 100;
-            root.log(`Bought ${shopRelic.name} for 100 gold.`);
-
-            import("../engine/battle.js").then(({ attachRelics }) => {
-
-              const currentRelicIds = root.relicStates.map(r => r.id);
-              const newRelicIds = [...currentRelicIds, shopRelic.id];
-              attachRelics(root, newRelicIds);
+                        // Update affordability of remaining items
+                        updateShopAffordability(root);
+                    } else {
+                        root.log("Not enough gold!");
+                    }
+                });
             });
-            root.app.querySelector("[data-buy-relic]").disabled = true;
-            root.app.querySelector("[data-buy-relic]").textContent = "SOLD";
 
-            // Update gold display
-            const goldDisplay = root.app.querySelector('.gold-amount');
-            if (goldDisplay) {
-              goldDisplay.textContent = root.player.gold;
+
+            if (shopRelic) {
+                root.app.querySelector("[data-buy-relic]").addEventListener("click", () => {
+                    if (root.player.gold >= 100) {
+                        root.player.gold -= 100;
+                        root.log(`Bought ${shopRelic.name} for 100 gold.`);
+
+                        import("../engine/battle.js").then(({ attachRelics }) => {
+
+                            const currentRelicIds = root.relicStates.map(r => r.id);
+                            const newRelicIds = [...currentRelicIds, shopRelic.id];
+                            attachRelics(root, newRelicIds);
+                        });
+                        root.app.querySelector("[data-buy-relic]").disabled = true;
+                        root.app.querySelector("[data-buy-relic]").textContent = "SOLD";
+
+                        // Update gold display
+                        const goldDisplay = root.app.querySelector('.gold-amount');
+                        if (goldDisplay) {
+                            goldDisplay.textContent = root.player.gold;
+                        }
+
+                        // Update affordability of remaining items
+                        updateShopAffordability(root);
+                    } else {
+                        root.log("Not enough gold!");
+                    }
+                });
             }
 
-            // Update affordability of remaining items
-            updateShopAffordability(root);
-          } else {
-            root.log("Not enough gold!");
-          }
+            root.app.querySelector("[data-leave]").addEventListener("click", () => root.afterNode());
         });
-      }
-
-      root.app.querySelector("[data-leave]").addEventListener("click", () => root.afterNode());
     });
-  });
 }
 
 function updateCardSelection(root) {
-  // Remove selection from all cards
-  root.app.querySelectorAll('.battle-card').forEach(card => {
-    card.classList.remove('card-selected');
-  });
+    // Remove selection from all cards
+    root.app.querySelectorAll('.battle-card').forEach(card => {
+        card.classList.remove('card-selected');
+    });
 
-  // Add selection to currently selected card
-  if (root.selectedCardIndex !== null) {
-    const selectedCard = root.app.querySelector(`[data-play="${root.selectedCardIndex}"]`);
-    if (selectedCard) {
-      selectedCard.classList.add('card-selected');
+    // Add selection to currently selected card
+    if (root.selectedCardIndex !== null) {
+        const selectedCard = root.app.querySelector(`[data-play="${root.selectedCardIndex}"]`);
+        if (selectedCard) {
+            selectedCard.classList.add('card-selected');
+        }
     }
-  }
 }
 
 function updateShopAffordability(root) {
-  // Update card affordability
-  root.app.querySelectorAll("[data-buy-card]").forEach(btn => {
-    if (!btn.disabled) {
-      const cardContainer = btn.closest('.shop-card-container');
-      const overlay = cardContainer.querySelector('.card-disabled-overlay');
+    // Update card affordability
+    root.app.querySelectorAll("[data-buy-card]").forEach(btn => {
+        if (!btn.disabled) {
+            const cardContainer = btn.closest('.shop-card-container');
+            const overlay = cardContainer.querySelector('.card-disabled-overlay');
 
-      if (root.player.gold < 50) {
-        btn.classList.remove('playable');
-        btn.classList.add('unplayable');
-        if (!overlay) {
-          const newOverlay = document.createElement('div');
-          newOverlay.className = 'card-disabled-overlay';
-          newOverlay.innerHTML = '<span>Need 50 gold</span>';
-          cardContainer.appendChild(newOverlay);
+            if (root.player.gold < 50) {
+                btn.classList.remove('playable');
+                btn.classList.add('unplayable');
+                if (!overlay) {
+                    const newOverlay = document.createElement('div');
+                    newOverlay.className = 'card-disabled-overlay';
+                    newOverlay.innerHTML = '<span>Need 50 gold</span>';
+                    cardContainer.appendChild(newOverlay);
+                }
+            } else {
+                btn.classList.remove('unplayable');
+                btn.classList.add('playable');
+                if (overlay) {
+                    overlay.remove();
+                }
+            }
         }
-      } else {
-        btn.classList.remove('unplayable');
-        btn.classList.add('playable');
-        if (overlay) {
-          overlay.remove();
+    });
+
+    // Update relic affordability
+    const relicBtn = root.app.querySelector("[data-buy-relic]");
+    if (relicBtn && !relicBtn.disabled) {
+        const relicContainer = relicBtn.closest('.shop-relic-container');
+        const overlay = relicContainer.querySelector('.relic-disabled-overlay');
+
+        if (root.player.gold < 100) {
+            relicBtn.classList.remove('affordable');
+            relicBtn.classList.add('unaffordable');
+            if (!overlay) {
+                const newOverlay = document.createElement('div');
+                newOverlay.className = 'relic-disabled-overlay';
+                newOverlay.innerHTML = '<span>Need 100 gold</span>';
+                relicContainer.appendChild(newOverlay);
+            }
+        } else {
+            relicBtn.classList.remove('unaffordable');
+            relicBtn.classList.add('affordable');
+            if (overlay) {
+                overlay.remove();
+            }
         }
-      }
     }
-  });
-
-  // Update relic affordability
-  const relicBtn = root.app.querySelector("[data-buy-relic]");
-  if (relicBtn && !relicBtn.disabled) {
-    const relicContainer = relicBtn.closest('.shop-relic-container');
-    const overlay = relicContainer.querySelector('.relic-disabled-overlay');
-
-    if (root.player.gold < 100) {
-      relicBtn.classList.remove('affordable');
-      relicBtn.classList.add('unaffordable');
-      if (!overlay) {
-        const newOverlay = document.createElement('div');
-        newOverlay.className = 'relic-disabled-overlay';
-        newOverlay.innerHTML = '<span>Need 100 gold</span>';
-        relicContainer.appendChild(newOverlay);
-      }
-    } else {
-      relicBtn.classList.remove('unaffordable');
-      relicBtn.classList.add('affordable');
-      if (overlay) {
-        overlay.remove();
-      }
-    }
-  }
 }
 
 function shuffle(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
 }
 
 function getRelicArt(relicId, RELICS = null) {
-  if (RELICS && RELICS[relicId]?.art) {
-    const imagePath = RELICS[relicId].art;
-    return `<img src="assets/skill-art/${imagePath}" alt="${relicId}" class="relic-skill-art">`;
-  }
-  return '💎';
+    if (RELICS && RELICS[relicId]?.art) {
+        const imagePath = RELICS[relicId].art;
+        return `<img src="assets/skill-art/${imagePath}" alt="${relicId}" class="relic-skill-art">`;
+    }
+    return '💎';
 }
 
 function getRelicName(relicId, RELICS = null) {
-  return RELICS?.[relicId]?.name || relicId;
+    return RELICS?.[relicId]?.name || relicId;
 }
 
 function getRelicText(relicId, RELICS = null) {
-  return RELICS?.[relicId]?.text || 'Unknown relic';
+    return RELICS?.[relicId]?.text || 'Unknown relic';
 }
 
 function getCardArt(cardId, CARDS = null) {
-  if (CARDS && CARDS[cardId]?.art) {
-    const imagePath = CARDS[cardId].art;
-    return `<img src="assets/skill-art/${imagePath}" alt="${cardId}" class="card-art-image">`;
-  }
-  
-  // Fallback for cases where CARDS is not passed (shouldn't happen in normal operation)
-  return `<span>🃏</span>`;
+    if (CARDS && CARDS[cardId]?.art) {
+        const imagePath = CARDS[cardId].art;
+        return `<img src="assets/skill-art/${imagePath}" alt="${cardId}" class="card-art-image">`;
+    }
+
+    // Fallback for cases where CARDS is not passed (shouldn't happen in normal operation)
+    return `<span>🃏</span>`;
 }
 
 function getEnemyArt(enemyId, ENEMIES = null) {
-  const enemyData = ENEMIES?.[enemyId];
-  const avatarPath = enemyData?.avatar || `assets/avatars/${enemyId}.png`;
-  return `<img src="${avatarPath}" alt="${enemyId}" class="enemy-avatar-img">`;
+    const enemyData = ENEMIES?.[enemyId];
+    const avatarPath = enemyData?.avatar || `assets/avatars/${enemyId}.png`;
+    return `<img src="${avatarPath}" alt="${enemyId}" class="enemy-avatar-img">`;
 }
 
 function getEnemyType(enemyId) {
-  if (enemyId.includes('boss_')) return 'BOSS';
-  if (enemyId.includes('elite_')) return 'ELITE';
-  return 'ENEMY';
+    if (enemyId.includes('boss_')) return 'BOSS';
+    if (enemyId.includes('elite_')) return 'ELITE';
+    return 'ENEMY';
 }
 
 export function renderRelicSelection(root) {
-  import("../data/relics.js").then(({ RELICS, START_RELIC_CHOICES }) => {
-    const relicChoices = START_RELIC_CHOICES.slice(0, 3); // Show first 3 relics
+    import("../data/relics.js").then(({ RELICS, START_RELIC_CHOICES }) => {
+        const relicChoices = START_RELIC_CHOICES.slice(0, 3); // Show first 3 relics
 
-    root.app.innerHTML = `
+        root.app.innerHTML = `
         <div class="game-screen relic-select">
           <div class="game-header">
             <div class="game-logo relic-title-logo">
@@ -1215,8 +1216,8 @@ export function renderRelicSelection(root) {
           
           <div class="relic-options">
             ${relicChoices.map(relicId => {
-      const relic = RELICS[relicId];
-      return `
+            const relic = RELICS[relicId];
+            return `
                 <div class="relic-option" data-relic="${relicId}">
                   <div class="relic-portrait">
                     <div class="relic-icon">${getRelicArt(relicId, RELICS)}</div>
@@ -1227,147 +1228,147 @@ export function renderRelicSelection(root) {
                   </div>
                 </div>
               `;
-    }).join("")}
+        }).join("")}
           </div>
           
         </div>
         `;
 
-    root.app.querySelectorAll("[data-relic]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const relicId = btn.dataset.relic;
-        root.selectStartingRelic(relicId);
-      });
+        root.app.querySelectorAll("[data-relic]").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const relicId = btn.dataset.relic;
+                root.selectStartingRelic(relicId);
+            });
+        });
     });
-  });
 }
 
 export function renderEvent(root) {
-  const events = [
-    {
-      title: "Birthday Cake",
-      text: "You find a delicious birthday cake! But it looks suspicious...",
-      artwork: "assets/card-art/bread.png",
-      choices: [
+    const events = [
         {
-          text: "Eat the whole cake (+15 HP, gain Sugar Crash curse)",
-          icon: "assets/card-art/apple.png",
-          risk: "high",
-          effect: () => {
-            root.player.hp = Math.min(root.player.maxHp, root.player.hp + 15);
-            root.player.deck.push("sugar_crash");
-            root.log("Ate cake: +15 HP, added Sugar Crash curse");
-          }
+            title: "Birthday Cake",
+            text: "You find a delicious birthday cake! But it looks suspicious...",
+            artwork: "assets/card-art/bread.png",
+            choices: [
+                {
+                    text: "Eat the whole cake (+15 HP, gain Sugar Crash curse)",
+                    icon: "assets/card-art/apple.png",
+                    risk: "high",
+                    effect: () => {
+                        root.player.hp = Math.min(root.player.maxHp, root.player.hp + 15);
+                        root.player.deck.push("sugar_crash");
+                        root.log("Ate cake: +15 HP, added Sugar Crash curse");
+                    }
+                },
+                {
+                    text: "Take a small bite (+8 HP)",
+                    icon: "assets/card-art/heart.png",
+                    risk: "low",
+                    effect: () => {
+                        root.player.hp = Math.min(root.player.maxHp, root.player.hp + 8);
+                        root.log("Small bite: +8 HP");
+                    }
+                },
+                {
+                    text: "Leave it alone (gain 25 gold)",
+                    icon: "assets/card-art/bag_of_gold.png",
+                    risk: "none",
+                    effect: () => {
+                        root.player.gold += 25;
+                        root.log("Resisted temptation: +25 gold");
+                    }
+                }
+            ]
         },
         {
-          text: "Take a small bite (+8 HP)",
-          icon: "assets/card-art/heart.png",
-          risk: "low",
-          effect: () => {
-            root.player.hp = Math.min(root.player.maxHp, root.player.hp + 8);
-            root.log("Small bite: +8 HP");
-          }
+            title: "Birthday Present",
+            text: "A mysterious gift box sits before you. What could be inside?",
+            artwork: "assets/card-art/chest_closed.png",
+            choices: [
+                {
+                    text: "Open it eagerly (Random card or lose 10 HP)",
+                    icon: "assets/card-art/key.png",
+                    risk: "high",
+                    effect: () => {
+                        if (Math.random() < 0.7) {
+                            import("../data/cards.js").then(({ CARDS, CARD_POOL }) => {
+                                const randomCard = CARD_POOL[Math.floor(Math.random() * CARD_POOL.length)];
+                                root.player.deck.push(randomCard);
+                                root.log(`Found ${CARDS[randomCard].name}!`);
+                            });
+                        } else {
+                            root.player.hp = Math.max(1, root.player.hp - 10);
+                            root.log("It was a trap! -10 HP");
+                        }
+                    }
+                },
+                {
+                    text: "Open it carefully (+5 Max HP)",
+                    icon: "assets/card-art/potion_heal.png",
+                    risk: "low",
+                    effect: () => {
+                        root.player.maxHp += 5;
+                        root.player.hp += 5;
+                        root.log("Careful approach: +5 Max HP");
+                    }
+                },
+                {
+                    text: "Don't touch it (gain 30 gold)",
+                    icon: "assets/card-art/bag_of_gold.png",
+                    risk: "none",
+                    effect: () => {
+                        root.player.gold += 30;
+                        root.log("Played it safe: +30 gold");
+                    }
+                }
+            ]
         },
         {
-          text: "Leave it alone (gain 25 gold)",
-          icon: "assets/card-art/bag_of_gold.png",
-          risk: "none",
-          effect: () => {
-            root.player.gold += 25;
-            root.log("Resisted temptation: +25 gold");
-          }
+            title: "Birthday Balloons",
+            text: "Colorful balloons float by. One has a note attached: 'Pop me for a surprise!'",
+            artwork: "assets/card-art/feather.png",
+            choices: [
+                {
+                    text: "Pop the balloon (Remove a random basic card from deck)",
+                    icon: "assets/card-art/scroll.png",
+                    risk: "medium",
+                    effect: () => {
+                        const basicCards = root.player.deck.filter(id => id === "strike" || id === "defend");
+                        if (basicCards.length > 0) {
+                            const toRemove = basicCards[0];
+                            const index = root.player.deck.indexOf(toRemove);
+                            root.player.deck.splice(index, 1);
+                            root.log(`Removed ${toRemove} from deck`);
+                        } else {
+                            root.log("No basic cards to remove");
+                        }
+                    }
+                },
+                {
+                    text: "Collect the balloons (+1 Energy next 3 fights)",
+                    icon: "assets/card-art/magic_sphere.png",
+                    risk: "low",
+                    effect: () => {
+                        root.flags.bonusEnergyFights = 3;
+                        root.log("Collected balloons: +1 Energy next 3 fights");
+                    }
+                },
+                {
+                    text: "Ignore them (heal 12 HP)",
+                    icon: "assets/card-art/heart.png",
+                    risk: "none",
+                    effect: () => {
+                        root.player.hp = Math.min(root.player.maxHp, root.player.hp + 12);
+                        root.log("Focused on rest: +12 HP");
+                    }
+                }
+            ]
         }
-      ]
-    },
-    {
-      title: "Birthday Present",
-      text: "A mysterious gift box sits before you. What could be inside?",
-      artwork: "assets/card-art/chest_closed.png",
-      choices: [
-        {
-          text: "Open it eagerly (Random card or lose 10 HP)",
-          icon: "assets/card-art/key.png",
-          risk: "high",
-          effect: () => {
-            if (Math.random() < 0.7) {
-              import("../data/cards.js").then(({ CARDS, CARD_POOL }) => {
-                const randomCard = CARD_POOL[Math.floor(Math.random() * CARD_POOL.length)];
-                root.player.deck.push(randomCard);
-                root.log(`Found ${CARDS[randomCard].name}!`);
-              });
-            } else {
-              root.player.hp = Math.max(1, root.player.hp - 10);
-              root.log("It was a trap! -10 HP");
-            }
-          }
-        },
-        {
-          text: "Open it carefully (+5 Max HP)",
-          icon: "assets/card-art/potion_heal.png",
-          risk: "low",
-          effect: () => {
-            root.player.maxHp += 5;
-            root.player.hp += 5;
-            root.log("Careful approach: +5 Max HP");
-          }
-        },
-        {
-          text: "Don't touch it (gain 30 gold)",
-          icon: "assets/card-art/bag_of_gold.png",
-          risk: "none",
-          effect: () => {
-            root.player.gold += 30;
-            root.log("Played it safe: +30 gold");
-          }
-        }
-      ]
-    },
-    {
-      title: "Birthday Balloons",
-      text: "Colorful balloons float by. One has a note attached: 'Pop me for a surprise!'",
-      artwork: "assets/card-art/feather.png",
-      choices: [
-        {
-          text: "Pop the balloon (Remove a random basic card from deck)",
-          icon: "assets/card-art/scroll.png",
-          risk: "medium",
-          effect: () => {
-            const basicCards = root.player.deck.filter(id => id === "strike" || id === "defend");
-            if (basicCards.length > 0) {
-              const toRemove = basicCards[0];
-              const index = root.player.deck.indexOf(toRemove);
-              root.player.deck.splice(index, 1);
-              root.log(`Removed ${toRemove} from deck`);
-            } else {
-              root.log("No basic cards to remove");
-            }
-          }
-        },
-        {
-          text: "Collect the balloons (+1 Energy next 3 fights)",
-          icon: "assets/card-art/magic_sphere.png",
-          risk: "low",
-          effect: () => {
-            root.flags.bonusEnergyFights = 3;
-            root.log("Collected balloons: +1 Energy next 3 fights");
-          }
-        },
-        {
-          text: "Ignore them (heal 12 HP)",
-          icon: "assets/card-art/heart.png",
-          risk: "none",
-          effect: () => {
-            root.player.hp = Math.min(root.player.maxHp, root.player.hp + 12);
-            root.log("Focused on rest: +12 HP");
-          }
-        }
-      ]
-    }
-  ];
+    ];
 
-  const event = events[Math.floor(Math.random() * events.length)];
+    const event = events[Math.floor(Math.random() * events.length)];
 
-  root.app.innerHTML = `
+    root.app.innerHTML = `
     <div class="event-screen">
       <div class="event-header">
         <h1>${event.title}</h1>
@@ -1416,28 +1417,28 @@ export function renderEvent(root) {
     </div>
   `;
 
-  root.app.querySelectorAll("[data-choice]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const idx = parseInt(btn.dataset.choice, 10);
-      event.choices[idx].effect();
-      root.afterNode();
+    root.app.querySelectorAll("[data-choice]").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const idx = parseInt(btn.dataset.choice, 10);
+            event.choices[idx].effect();
+            root.afterNode();
+        });
     });
-  });
 }
 
 export async function renderWin(root) {
-  const { RELICS } = await import("../data/relics.js");
-  const finalStats = {
-    totalTurns: root.turnCount || 0,
-    cardsPlayed: root.cardsPlayedCount || 0,
-    finalHP: root.player.hp,
-    maxHP: root.player.maxHp,
-    finalGold: root.player.gold || 0,
-    deckSize: root.player.deck.length,
-    relicsCollected: root.relicStates.length
-  };
+    const { RELICS } = await import("../data/relics.js");
+    const finalStats = {
+        totalTurns: root.turnCount || 0,
+        cardsPlayed: root.cardsPlayedCount || 0,
+        finalHP: root.player.hp,
+        maxHP: root.player.maxHp,
+        finalGold: root.player.gold || 0,
+        deckSize: root.player.deck.length,
+        relicsCollected: root.relicStates.length
+    };
 
-  root.app.innerHTML = `
+    root.app.innerHTML = `
     <div class="victory-screen">
       <div class="victory-header">
         <div class="victory-crown">
@@ -1494,14 +1495,14 @@ export async function renderWin(root) {
           <h3>Relics Mastered</h3>
           <div class="relics-showcase">
             ${root.relicStates.length > 0 ?
-      root.relicStates.map(r => `
+            root.relicStates.map(r => `
                 <div class="relic-showcase-item" title="${getRelicText(r.id, RELICS)}">
                   <div class="relic-showcase-icon">${getRelicArt(r.id, RELICS)}</div>
                   <div class="relic-showcase-name">${getRelicName(r.id, RELICS)}</div>
                 </div>
               `).join('') :
-      '<div class="no-relics">No relics collected this run</div>'
-    }
+            '<div class="no-relics">No relics collected this run</div>'
+        }
           </div>
         </div>
 
@@ -1522,23 +1523,23 @@ export async function renderWin(root) {
       </div>
     </div>
   `;
-  root.app.querySelector("[data-replay]").addEventListener("click", () => root.reset());
+    root.app.querySelector("[data-replay]").addEventListener("click", () => root.reset());
 }
 
 export async function renderLose(root) {
-  const { RELICS } = await import("../data/relics.js");
-  const finalStats = {
-    totalTurns: root.turnCount || 0,
-    cardsPlayed: root.cardsPlayedCount || 0,
-    finalHP: 0, // Player is defeated
-    maxHP: root.player.maxHp,
-    finalGold: root.player.gold || 0,
-    deckSize: root.player.deck.length,
-    relicsCollected: root.relicStates.length,
-    nodeId: root.nodeId || 'unknown'
-  };
+    const { RELICS } = await import("../data/relics.js");
+    const finalStats = {
+        totalTurns: root.turnCount || 0,
+        cardsPlayed: root.cardsPlayedCount || 0,
+        finalHP: 0, // Player is defeated
+        maxHP: root.player.maxHp,
+        finalGold: root.player.gold || 0,
+        deckSize: root.player.deck.length,
+        relicsCollected: root.relicStates.length,
+        nodeId: root.nodeId || 'unknown'
+    };
 
-  root.app.innerHTML = `
+    root.app.innerHTML = `
     <div class="defeat-screen">
       <div class="defeat-header">
         <h1>You Failed!</h1>
@@ -1634,12 +1635,12 @@ Better luck on the next run!</p>
     `;
 
 
-  root.app.querySelector("[data-replay]").addEventListener("click", () => {
-    root.reset();
-  });
+    root.app.querySelector("[data-replay]").addEventListener("click", () => {
+        root.reset();
+    });
 
-  root.app.querySelector("[data-menu]").addEventListener("click", () => {
-    root.reset();
-  });
+    root.app.querySelector("[data-menu]").addEventListener("click", () => {
+        root.reset();
+    });
 }
 

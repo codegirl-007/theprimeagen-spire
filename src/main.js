@@ -28,7 +28,7 @@ const root = {
         this.nodeId = nextId; // Always set nodeId (needed for battle logic)
         const node = this.map.nodes.find(n => n.id === nextId);
         if (!node) return;
-        
+
         if (node.kind === "battle" || node.kind === "elite" || node.kind === "boss") {
 
             this._battleInProgress = true;
@@ -53,7 +53,7 @@ const root = {
         if (this.nodeId && !this.completedNodes.includes(this.nodeId)) {
             this.completedNodes.push(this.nodeId);
         }
-        
+
 
         const node = this.map.nodes.find(n => n.id === this.nodeId);
         if (node.kind === "battle" || node.kind === "elite") {
@@ -79,10 +79,10 @@ const root = {
         this.save();
         await renderMap(this);
     },
-    async skipReward() { 
-        this._pendingChoices = null; 
+    async skipReward() {
+        this._pendingChoices = null;
         this.save();
-        await renderMap(this); 
+        await renderMap(this);
     },
 
     async onWin() {
@@ -91,12 +91,12 @@ const root = {
         const goldReward = Math.floor(Math.random() * 20) + 15; // 15-35 gold
         this.player.gold = (this.player.gold || 0) + goldReward;
         this.log(`+${goldReward} gold`);
-        
+
 
         this._battleInProgress = false;
-        
+
         const node = this.map.nodes.find(n => n.id === this.nodeId);
-        if (node.kind === "boss") { 
+        if (node.kind === "boss") {
             // Check if there's a next act
             const nextAct = this.currentAct === "act1" ? "act2" : null;
             if (nextAct && MAPS[nextAct]) {
@@ -112,20 +112,19 @@ const root = {
                 // Final victory
                 this.save(); // Save progress before clearing on victory
                 this.clearSave(); // Clear save on victory
-                await renderWin(this); 
+                await renderWin(this);
             }
         }
         else {
-
             this.save();
             this.afterNode();
         }
     },
-    async onLose() { 
+    async onLose() {
 
         this._battleInProgress = false;
         this.clearSave(); // Clear save on defeat
-        await renderLose(this); 
+        await renderLose(this);
     },
 
     reset() {
@@ -142,7 +141,6 @@ const root = {
 
     async selectStartingRelic(relicId) {
         attachRelics(this, [relicId]);
-        this.log(`Selected starting relic: ${relicId}`);
         this.save();
         await renderMap(this);
     },
@@ -170,20 +168,20 @@ const root = {
             const saveData = localStorage.getItem('birthday-spire-save');
             if (saveData) {
                 const data = JSON.parse(saveData);
-                
+
                 // Validate essential save data
                 if (!data || typeof data !== 'object') {
                     throw new Error('Invalid save data format');
                 }
-                
+
                 if (!data.player || typeof data.player !== 'object') {
                     throw new Error('Invalid player data');
                 }
-                
+
                 if (!data.nodeId || typeof data.nodeId !== 'string') {
                     throw new Error('Invalid node ID');
                 }
-                
+
                 // Validate current act and ensure map exists
                 const actId = data.currentAct || "act1";
                 if (!MAPS[actId]) {
@@ -192,9 +190,9 @@ const root = {
                 } else {
                     this.currentAct = actId;
                 }
-                
+
                 this.map = MAPS[this.currentAct];
-                
+
                 // Validate that the nodeId exists in the current map
                 const nodeExists = this.map.nodes.some(n => n.id === data.nodeId);
                 if (!nodeExists) {
@@ -203,7 +201,7 @@ const root = {
                 } else {
                     this.nodeId = data.nodeId;
                 }
-                
+
                 // Validate player data has required fields
                 if (typeof data.player.hp !== 'number' || data.player.hp < 0) {
                     throw new Error('Invalid player HP');
@@ -214,15 +212,15 @@ const root = {
                 if (!Array.isArray(data.player.deck)) {
                     throw new Error('Invalid player deck');
                 }
-                
+
                 this.player = data.player;
                 this.relicStates = Array.isArray(data.relicStates) ? data.relicStates : [];
                 this.completedNodes = Array.isArray(data.completedNodes) ? data.completedNodes : [];
                 this.logs = Array.isArray(data.logs) ? data.logs : [];
                 this._battleInProgress = Boolean(data.battleInProgress);
-                
+
                 this.restoreCardEffects();
-                
+
                 this.log('Game loaded from save.');
                 return true;
             }
@@ -255,7 +253,7 @@ const root = {
     clearSave() {
         localStorage.removeItem('birthday-spire-save');
     },
-    
+
     // Clear any old saves with outdated card IDs
     clearOldSaves() {
         localStorage.removeItem('birthday-spire-save');
@@ -295,21 +293,21 @@ async function initializeGame() {
     const urlParams = new URLSearchParams(window.location.search);
     const screenParam = urlParams.get('screen');
     const dev = urlParams.get('dev');
-    
+
     // Check if it's ThePrimeagen's birthday yet (September 9, 2025)
     // Skip countdown if ?dev=true is in URL
     const now = new Date();
     const birthday = new Date('2025-09-09T00:00:00');
-    
-    
+
+
     if (now < birthday && dev !== 'true') {
         showCountdown(birthday);
         return;
     }
-    
+
     if (screenParam) {
         setupMockData();
-        
+
         switch (screenParam.toLowerCase()) {
             case 'victory':
             case 'win':
@@ -364,9 +362,9 @@ function setupMockData() {
     root.player.hand = ['strike', 'coffee_rush', 'raw_dog'];
     root.player.draw = ['defend', 'segfault'];
     root.player.discard = ['virgin'];
-    
+
     attachRelics(root, ['coffee_thermos', 'cpp_compiler']);
-    
+
     // Test Act 2 if ?act2=true is in URL
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('act2') === 'true') {
@@ -424,24 +422,24 @@ function showCountdown(birthday) {
             </div>
         </div>
     `;
-    
+
     // Start the countdown timer
     const timer = setInterval(() => {
         const now = new Date();
         const timeLeft = birthday - now;
-        
+
         if (timeLeft <= 0) {
             clearInterval(timer);
             // Birthday reached! Reload to show the game
             window.location.reload();
             return;
         }
-        
+
         const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
         const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-        
+
         document.getElementById('days').textContent = days.toString().padStart(2, '0');
         document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
         document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
