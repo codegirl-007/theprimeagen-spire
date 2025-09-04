@@ -128,7 +128,18 @@ Get well soon, we miss you on the stream ;) "`
         from: "PHPeePee",
         message: "I never thought that an unemployed american with a mullet screaming at his screen would have such a positive impact on my life, but here we are. thanks for all the good times. Happy birthday!"
     },
-
+    {
+        from: "Elon Musk",
+        message: "Concerning"
+    },
+    {
+        from: "Towerstrike",
+        message: "It’s dangerous to go alone. Here, take this!"
+    },
+    {
+        from: "codeShudder",
+        message: "So, you senior dev now? <script>alert('codegirl007 vibe coded this');</script>"
+    },
 
 ];
 
