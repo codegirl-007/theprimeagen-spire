@@ -1,7 +1,7 @@
 import { ENEMIES } from "../data/enemies.js";
 import { RELICS } from "../data/relics.js";
 import { CARDS } from "../data/cards.js";
-import { draw, endTurnDiscard, clamp, cloneCard } from "./core.js";
+import { draw, endTurnDiscard, clamp, cloneCard, shuffle } from "./core.js";
 
 export function createBattle(ctx, enemyId) {
     const enemyData = ENEMIES[enemyId];
@@ -9,6 +9,11 @@ export function createBattle(ctx, enemyId) {
     ctx.enemy = enemy;
     ctx.flags = {};
     ctx.lastCard = null;
+
+    // Initialize draw pile from current deck for the battle
+    ctx.player.draw = shuffle(ctx.player.deck.slice());
+    ctx.player.discard = [];
+    ctx.player.hand = [];
 
 
     const relicCtx = { 
