@@ -1704,10 +1704,21 @@ Better luck on the next run!</p>
         </div>
 
         <div class="defeat-actions">
-          <button class="defeat-btn primary-btn" data-replay>
-            <span class="btn-icon">🔄</span>
-            <span>Try Again</span>
-          </button>
+          ${root.currentAct === "act2" && root.hasAct2Checkpoint() ? `
+            <button class="defeat-btn primary-btn" data-restart-act2>
+              <span class="btn-icon">🎯</span>
+              <span>Restart Act 2</span>
+            </button>
+            <button class="defeat-btn secondary-btn" data-replay>
+              <span class="btn-icon">🔄</span>
+              <span>Restart from Beginning</span>
+            </button>
+          ` : `
+            <button class="defeat-btn primary-btn" data-replay>
+              <span class="btn-icon">🔄</span>
+              <span>Try Again</span>
+            </button>
+          `}
           <button class="defeat-btn secondary-btn" data-menu>
             <span class="btn-icon">🏠</span>
             <span>Main Menu</span>
@@ -1718,12 +1729,31 @@ Better luck on the next run!</p>
     `;
 
 
-    root.app.querySelector("[data-replay]").addEventListener("click", () => {
-        root.reset();
-    });
+    // Add event listeners for restart options
+    const restartAct2Btn = root.app.querySelector("[data-restart-act2]");
+    if (restartAct2Btn) {
+        restartAct2Btn.addEventListener("click", async () => {
+            if (root.loadAct2Checkpoint()) {
+                await renderMap(root);
+            } else {
+                // Fallback to full reset if checkpoint fails
+                root.reset();
+            }
+        });
+    }
 
-    root.app.querySelector("[data-menu]").addEventListener("click", () => {
-        root.reset();
-    });
+    const replayBtn = root.app.querySelector("[data-replay]");
+    if (replayBtn) {
+        replayBtn.addEventListener("click", () => {
+            root.reset();
+        });
+    }
+
+    const menuBtn = root.app.querySelector("[data-menu]");
+    if (menuBtn) {
+        menuBtn.addEventListener("click", () => {
+            root.reset();
+        });
+    }
 }
 

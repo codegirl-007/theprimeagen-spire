@@ -106,6 +106,12 @@ const root = {
                 this.nodeId = this.map.nodes.find(n => n.kind === "start").id;
                 this.completedNodes = [];
                 this.log(`🎉 Act ${this.currentAct === "act2" ? "II" : "I"} Complete! Advancing to the next challenge...`);
+                
+                // Save Act 2 checkpoint when first reaching it
+                if (nextAct === "act2") {
+                    this.saveAct2Checkpoint();
+                }
+                
                 this.save();
                 await renderMap(this);
             } else {
@@ -160,6 +166,66 @@ const root = {
             localStorage.setItem('birthday-spire-save', JSON.stringify(saveData));
         } catch (e) {
             console.warn('Failed to save game:', e);
+        }
+    },
+
+    saveAct2Checkpoint() {
+        try {
+            const checkpointData = {
+                player: {
+                    ...this.player,
+                    hp: this.player.maxHp, // Start Act 2 with full HP
+                    energy: this.player.maxEnergy,
+                    block: 0,
+                    weak: 0,
+                    vuln: 0,
+                    hand: [],
+                    draw: [],
+                    discard: []
+                },
+                currentAct: "act2",
+                relicStates: this.relicStates,
+                timestamp: Date.now()
+            };
+            localStorage.setItem('birthday-spire-act2-checkpoint', JSON.stringify(checkpointData));
+            this.log("🎯 Act 2 checkpoint saved!");
+        } catch (e) {
+            console.warn('Failed to save Act 2 checkpoint:', e);
+        }
+    },
+
+    loadAct2Checkpoint() {
+        try {
+            const checkpointData = localStorage.getItem('birthday-spire-act2-checkpoint');
+            if (checkpointData) {
+                const data = JSON.parse(checkpointData);
+                
+                // Restore checkpoint state
+                this.logs = [];
+                this.player = data.player;
+                this.currentAct = "act2";
+                this.map = MAPS.act2;
+                this.nodeId = "n1"; // Start of Act 2
+                this.completedNodes = [];
+                this.relicStates = data.relicStates || [];
+                this._battleInProgress = false;
+                
+                this.log("🎯 Restarting from Act 2 checkpoint...");
+                return true;
+            }
+            return false;
+        } catch (e) {
+            console.warn('Failed to load Act 2 checkpoint:', e);
+            return false;
+        }
+    },
+
+    hasAct2Checkpoint() {
+        try {
+            const checkpointData = localStorage.getItem('birthday-spire-act2-checkpoint');
+            return !!checkpointData;
+        } catch (e) {
+            return false;
         }
     },
 
@@ -252,11 +318,13 @@ const root = {
 
     clearSave() {
         localStorage.removeItem('birthday-spire-save');
+        localStorage.removeItem('birthday-spire-act2-checkpoint'); // Also clear Act 2 checkpoint
     },
 
     // Clear any old saves with outdated card IDs
     clearOldSaves() {
         localStorage.removeItem('birthday-spire-save');
+        localStorage.removeItem('birthday-spire-act2-checkpoint');
     }
 };
 
