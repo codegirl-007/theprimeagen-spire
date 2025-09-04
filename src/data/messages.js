@@ -16,12 +16,12 @@ Stephanie (Codegirl)`
         from: "nilpointerr",
         message: "from feeling shitty to loving to program. prime's helped me a lot (indirectly). all the witty dad jokes , serious hot takes to skill issuing i just related to them all. thanks for streaming content, bringing great minds in TheStandup, sharing your own personal stories. hope you get well soon. yayayayayayayayayay "
     },
-    
+
     {
-        from: "ShadowCaster", 
+        from: "ShadowCaster",
         message: "Happy Birthday Prime! Hope you have a blazing birthday, fast fingers and even faster moves.  Keep on trucking, you one mullet of a beast!"
     },
-    
+
     {
         from: "LowKeyAbu",
         message: `Why male models?
@@ -45,37 +45,82 @@ I appreciate you so much. You've impacted my life more than you know.
 Anyway,
 But why male models?`
     },
-    
+
     {
-        from: "Shreyas", 
+        from: "Shreyas",
         message: "love you brother!! take care of your throat, we can't afford to lose prime anime noises :) Happy Birthday 🎈"
     },
 
     {
-        from: "dingmana", 
+        from: "dingmana",
         message: "Happy Birthday you filthy animal! You’ve made my life better. Thank you for that and I hope you can continue making your impact in whatever way you are able."
     },
 
     {
-        from: "grimmacez", 
+        from: "grimmacez",
         message: "With the greatest Go comes the greatest Pher. Pher deez nutz in yo Elixir"
     },
     {
-        from: "rodrigolj", 
+        from: "rodrigolj",
         message: "I liked programming, but you made me love it. The day is yours, and the gift is our hearts. Congratulations!"
     },
     {
-        from: "Ayla", 
+        from: "Ayla",
         message: "Happy Birthday!!!! I got you a kitten!"
     },
     {
-        from: "nwnisworking", 
+        from: "nwnisworking",
         message: "Hey there, sexy moustache man. It's another splendid year of yapping, and I wish you a splendourous birthday and a lovely time with your family. 🎂🥳"
     },
     {
-        from: "HotDogFlavoredWater", 
+        from: "HotDogFlavoredWater",
         message: "happy birthday big man! thanks for being a big inspiration"
     },
+    {
+        from: "roastedb",
+        message: "Happy Birthday to an all around amazing dude. You have had such a positive impact on so many people, I hope you realize how much you are appreciated by us all. Hope you have a great day!"
+    },
+    {
+        from: "Goreng",
+        message: "Happy birthday, Prime! Thank you for being unapologetically Christian. I used to think tech was a strictly secular world, and I felt lonely in my faith, and I almost dropped out of my CS program because of it. But then I started watching you, and you often share about your faith openly, and it encouraged me to stay. Now I am blessed with a relatively good job and have been enjoying this journey (while meeting many fellow Christians too!). Once again, thank you, and Jesus bless you."
+    },
+    {
+        from: "DrQuicheEater",
+        message: `"Wanted to say something cool and funny, but I got nothing. 
+
+Happy birthday you glorious doofus :D 
+
+Get well soon, we miss you on the stream ;) "`
+    },
+    {
+        from: "Preston",
+        message: "Happy birthday man! Congrats on all your success and wish you a ton more. God bless "
+    },
+    {
+        from: "@IroncladDev",
+        message: "I wish a very Happy Birthday to one of the most based and awesome guys in the tech world. May your mustache grow thiccc and your Neovim config stay lightweight."
+    },
+    {
+        from: "adamdotdev",
+        message: "Happy birthday, Prime! Last year of our lives/30s (same thing)!"
+    },
+    {
+        from: "Glauber Costa",
+        message: "Happy birthday! May the Lord bless you forever."
+    },
+    {
+        from: "Dillon Mulroy",
+        message: "Happy birthday brother, I hope this journey around the sun is your best yet. Thank you for all you've done for me over the past two years w/ streaming and helping give me a platform. You're a voice of genuineness, humor, and intellect during a time in tech that is filled w/ anxiety and slop. Keep being excellent and inspiring the devs of the next generation."
+    },
+    {
+        from: "NagWeed",
+        message: "Even though your hands are small, I know your heart is big. Thanks for making videos and inspiring us to further sharpen our neovim & coding skills. Happy Birthday Prime!"
+    },
+    {
+        from: "Ipinzi",
+        message: "Happy Birthday Prime! Thanks for all streams, much love bro!"
+    },
+
 ];
 
 // Simple helper function to get all messages
