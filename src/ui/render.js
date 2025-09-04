@@ -13,7 +13,7 @@ function playSound(soundFile) {
 async function showMessagesModal() {
     const { getAllMessages } = await import("../data/messages.js");
     const messages = getAllMessages();
-    
+
     const modal = document.createElement('div');
     modal.className = 'messages-modal-overlay';
     modal.innerHTML = `
@@ -37,20 +37,20 @@ async function showMessagesModal() {
             </div>
         </div>
     `;
-    
+
     // Close functionality
     const closeModal = () => {
         modal.remove();
     };
-    
+
     const closeBtn = modal.querySelector('.messages-close-btn');
     closeBtn.addEventListener('click', closeModal);
-    
+
     // Close on overlay click
     modal.addEventListener('click', (e) => {
         if (e.target === modal) closeModal();
     });
-    
+
     // Close on Escape key
     const handleEscape = (e) => {
         if (e.key === 'Escape') {
@@ -59,7 +59,7 @@ async function showMessagesModal() {
         }
     };
     document.addEventListener('keydown', handleEscape);
-    
+
     // Add to DOM
     document.body.appendChild(modal);
 }
@@ -1340,7 +1340,7 @@ export function renderEvent(root) {
                     icon: "assets/card-art/heart.png",
                     risk: "low",
                     effect: () => {
-                        root.player.hp = Math.min(root.player.maxHp, root.player.hp + 8);
+                        root.player.maxHp += 5;
                         root.log("Small bite: +8 HP");
                     }
                 },
@@ -1425,13 +1425,13 @@ export function renderEvent(root) {
                     }
                 },
                 {
-                    text: "Collect the balloons (+1 Energy next 3 fights)",
+                    text: "Collect the balloons (+1 Energy)",
                     quote: "Isn’t it funny how day by day nothing changes, but when you look back, everything is different?",
                     icon: "assets/card-art/magic_sphere.png",
                     risk: "low",
                     effect: () => {
-                        root.flags.bonusEnergyFights = 3;
-                        root.log("Collected balloons: +1 Energy next 3 fights");
+                        root.player.maxEnergy += 1;
+                        root.log("Collected balloons: +1 Energy");
                     }
                 },
                 {
