@@ -1,14 +1,11 @@
-// Personal birthday messages for Prime
-// Add your real messages here - this is just the data structure
-
 export const BIRTHDAY_MESSAGES = [
     {
         from: "codegirl007",
-        message: `Happy birthday Prime! Can’t believe I kept this domain from your last birthday and renewed it for another year. But here we are, right? Haha. I think I've outdone myself this year though.
+        message: `Happy birthday Prime! Can’t believe I kept this domain from your last birthday and renewed it for another year. But here we are. Haha.
 
-I made you a game. It’ll probably remind you of some other game. I promise it was made with all the love and care and ooey goeey but I don’t promise it to be bug free. I built it in a week-ish so like any good dev, my estimations were off and planning was poor and there was way more to it than I thought. Feature creep was at the utmost max. The product manager (me) was on my case the entire time about getting it done well in time for the big day. Despite everything though, I had a ton of fun making this.
+Anyways, I hope you have a good birthday with your family and friends. It's been good times since first meeting you at Open Sauce last year (even if you might not remember). Thanks for letting me be part of your community, your chat, and hanging out with me in real life as well. You put up with me quite well. :P It's all meant so much to me. More than you could imagine. I never expected any of it to begin with but I'm very grateful for all of it. 
 
-Anyways, I hope you have a good birthday with your family and friends. You’ll always have my support in whatever you do. 
+Hope you enjoy this all the messages and the little mini-game. :)
 
 Stephanie (Codegirl)`
     },
@@ -140,6 +137,55 @@ Get well soon, we miss you on the stream ;) "`
         from: "codeShudder",
         message: "So, you senior dev now? <script>alert('codegirl007 vibe coded this');</script>"
     },
+    {
+        from: "kmdr",
+        message: "Good to have you and parallelism!"
+    },
+    {
+        from: "reasonablebreasts/special k (same thing)",
+        message: `Hi primeagen! 
+Grateful for your podcast and the community it has brought together, it really does have ripple effects that go wider and I am grateful to find different people to connect with I might never have found if you guys didn't do what you do! I also tune into your stream and always find myself in a better mood, I am sure the voice stuff has got you down but the way you are able to stay positive through many trials of life is very inspiring and high aura. Many people including myself are really grateful for you being ""real"" in the things you talk about (e.g. the effects of porn or kratom and being a father) because so many content creators really are not so it is more rare than you might think. Thanks for all you do.`
+    },
+    {
+        from: "Lithium",
+        message: "Have a great birthday. I hope you're spending this time with your kids!"
+    },
+    {
+        from: "joker_dan",
+        message: "Merry Cakeday dude, here's to wishing you a speedy recovery on the throat front and that you have have some great birthday celebrations!"
+    },
+    {
+        from: "YurySolovyov",
+        message: "I'm, 69% confident that your prime time is still ahead! Happy birthday!"
+    },
+    {
+        from: "neraul",
+        message: "hey prime, I'm a friend of Abu and just I wanted to wish you a happy birthday! It's been awesome hearing about how much you've positively impacted peoples lives along with all cool things you've built and shown to people. have an awesome day and I hope your voice gets better!"
+    },
+    {
+        from: "Techworkbench",
+        message: `Happy Birthday Prime! 
+
+Another year of blazing fast Vim keystrokes, legendary hot takes, and elite-level code wizardry! Your energy, humor, and relentless passion for teaching have made the dev world a more exciting place. Whether you’re refactoring with Rust, memeing about TypeScript, or battling in LeetCode, you inspire thousands to push their skills further (and, let’s be honest, to try and master Vim splits).
+
+Thanks for never settling for “just works” and always chasing that 10x developer life. Hope your day is filled with epic wins, zero bugs, and maybe a little time away from the terminal. You deserve it!
+
+Keep being you—never stop shipping, never stop memeing, and never stop making the community better.
+
+Wishing you speed, happiness, and all the best commits for your next trip around the sun!`    },
+    {
+        from: "anonymous twitch viewer",
+        message: `Happy Birthday Prime!`
+    },
+    {
+        from: "PirateSoftware",
+        message: "Happy Birthday. The council has agreed to let you wear two fake mustaches today. You're welcome."
+    },
+    {
+        from: "thoughtlesslabs",
+        message: "Happy Birthday Prime! Keep up the amazing work. I hope you know how much joy you've brought to so many."
+    },
+
 
 ];
 
