@@ -6,9 +6,7 @@ export const BIRTHDAY_MESSAGES = [
         from: "codegirl007",
         message: `Happy birthday Prime! Can’t believe I kept this domain from your last birthday and renewed it for another year. But here we are, right? Haha. I think I've outdone myself this year though.
 
-I made you a game. It’ll probably remind you of some other game. I promise it was made with care and love but I don’t promise it to be bug free. I built it in a week (give or take) so like any software engineer, my estimations were off and planning was poor and there was way more to it than I thought. Feature creep was at the utmost max. But I had a ton of fun making this.
-
-I tried my best with reaching out to people I don't know to write you some ooey gooey messages but I'm a shy person still and I reached my limit. Haha.
+I made you a game. It’ll probably remind you of some other game. I promise it was made with all the love and care and ooey goeey but I don’t promise it to be bug free. I built it in a week-ish so like any good dev, my estimations were off and planning was poor and there was way more to it than I thought. Feature creep was at the utmost max. The product manager (me) was on my case the entire time about getting it done well in time for the big day. Despite everything though, I had a ton of fun making this.
 
 Anyways, I hope you have a good birthday with your family and friends. You’ll always have my support in whatever you do. 
 
@@ -65,6 +63,18 @@ But why male models?`
     {
         from: "rodrigolj", 
         message: "I liked programming, but you made me love it. The day is yours, and the gift is our hearts. Congratulations!"
+    },
+    {
+        from: "Ayla", 
+        message: "Happy Birthday!!!! I got you a kitten!"
+    },
+    {
+        from: "nwnisworking", 
+        message: "Hey there, sexy moustache man. It's another splendid year of yapping, and I wish you a splendourous birthday and a lovely time with your family. 🎂🥳"
+    },
+    {
+        from: "HotDogFlavoredWater", 
+        message: "happy birthday big man! thanks for being a big inspiration"
     },
 ];
 

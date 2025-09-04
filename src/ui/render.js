@@ -536,8 +536,7 @@ But cake lies ahead at the top of the Spire. </p>
               </ul>
               
               <div class="birthday-wish">
-                <p><em>May your code be bug-free and your coffee stay hot,  
-May this birthday bring joy in each moment you’ve got.  </em></p>
+                <p><em>Courage, dear heart.</em></p>
               </div>
             </div>
           </div>
@@ -546,12 +545,12 @@ May this birthday bring joy in each moment you’ve got.  </em></p>
             <div class="act-progress-bar">
               <div class="act-step ${root.currentAct === 'act1' ? 'current' : 'completed'}">
                 <div class="act-number">Act I</div>
-                <div class="act-name">Junior Dev</div>
+                <div class="act-name">I'm doing a startup!</div>
               </div>
               <div class="act-connector ${root.currentAct === 'act2' ? 'active' : ''}"></div>
               <div class="act-step ${root.currentAct === 'act2' ? 'current' : root.currentAct === 'act1' ? 'locked' : 'completed'}">
                 <div class="act-number">Act II</div>
-                <div class="act-name">Corporate Ladder</div>
+                <div class="act-name">Look dad, we made it!</div>
               </div>
             </div>
           </div>
@@ -1326,6 +1325,7 @@ export function renderEvent(root) {
             choices: [
                 {
                     text: "Eat the whole cake (+15 HP, gain Sugar Crash curse)",
+                    quote: "The great thing, if one can, is to stop regarding all the unpleasant things as interruptions of one’s own or real life. The truth is of course that what one calls the interruptions are precisely one’s real life.",
                     icon: "assets/card-art/apple.png",
                     risk: "high",
                     effect: () => {
@@ -1336,6 +1336,7 @@ export function renderEvent(root) {
                 },
                 {
                     text: "Take a small bite (+8 HP)",
+                    quote: "Courage is not simply one of the virtues, but the form of every virtue at the testing point.",
                     icon: "assets/card-art/heart.png",
                     risk: "low",
                     effect: () => {
@@ -1345,6 +1346,7 @@ export function renderEvent(root) {
                 },
                 {
                     text: "Leave it alone (gain 25 gold)",
+                    quote: "You can’t go back and change the beginning, but you can start where you are and change the ending.",
                     icon: "assets/card-art/bag_of_gold.png",
                     risk: "none",
                     effect: () => {
@@ -1361,6 +1363,7 @@ export function renderEvent(root) {
             choices: [
                 {
                     text: "Open it eagerly (Random card or lose 10 HP)",
+                    quote: "Hardship often leaves an extraordinary destiny.",
                     icon: "assets/card-art/key.png",
                     risk: "high",
                     effect: () => {
@@ -1378,6 +1381,7 @@ export function renderEvent(root) {
                 },
                 {
                     text: "Open it carefully (+5 Max HP)",
+                    quote: "We are what we believe we are.",
                     icon: "assets/card-art/potion_heal.png",
                     risk: "low",
                     effect: () => {
@@ -1388,6 +1392,7 @@ export function renderEvent(root) {
                 },
                 {
                     text: "Don't touch it (gain 30 gold)",
+                    quote: "Experience: that most brutal of teachers. But you learn, my God do you learn.",
                     icon: "assets/card-art/bag_of_gold.png",
                     risk: "none",
                     effect: () => {
@@ -1404,6 +1409,7 @@ export function renderEvent(root) {
             choices: [
                 {
                     text: "Pop the balloon (Remove a random basic card from deck)",
+                    quote: "There are far, far better things ahead than any we leave behind.",
                     icon: "assets/card-art/scroll.png",
                     risk: "medium",
                     effect: () => {
@@ -1420,6 +1426,7 @@ export function renderEvent(root) {
                 },
                 {
                     text: "Collect the balloons (+1 Energy next 3 fights)",
+                    quote: "Isn’t it funny how day by day nothing changes, but when you look back, everything is different?",
                     icon: "assets/card-art/magic_sphere.png",
                     risk: "low",
                     effect: () => {
@@ -1429,6 +1436,7 @@ export function renderEvent(root) {
                 },
                 {
                     text: "Ignore them (heal 12 HP)",
+                    quote: "Hardships often prepare ordinary people for an extraordinary destiny.",
                     icon: "assets/card-art/heart.png",
                     risk: "none",
                     effect: () => {
@@ -1479,6 +1487,7 @@ export function renderEvent(root) {
                 </div>
                 <div class="choice-content">
                   <div class="choice-text">${choice.text}</div>
+                  ${choice.quote ? `<div class="choice-quote">"${choice.quote}"</div>` : ''}
                   <div class="choice-risk-badge ${choice.risk}">
                     ${choice.risk === 'high' ? 'High Risk' : choice.risk === 'medium' ? 'Medium Risk' : choice.risk === 'low' ? 'Low Risk' : 'Safe'}
                   </div>
