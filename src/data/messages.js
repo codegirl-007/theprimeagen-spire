@@ -185,7 +185,10 @@ Wishing you speed, happiness, and all the best commits for your next trip around
         from: "thoughtlesslabs",
         message: "Happy Birthday Prime! Keep up the amazing work. I hope you know how much joy you've brought to so many."
     },
-
+    {
+        from: "Casey Muratori",
+        message: "Thank you for being such a great influence on the world of tech discourse. I don't know how you do it, but I hope you keep doing it for a long time to come :) Have a wonderful birthday!"
+    },
 
 ];
 
