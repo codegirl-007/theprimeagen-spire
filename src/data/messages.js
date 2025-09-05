@@ -3,11 +3,13 @@ export const BIRTHDAY_MESSAGES = [
         from: "codegirl007",
         message: `Happy birthday Prime! Can’t believe I kept this domain from your last birthday and renewed it for another year. But here we are. Haha.
 
-Anyways, I hope you have a good birthday with your family and friends. It's been good times since first meeting you at Open Sauce last year (even if you might not remember). Thanks for letting me be part of your community, your chat, and hanging out with me in real life as well. You put up with me quite well. :P It's all meant so much to me. More than you could imagine. I never expected any of it to begin with but I'm very grateful for all of it. 
+I hope you have a good birthday with your family and friends. Thanks for all the good times we've had on your stream, in real life, at events. All of it has meant a lot to me and I'm very grateful.
 
-Hope you enjoy this all the messages and the little mini-game. :)
+Hope these messages can bring some happiness to you. The only goal of all this is to just make you smile on your birthday.
 
-Stephanie (Codegirl)`
+Stephanie (Codegirl)
+
+P.S. Sorry for the bugs (if there are any)`
     },
     {
         from: "nilpointerr",
@@ -189,7 +191,14 @@ Wishing you speed, happiness, and all the best commits for your next trip around
         from: "Casey Muratori",
         message: "Thank you for being such a great influence on the world of tech discourse. I don't know how you do it, but I hope you keep doing it for a long time to come :) Have a wonderful birthday!"
     },
-
+    {
+        from: "Nightshadedude",
+        message: "Happy birthday. Welcome to being old. I still hate it here."
+    },
+    {
+        from: "bip0pular",
+        message: "more life more love more sucess"
+    },
 ];
 
 // Simple helper function to get all messages
