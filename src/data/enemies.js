@@ -1,4 +1,3 @@
-
 export const ENEMIES = {
     old_man_judo: {
         id: "old_man_judo", name: "Old Man Judo", maxHp: 40,

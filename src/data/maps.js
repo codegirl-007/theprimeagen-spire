@@ -1,4 +1,3 @@
-
 export const MAPS = {
     act1: {
         id: "act1", name: "Birthday Spire — Act I",
