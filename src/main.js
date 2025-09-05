@@ -4,7 +4,8 @@ import { ENEMIES } from "./data/enemies.js";
 import { MAPS } from "./data/maps.js";
 import { makePlayer, initDeck, draw } from "./engine/core.js";
 import { createBattle, startPlayerTurn, playCard, endTurn, makeBattleContext, attachRelics } from "./engine/battle.js";
-import { renderBattle, renderMap, renderReward, renderRest, renderShop, renderWin, renderLose, renderEvent, renderRelicSelection, showDamageNumber } from "./ui/render.js";
+import { renderBattle, renderMap, renderReward, renderRest, renderShop, renderWin, renderLose, renderEvent, renderRelicSelection, renderUpgrade, updateCardSelection, showDamageNumber } from "./ui/render.js";
+import { InputManager } from "./input/InputManager.js";
 
 const app = document.getElementById("app");
 
@@ -16,6 +17,10 @@ const root = {
     relicStates: [],
     completedNodes: [],
     enemy: null,
+    inputManager: null, // Will be initialized later
+    currentEvent: null, // For event handling
+    currentShopCards: null, // For shop handling
+    currentShopRelic: null, // For shop relic handling
 
     log(m) { this.logs.push(m); this.logs = this.logs.slice(-200); },
     async render() { await renderBattle(this); },
@@ -535,6 +540,16 @@ async function loadNormalGame() {
         root.reset();
     }
 }
+
+// Initialize InputManager
+root.inputManager = new InputManager(root);
+root.inputManager.initGlobalListeners();
+
+// Make modules available globally for InputManager
+window.gameModules = {
+    cards: { CARDS },
+    render: { renderMap, renderUpgrade, updateCardSelection }
+};
 
 initializeGame();
 

@@ -288,39 +288,10 @@ export async function renderBattle(root) {
     </div>
   `;
 
-    app.querySelectorAll("[data-play]").forEach(btn => {
-        btn.addEventListener("mouseenter", () => {
-            if (btn.classList.contains('playable')) {
-                playSound('swipe.mp3');
-                root.selectedCardIndex = null;
-                updateCardSelection(root);
-            }
-        });
-
-        btn.addEventListener("click", () => {
-            const index = parseInt(btn.dataset.play, 10);
-            const card = p.hand[index];
-            if (p.energy >= card.cost) {
-                playSound('played-card.mp3')
-                root.play(index);
-                // Clear selection when card is played via mouse
-                root.selectedCardIndex = null;
-                updateCardSelection(root);
-            }
-        });
-    });
-
-    const endTurnBtn = app.querySelector("[data-action='end']");
-    if (endTurnBtn) {
-
-        endTurnBtn.addEventListener("click", () => {
-
-            try {
-                root.end();
-            } catch (error) {
-                console.error("Error ending turn:", error);
-            }
-        });
+    // Event listeners are now handled by InputManager
+    // Set up card hover sounds through InputManager
+    if (root.inputManager) {
+        root.inputManager.setupCardHoverSounds();
     }
 
     // Initialize card selection state if not exists
@@ -676,16 +647,7 @@ But cake lies ahead at the top of the Spire. </p>
     </div>
   `;
 
-    root.app.querySelectorAll("[data-node]").forEach(el => {
-        if (!el.dataset.node) return;
-        el.addEventListener("click", () => root.go(el.dataset.node));
-    });
-
-    // Add Messages button event listener
-    const messagesBtn = root.app.querySelector("[data-action='show-messages']");
-    if (messagesBtn) {
-        messagesBtn.addEventListener("click", () => showMessagesModal());
-    }
+    // Event listeners are now handled by InputManager
 
     window.showTooltip = function(event) {
         const tooltip = document.getElementById('custom-tooltip');
@@ -735,11 +697,7 @@ But cake lies ahead at the top of the Spire. </p>
     };
 
 
-    const resetBtn = root.app.querySelector("[data-reset]");
-    resetBtn.addEventListener("click", () => {
-        root.clearSave();
-        root.reset();
-    });
+    // Event listeners are now handled by InputManager
 }
 
 export async function renderReward(root, choices) {
@@ -781,13 +739,7 @@ export async function renderReward(root, choices) {
       </div>
     </div>
   `;
-    root.app.querySelectorAll("[data-pick]").forEach(btn => {
-        btn.addEventListener("click", () => {
-            const idx = parseInt(btn.dataset.pick, 10);
-            root.takeReward(idx);
-        });
-    });
-    root.app.querySelector("[data-skip]").addEventListener("click", () => root.skipReward());
+    // Event listeners are now handled by InputManager
 }
 
 export async function renderRest(root) {
@@ -822,15 +774,7 @@ export async function renderRest(root) {
       </div>
     </div>
   `;
-    root.app.querySelector("[data-act='heal']").addEventListener("click", () => {
-        const heal = Math.floor(root.player.maxHp * 0.2);
-        root.player.hp = Math.min(root.player.maxHp, root.player.hp + heal);
-        root.log(`Rested: +${heal} HP`);
-        root.afterNode();
-    });
-    root.app.querySelector("[data-act='upgrade']").addEventListener("click", () => {
-        renderUpgrade(root);
-    });
+    // Event listeners are now handled by InputManager
 }
 
 export function renderUpgrade(root) {
@@ -1112,7 +1056,7 @@ export function renderShop(root) {
     });
 }
 
-function updateCardSelection(root) {
+export function updateCardSelection(root) {
     // Remove selection from all cards
     root.app.querySelectorAll('.battle-card').forEach(card => {
         card.classList.remove('card-selected');
