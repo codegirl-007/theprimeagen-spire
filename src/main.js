@@ -6,6 +6,7 @@ import { makePlayer, initDeck, draw } from "./engine/core.js";
 import { createBattle, startPlayerTurn, playCard, endTurn, makeBattleContext, attachRelics } from "./engine/battle.js";
 import { renderBattle, renderMap, renderReward, renderRest, renderShop, renderWin, renderLose, renderEvent, renderRelicSelection, renderUpgrade, updateCardSelection, showDamageNumber } from "./ui/render.js";
 import { InputManager } from "./input/InputManager.js";
+import { CommandInvoker } from "./commands/CommandInvoker.js";
 
 const app = document.getElementById("app");
 
@@ -18,15 +19,22 @@ const root = {
     completedNodes: [],
     enemy: null,
     inputManager: null, // Will be initialized later
+    commandInvoker: new CommandInvoker(),
     currentEvent: null, // For event handling
     currentShopCards: null, // For shop handling
     currentShopRelic: null, // For shop relic handling
 
     log(m) { this.logs.push(m); this.logs = this.logs.slice(-200); },
     async render() { await renderBattle(this); },
-    play(i) { playCard(this, i); },
+    play(i) { 
+        const battleCtx = makeBattleContext(this);
+        playCard(battleCtx, i); 
+    },
     showDamageNumber: showDamageNumber,
-    end() { endTurn(this); },
+    end() { 
+        const battleCtx = makeBattleContext(this);
+        endTurn(battleCtx); 
+    },
 
 
     async go(nextId) {

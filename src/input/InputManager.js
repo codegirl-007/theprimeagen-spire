@@ -7,6 +7,12 @@
  * Following Nystrom's Input Handling patterns from Game Programming Patterns
  */
 
+import { PlayCardCommand } from '../commands/PlayCardCommand.js';
+import { EndTurnCommand } from '../commands/EndTurnCommand.js';
+import { MapMoveCommand } from '../commands/MapMoveCommand.js';
+import { RewardPickCommand } from '../commands/RewardPickCommand.js';
+import { RestActionCommand } from '../commands/RestActionCommand.js';
+
 export class InputManager {
     constructor(gameRoot) {
         this.root = gameRoot;
@@ -134,13 +140,16 @@ export class InputManager {
             // Play sound
             this.playSound('played-card.mp3');
             
-            // Use the root.play method which calls playCard internally
-            this.root.play(index);
+            // Create and execute PlayCardCommand
+            const command = new PlayCardCommand(this.root, index);
+            const success = this.root.commandInvoker.execute(command);
             
-            // Clear card selection
-            this.root.selectedCardIndex = null;
-            if (window.gameModules?.render?.updateCardSelection) {
-                window.gameModules.render.updateCardSelection(this.root);
+            if (success) {
+                // Clear card selection
+                this.root.selectedCardIndex = null;
+                if (window.gameModules?.render?.updateCardSelection) {
+                    window.gameModules.render.updateCardSelection(this.root);
+                }
             }
         } catch (error) {
             console.error('Error playing card:', error);
@@ -152,7 +161,14 @@ export class InputManager {
      */
     handleMapNodeClick(element, event) {
         if (!element.dataset.node) return;
-        this.root.go(element.dataset.node);
+        
+        try {
+            // Create and execute MapMoveCommand
+            const command = new MapMoveCommand(this.root, element.dataset.node);
+            this.root.commandInvoker.execute(command);
+        } catch (error) {
+            console.error('Error moving on map:', error);
+        }
     }
 
     /**
@@ -160,7 +176,14 @@ export class InputManager {
      */
     handleRewardPick(element, event) {
         const idx = parseInt(element.dataset.pick, 10);
-        this.root.takeReward(idx);
+        
+        try {
+            // Create and execute RewardPickCommand
+            const command = new RewardPickCommand(this.root, idx);
+            this.root.commandInvoker.execute(command);
+        } catch (error) {
+            console.error('Error picking reward:', error);
+        }
     }
 
     /**
@@ -249,19 +272,12 @@ export class InputManager {
     handleRestAction(element, event) {
         const action = element.dataset.act;
         
-        switch (action) {
-            case 'heal':
-                const heal = Math.floor(this.root.player.maxHp * 0.2);
-                this.root.player.hp = Math.min(this.root.player.maxHp, this.root.player.hp + heal);
-                this.root.log(`Healed for ${heal} HP.`);
-                this.root.afterNode();
-                break;
-            case 'upgrade':
-                // This will need to call renderUpgrade
-                if (window.gameModules?.render?.renderUpgrade) {
-                    window.gameModules.render.renderUpgrade(this.root);
-                }
-                break;
+        try {
+            // Create and execute RestActionCommand
+            const command = new RestActionCommand(this.root, action);
+            this.root.commandInvoker.execute(command);
+        } catch (error) {
+            console.error('Error with rest action:', error);
         }
     }
 
@@ -270,12 +286,16 @@ export class InputManager {
      */
     handleEndTurn(element, event) {
         try {
-            this.root.end();
+            // Create and execute EndTurnCommand
+            const command = new EndTurnCommand(this.root);
+            const success = this.root.commandInvoker.execute(command);
             
-            // Clear card selection
-            this.root.selectedCardIndex = null;
-            if (window.gameModules?.render?.updateCardSelection) {
-                window.gameModules.render.updateCardSelection(this.root);
+            if (success) {
+                // Clear card selection
+                this.root.selectedCardIndex = null;
+                if (window.gameModules?.render?.updateCardSelection) {
+                    window.gameModules.render.updateCardSelection(this.root);
+                }
             }
         } catch (error) {
             console.error('Error ending turn:', error);

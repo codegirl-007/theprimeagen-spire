@@ -210,11 +210,14 @@ function applyDamage(ctx, target, raw, label) {
 export function makeBattleContext(root) {
     return {
         player: root.player,
-        enemy: null,
+        enemy: root.enemy,
         discard: root.player.discard,
+        relicStates: root.relicStates || [],
         draw: (n) => draw(root.player, n, root),
         log: (m) => root.log(m),
         render: () => root.render(),
+        onWin: () => root.onWin(),
+        onLose: () => root.onLose(),
         intentIsAttack: () => root.enemy.intent.type === "attack",
         deal: (target, amount) => applyDamage(root, target, amount, target === root.enemy ? "You attack" : `${root.enemy.name} hits you`),
         applyWeak: (who, amt) => { who.weak = (who.weak || 0) + amt; root.log(`${who === root.player ? 'You are' : root.enemy.name + ' is'} weakened for ${amt} turn${amt > 1 ? 's' : ''}.`) },
