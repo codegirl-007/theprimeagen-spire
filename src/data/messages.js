@@ -5,7 +5,7 @@ export const BIRTHDAY_MESSAGES = [
 
 I hope you have a good birthday with your family and friends. Thanks for all the good times we've had on your stream, in real life, at events. All of it has meant a lot to me and I'm very grateful.
 
-Hope these messages can bring some happiness to you. The only goal of all this is to just make you smile on your birthday.
+Hope these messages can bring some happiness to you. The only goal of all this is to just make you smile on your birthday. Tears of happiness are also acceptable.
 
 Stephanie (Codegirl)
 
@@ -103,6 +103,11 @@ Get well soon, we miss you on the stream ;) "`
         from: "adamdotdev",
         message: "Happy birthday, Prime! Last year of our lives/30s (same thing)!"
     },
+    {
+        from: "Barrett",
+        message: "Happy birthday! Thanks for all the fun streams. "
+    },
+
     {
         from: "Glauber Costa",
         message: "Happy birthday! May the Lord bless you forever."
