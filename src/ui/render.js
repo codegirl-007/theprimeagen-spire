@@ -10,62 +10,8 @@ function playSound(soundFile) {
     }
 }
 
-async function showMessagesModal() {
-    const { getAllMessages } = await import("../data/messages.js");
-    const messages = getAllMessages();
-
-    const modal = document.createElement('div');
-    modal.className = 'messages-modal-overlay';
-    modal.innerHTML = `
-        <div class="messages-modal">
-            <div class="messages-modal-header">
-                <h2>Messages for Prime</h2>
-                <button class="messages-close-btn" aria-label="Close">×</button>
-            </div>
-            <div class="messages-modal-content">
-                ${messages.length > 0 ? messages.map((msg, index) => `
-                    <div class="message-item">
-                        <div class="message-from">From: ${msg.from}</div>
-                        <div class="message-text">${msg.message}</div>
-                    </div>
-                `).join('') : `
-                    <div class="no-messages-placeholder">
-                        <p>No messages added yet!</p>
-                        <p>Add your birthday messages to <code>src/data/messages.js</code></p>
-                    </div>
-                `}
-            </div>
-        </div>
-    `;
-
-    // Close functionality
-    const closeModal = () => {
-        modal.remove();
-    };
-
-    const closeBtn = modal.querySelector('.messages-close-btn');
-    closeBtn.addEventListener('click', closeModal);
-
-    // Close on overlay click
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) closeModal();
-    });
-
-    // Close on Escape key
-    const handleEscape = (e) => {
-        if (e.key === 'Escape') {
-            closeModal();
-            document.removeEventListener('keydown', handleEscape);
-        }
-    };
-    document.addEventListener('keydown', handleEscape);
-
-    // Add to DOM
-    document.body.appendChild(modal);
-}
-
-
 export function showDamageNumber(damage, target, isPlayer = false) {
+    console.log('this is shown - damage number')
     const targetElement = isPlayer ?
         document.querySelector('.player-battle-zone') :
         document.querySelector('.enemy-battle-zone');
@@ -1459,7 +1405,7 @@ export async function renderWin(root) {
 
 export async function renderCodeReviewSelection(root, cards) {
     const { CARDS } = await import("../data/cards.js");
-    
+
     if (!cards || cards.length === 0) {
         root.log("No cards available for code review.");
         return;
@@ -1475,8 +1421,8 @@ export async function renderCodeReviewSelection(root, cards) {
                 
                 <div class="code-review-cards-container">
                     ${cards.map((card, index) => {
-                        const cardType = card.type === 'attack' ? 'attack' : card.type === 'skill' ? 'skill' : 'power';
-                        return `
+        const cardType = card.type === 'attack' ? 'attack' : card.type === 'skill' ? 'skill' : 'power';
+        return `
                             <div class="code-review-card" data-code-review-pick="${index}">
                                 <div class="battle-card ${cardType} playable">
                                     <div class="card-glow"></div>
@@ -1499,7 +1445,7 @@ export async function renderCodeReviewSelection(root, cards) {
                                 <div class="code-review-card-label">Click to choose</div>
                             </div>
                         `;
-                    }).join('')}
+    }).join('')}
                 </div>
                 
                 <div class="code-review-footer">

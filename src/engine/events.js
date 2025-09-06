@@ -10,7 +10,7 @@ export class EventHandler {
         this.keyHandlers = new Map(); // Track keyboard shortcuts
         this.globalHandlers = new Set(); // Track global event handlers
         this.currentScreen = null;
-        
+
         this.setupGlobalEvents();
     }
 
@@ -26,17 +26,17 @@ export class EventHandler {
                 handler(e);
             }
         };
-        
+
         document.addEventListener('keydown', this.globalKeyHandler);
         this.globalHandlers.add('keydown');
-        
+
         // Global escape handler for modals
         this.globalEscapeHandler = (e) => {
             if (e.key === 'Escape') {
                 this.closeTopModal();
             }
         };
-        
+
         document.addEventListener('keydown', this.globalEscapeHandler);
         this.globalHandlers.add('escape');
     }
@@ -55,7 +55,7 @@ export class EventHandler {
      */
     on(element, event, handler, options = {}) {
         if (!element) return;
-        
+
         const wrappedHandler = (e) => {
             try {
                 handler(e);
@@ -63,9 +63,9 @@ export class EventHandler {
                 console.error(`Event handler error (${event}):`, error);
             }
         };
-        
+
         element.addEventListener(event, wrappedHandler, options);
-        
+
         // Track for cleanup
         if (!this.listeners.has(element)) {
             this.listeners.set(element, []);
@@ -92,7 +92,7 @@ export class EventHandler {
      */
     setupBattleEvents() {
         this.switchScreen('battle');
-        
+
         // Card play events
         this.root.app.querySelectorAll("[data-play]").forEach(btn => {
             this.on(btn, "mouseenter", () => {
@@ -141,11 +141,11 @@ export class EventHandler {
             this.addKeyHandler(i.toString(), (e) => {
                 const cardIndex = i - 1;
                 const hand = this.root.player.hand;
-                
+
                 if (cardIndex >= hand.length) return;
-                
+
                 const card = hand[cardIndex];
-                
+
                 if (this.root.selectedCardIndex === cardIndex) {
                     // Second press - play the card
                     if (this.root.player.energy >= card.cost) {
@@ -168,11 +168,11 @@ export class EventHandler {
      */
     setupMapEvents() {
         this.switchScreen('map');
-        
+
         // Node navigation
         this.root.app.querySelectorAll("[data-node]").forEach(el => {
             if (!el.dataset.node) return;
-            
+
             this.on(el, "click", () => this.root.go(el.dataset.node));
         });
 
@@ -206,14 +206,14 @@ export class EventHandler {
      */
     setupRewardEvents(choices) {
         this.switchScreen('reward');
-        
+
         this.root.app.querySelectorAll("[data-pick]").forEach(btn => {
             this.on(btn, "click", () => {
                 const idx = parseInt(btn.dataset.pick, 10);
                 this.root.takeReward(idx);
             });
         });
-        
+
         const skipBtn = this.root.app.querySelector("[data-skip]");
         if (skipBtn) {
             this.on(skipBtn, "click", () => this.root.skipReward());
@@ -225,7 +225,7 @@ export class EventHandler {
                 this.root.takeReward(i - 1);
             }, `Select Reward ${i}`);
         }
-        
+
         this.addKeyHandler('s', () => this.root.skipReward(), 'Skip Reward');
     }
 
@@ -234,10 +234,10 @@ export class EventHandler {
      */
     setupRestEvents() {
         this.switchScreen('rest');
-        
+
         const healBtn = this.root.app.querySelector("[data-act='heal']");
         const upgradeBtn = this.root.app.querySelector("[data-act='upgrade']");
-        
+
         if (healBtn) {
             this.on(healBtn, "click", () => {
                 const heal = Math.floor(this.root.player.maxHp * 0.2);
@@ -246,7 +246,7 @@ export class EventHandler {
                 this.root.afterNode();
             });
         }
-        
+
         if (upgradeBtn) {
             this.on(upgradeBtn, "click", () => {
                 // Import and call renderUpgrade
@@ -266,7 +266,7 @@ export class EventHandler {
      */
     setupShopEvents(shopCards = [], shopRelic = null) {
         this.switchScreen('shop');
-        
+
         // Card purchase events
         this.root.app.querySelectorAll("[data-buy-card]").forEach(btn => {
             this.on(btn, "click", () => {
@@ -278,7 +278,7 @@ export class EventHandler {
                     this.root.log(`Bought ${card.name} for 50 gold.`);
                     btn.disabled = true;
                     btn.textContent = "SOLD";
-                    
+
                     this.updateGoldDisplay();
                     this.updateShopAffordability();
                 } else {
@@ -303,7 +303,7 @@ export class EventHandler {
 
                         relicBtn.disabled = true;
                         relicBtn.textContent = "SOLD";
-                        
+
                         this.updateGoldDisplay();
                         this.updateShopAffordability();
                     } else {
@@ -329,7 +329,7 @@ export class EventHandler {
      */
     setupEventEvents(event) {
         this.switchScreen('event');
-        
+
         this.root.app.querySelectorAll("[data-choice]").forEach(btn => {
             this.on(btn, "click", () => {
                 const idx = parseInt(btn.dataset.choice, 10);
@@ -352,7 +352,7 @@ export class EventHandler {
      */
     setupRelicSelectionEvents(relicChoices) {
         this.switchScreen('relic-selection');
-        
+
         this.root.app.querySelectorAll("[data-relic]").forEach(btn => {
             this.on(btn, "click", () => {
                 const relicId = btn.dataset.relic;
@@ -369,11 +369,11 @@ export class EventHandler {
         // Keyboard shortcuts
         for (let i = 1; i <= relicChoices.length; i++) {
             this.addKeyHandler(i.toString(), () => {
-                const relicBtn = this.root.app.querySelector(`[data-relic="${relicChoices[i-1]}"]`);
+                const relicBtn = this.root.app.querySelector(`[data-relic="${relicChoices[i - 1]}"]`);
                 relicBtn?.click();
             }, `Select Relic ${i}`);
         }
-        
+
         this.addKeyHandler('m', () => this.showMessagesModal(), 'Show Messages');
     }
 
@@ -382,15 +382,15 @@ export class EventHandler {
      */
     setupEndGameEvents() {
         this.switchScreen('endgame');
-        
+
         const replayBtn = this.root.app.querySelector("[data-replay]");
         const restartAct2Btn = this.root.app.querySelector("[data-restart-act2]");
         const menuBtn = this.root.app.querySelector("[data-menu]");
-        
+
         if (replayBtn) {
             this.on(replayBtn, "click", () => this.root.reset());
         }
-        
+
         if (restartAct2Btn) {
             this.on(restartAct2Btn, "click", async () => {
                 if (this.root.loadAct2Checkpoint()) {
@@ -401,7 +401,7 @@ export class EventHandler {
                 }
             });
         }
-        
+
         if (menuBtn) {
             this.on(menuBtn, "click", () => this.root.reset());
         }
@@ -455,10 +455,10 @@ export class EventHandler {
     showTooltip(event) {
         const tooltip = document.getElementById('custom-tooltip');
         if (!tooltip) return;
-        
+
         const node = event.target.closest('.spire-node');
         if (!node) return;
-        
+
         const content = node.dataset.tooltip;
         const avatarPath = node.dataset.avatar;
 
@@ -514,7 +514,7 @@ export class EventHandler {
         modal.innerHTML = `
             <div class="messages-modal">
                 <div class="messages-modal-header">
-                    <h2>Messages for Prime</h2>
+                    <h2>Inbox</h2>
                     <button class="messages-close-btn" aria-label="Close">×</button>
                 </div>
                 <div class="messages-modal-content">
@@ -565,7 +565,7 @@ export class EventHandler {
             }
         }
         this.listeners.clear();
-        
+
         // Clear keyboard handlers
         this.keyHandlers.clear();
     }
@@ -575,7 +575,7 @@ export class EventHandler {
      */
     destroy() {
         this.cleanup();
-        
+
         // Remove global handlers
         if (this.globalHandlers.has('keydown')) {
             document.removeEventListener('keydown', this.globalKeyHandler);
@@ -583,7 +583,7 @@ export class EventHandler {
         if (this.globalHandlers.has('escape')) {
             document.removeEventListener('keydown', this.globalEscapeHandler);
         }
-        
+
         this.globalHandlers.clear();
     }
 }

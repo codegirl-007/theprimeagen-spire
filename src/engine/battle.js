@@ -125,6 +125,12 @@ export function playCard(ctx, handIndex) {
 
     if (ctx.enemy.hp <= 0) { ctx.enemy.hp = 0; ctx.onWin(); return; }
     if (ctx.player.hp <= 0) { ctx.onLose(); return; }
+    
+    // Don't render if Code Review modal is active
+    if (ctx.root._codeReviewCards) {
+        return;
+    }
+    
     ctx.render();
 }
 

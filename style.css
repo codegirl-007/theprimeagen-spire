@@ -1734,8 +1734,8 @@ h3 {
 
 
 .battle-card.playable:hover {
-    transform: translateY(-80px) scale(1.15) rotate(0deg) !important;
-    z-index: 300;
+    transform: translateY(0px) scale(1.05) rotate(0deg) !important;
+    z-index: 900;
     margin-left: -60px;
     margin-right: 40px;
 }
@@ -2116,7 +2116,8 @@ h3 {
     display: flex;
     align-items: center;
     justify-content: center;
-    pointer-events: none; /* Allow clicks to pass through to elements behind */
+    pointer-events: none;
+    /* Allow clicks to pass through to elements behind */
     color: #dc3545;
     font-size: 12px;
     font-weight: bold;
@@ -4211,7 +4212,8 @@ h3 {
     align-items: center;
     justify-content: center;
     border-radius: 16px;
-    pointer-events: none; /* Allow clicks to pass through to elements behind */
+    pointer-events: none;
+    /* Allow clicks to pass through to elements behind */
     color: #ff6b6b;
     font-weight: bold;
     font-size: 14px;
@@ -5648,7 +5650,7 @@ h3 {
 .messages-modal {
     background: var(--panel);
     border: 3px solid var(--accent);
-    border-radius: 16px;
+    border-radius: 6px;
     max-width: 700px;
     width: 90%;
     max-height: 80vh;
@@ -5676,7 +5678,6 @@ h3 {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-radius: 12px 12px 0 0;
 }
 
 .messages-modal-header h2 {
@@ -5942,16 +5943,16 @@ h3 {
         width: 95%;
         max-height: 90vh;
     }
-    
+
     .code-review-cards-container {
         flex-direction: column;
         align-items: center;
     }
-    
+
     .code-review-card .battle-card {
         transform: scale(0.8);
     }
-    
+
     .code-review-header h2 {
         font-size: 1.5em;
     }

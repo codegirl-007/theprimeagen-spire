@@ -132,12 +132,12 @@ export const CARDS = {
                 ctx.log("Recursion activates and strikes again!");
                 ctx.enemy.hp = 1;
                 ctx.deal(ctx.enemy, ctx.scalarFromWeak(5));
-                
+
                 // Check for battle end after second attack
-                if (ctx.enemy.hp <= 0) { 
-                    ctx.enemy.hp = 0; 
-                    ctx.onWin(); 
-                    return; 
+                if (ctx.enemy.hp <= 0) {
+                    ctx.enemy.hp = 0;
+                    ctx.onWin();
+                    return;
                 }
             }
         }
@@ -167,13 +167,13 @@ export const CARDS = {
                 ctx.log("No cards left in deck to review.");
                 return;
             }
-            
+
             // Store selection state for modal
             ctx.root._codeReviewCards = topCards;
             ctx.root._codeReviewCallback = (selectedIndex) => {
                 // Get the selected card
                 const selectedCard = topCards[selectedIndex];
-                
+
                 // Remove the peeked cards from draw pile (they were only peeked)
                 topCards.forEach((card, i) => {
                     const drawIndex = ctx.root.player.draw.findIndex(id => id === card.id);
@@ -181,21 +181,21 @@ export const CARDS = {
                         ctx.root.player.draw.splice(drawIndex, 1);
                     }
                 });
-                
+
                 // Add selected card to hand
                 ctx.addToHand(selectedCard);
-                
+
                 // Put remaining cards on bottom of deck
                 topCards.forEach((card, i) => {
                     if (i !== selectedIndex) {
                         ctx.putOnBottom(card.id);
                     }
                 });
-                
+
                 ctx.log(`Code review complete. Added ${selectedCard.name} to hand.`);
                 ctx.render();
             };
-            
+
             // Show selection modal
             if (window.gameModules?.render?.renderCodeReviewSelection) {
                 window.gameModules.render.renderCodeReviewSelection(ctx.root, topCards);
@@ -291,12 +291,10 @@ export const CARDS = {
     },
 
     rubber_duck: {
-        id: "rubber_duck", name: "Rubber Duck Debug", cost: 0, type: "skill", text: "Draw 1. Reveal enemy intent.",
+        id: "rubber_duck", name: "Rubber Duck Debug", cost: 0, type: "skill", text: "Draw 1.",
         art: "Monk_31.png",
         effect: (ctx) => {
             ctx.draw(1);
-            const intent = ctx.enemy.intent;
-            ctx.log(`Rubber duck reveals: Enemy will ${intent.type} for ${intent.value || 'unknown'} next turn.`);
         }
     },
 
@@ -370,7 +368,7 @@ export const CARDS = {
 export const STARTER_DECK = [
     "strike", "strike", "defend", "defend",
     "segfault", "coffee_rush", "skill_issue", "git_commit",
-    "stack_trace", "stack_trace"
+    "stack_trace", "stack_trace", "git_push_force", "code_review"
 ];
 
 export const CARD_POOL = [

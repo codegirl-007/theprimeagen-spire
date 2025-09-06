@@ -18,7 +18,7 @@ export class InputManager {
         this.root = gameRoot;
         this.activeHandlers = new Map(); // Track active event listeners for cleanup
         this.globalHandlers = new Set(); // Track global document listeners
-        
+
         // Bind methods to preserve 'this' context
         this.handleGlobalKeydown = this.handleGlobalKeydown.bind(this);
         this.handleGlobalClick = this.handleGlobalClick.bind(this);
@@ -31,7 +31,7 @@ export class InputManager {
         // Global keyboard handling
         document.addEventListener('keydown', this.handleGlobalKeydown);
         this.globalHandlers.add('keydown');
-        
+
         // Global click handling for data attributes
         document.addEventListener('click', this.handleGlobalClick);
         this.globalHandlers.add('click');
@@ -45,7 +45,7 @@ export class InputManager {
         if (event.key === 'Escape') {
             this.handleEscapeKey(event);
         }
-        
+
         // Handle number keys for code review selection
         if (this.root._codeReviewCards && event.key >= '1' && event.key <= '3') {
             const selectedIndex = parseInt(event.key, 10) - 1;
@@ -58,7 +58,7 @@ export class InputManager {
                 }
             }
         }
-        
+
         // Add other global shortcuts here as needed
     }
 
@@ -67,90 +67,90 @@ export class InputManager {
      */
     handleGlobalClick(event) {
         const target = event.target;
-        
+
         // Event delegation for game interactions
-        
+
         // Handle clicks on elements with data attributes (check both direct and parent elements)
-        
+
         // Check for card play (battle-card with data-play)
         const cardElement = target.closest('[data-play]');
         if (cardElement) {
             this.handleCardPlay(cardElement, event);
             return; // Early return to avoid duplicate handling
         }
-        
+
         // Check for other interactive elements (using closest to handle child elements)
         const actionElement = target.closest('[data-action]');
         if (actionElement) {
             this.handleActionButton(actionElement, event);
             return;
         }
-        
+
         const actElement = target.closest('[data-act]');
         if (actElement) {
             this.handleRestAction(actElement, event);
             return;
         }
-        
+
         const pickElement = target.closest('[data-pick]');
         if (pickElement) {
             this.handleRewardPick(pickElement, event);
             return;
         }
-        
+
         const choiceElement = target.closest('[data-choice]');
         if (choiceElement) {
             this.handleEventChoice(choiceElement, event);
             return;
         }
-        
+
         const upgradeElement = target.closest('[data-upgrade]');
         if (upgradeElement) {
             this.handleCardUpgrade(upgradeElement, event);
             return;
         }
-        
+
         const buyCardElement = target.closest('[data-buy-card]');
         if (buyCardElement) {
             this.handleShopCardBuy(buyCardElement, event);
             return;
         }
-        
+
         const buyRelicElement = target.closest('[data-buy-relic]');
         if (buyRelicElement) {
             this.handleShopRelicBuy(buyRelicElement, event);
             return;
         }
-        
+
         const leaveElement = target.closest('[data-leave]');
         if (leaveElement) {
             this.handleLeaveShop(leaveElement, event);
             return;
         }
-        
+
         const relicElement = target.closest('[data-relic]');
         if (relicElement) {
             this.handleRelicSelection(relicElement, event);
             return;
         }
-        
+
         const codeReviewElement = target.closest('[data-code-review-pick]');
         if (codeReviewElement) {
             this.handleCodeReviewPick(codeReviewElement, event);
             return;
         }
-        
+
         // Check for direct data attributes on target (fallback)
         if (target.dataset.node !== undefined) {
             this.handleMapNodeClick(target, event);
         }
-        
+
         // Handle spire node clicks (check if clicked element is inside a spire-node)
         const spireNode = target.closest('.spire-node');
         if (spireNode && spireNode.dataset.node) {
             this.handleMapNodeClick(spireNode, event);
         }
-        
+
         // Handle other specific buttons
         this.handleSpecificButtons(target, event);
     }
@@ -160,21 +160,21 @@ export class InputManager {
      */
     handleCardPlay(element, event) {
         if (!element.classList.contains('playable')) return;
-        
+
         const index = parseInt(element.dataset.play, 10);
         const card = this.root.player.hand[index];
-        
+
         if (!card) return;
         if (this.root.player.energy < card.cost) return;
-        
+
         try {
             // Play sound
             this.playSound('played-card.mp3');
-            
+
             // Create and execute PlayCardCommand
             const command = new PlayCardCommand(this.root, index);
             const success = this.root.commandInvoker.execute(command);
-            
+
             if (success) {
                 // Clear card selection
                 this.root.selectedCardIndex = null;
@@ -192,7 +192,7 @@ export class InputManager {
      */
     handleMapNodeClick(element, event) {
         if (!element.dataset.node) return;
-        
+
         try {
             // Create and execute MapMoveCommand
             const command = new MapMoveCommand(this.root, element.dataset.node);
@@ -207,7 +207,7 @@ export class InputManager {
      */
     handleRewardPick(element, event) {
         const idx = parseInt(element.dataset.pick, 10);
-        
+
         try {
             // Create and execute RewardPickCommand
             const command = new RewardPickCommand(this.root, idx);
@@ -235,7 +235,7 @@ export class InputManager {
     handleCardUpgrade(element, event) {
         const deckIndex = parseInt(element.dataset.upgrade, 10);
         const oldCardId = this.root.player.deck[deckIndex];
-        
+
         // Find the upgraded version and replace it
         const { CARDS } = window.gameModules?.cards || {};
         if (CARDS && CARDS[oldCardId]?.upgrades) {
@@ -259,16 +259,16 @@ export class InputManager {
                 this.root.log(`Bought ${card.name} for 50 gold.`);
                 element.disabled = true;
                 element.textContent = "SOLD";
-                
+
                 // Update gold display
                 const goldDisplay = this.root.app.querySelector('.gold-amount');
                 if (goldDisplay) {
                     goldDisplay.textContent = this.root.player.gold;
                 }
-                
+
                 // Update affordability of remaining items
                 this.updateShopAffordability();
-                
+
                 // Save immediately to persist purchase
                 this.root.save();
             } else {
@@ -293,7 +293,7 @@ export class InputManager {
                     const newRelicIds = [...currentRelicIds, relic.id];
                     attachRelics(this.root, newRelicIds);
                 });
-                
+
                 element.disabled = true;
                 element.textContent = "SOLD";
 
@@ -305,7 +305,7 @@ export class InputManager {
 
                 // Update affordability of remaining items
                 this.updateShopAffordability();
-                
+
                 // Save immediately to persist purchase
                 this.root.save();
             } else {
@@ -388,12 +388,12 @@ export class InputManager {
      */
     handleCodeReviewPick(element, event) {
         const selectedIndex = parseInt(element.dataset.codeReviewPick, 10);
-        
+
         if (this.root._codeReviewCallback && this.root._codeReviewCards) {
             try {
                 // Execute the callback with selected index
                 this.root._codeReviewCallback(selectedIndex);
-                
+
                 // Clean up state
                 this.root._codeReviewCards = null;
                 this.root._codeReviewCallback = null;
@@ -408,7 +408,7 @@ export class InputManager {
      */
     handleActionButton(element, event) {
         const action = element.dataset.action;
-        
+
         switch (action) {
             case 'show-messages':
                 this.handleShowMessages();
@@ -426,7 +426,7 @@ export class InputManager {
      */
     handleRestAction(element, event) {
         const action = element.dataset.act;
-        
+
         try {
             // Create and execute RestActionCommand
             const command = new RestActionCommand(this.root, action);
@@ -444,7 +444,7 @@ export class InputManager {
             // Create and execute EndTurnCommand
             const command = new EndTurnCommand(this.root);
             const success = this.root.commandInvoker.execute(command);
-            
+
             if (success) {
                 // Clear card selection
                 this.root.selectedCardIndex = null;
@@ -507,7 +507,7 @@ export class InputManager {
             if (this.root.currentShopRelic && this.root.player.gold >= 100) {
                 this.root.player.gold -= 100;
                 this.root.log(`Bought ${this.root.currentShopRelic.name} for 100 gold.`);
-                
+
                 // Add relic logic here
                 element.disabled = true;
                 element.textContent = "SOLD";
@@ -536,7 +536,7 @@ export class InputManager {
             this.root.render();
             return;
         }
-        
+
         // Close any open modals
         const modals = document.querySelectorAll('.messages-modal-overlay');
         modals.forEach(modal => modal.remove());
@@ -555,7 +555,7 @@ export class InputManager {
             modal.innerHTML = `
                 <div class="messages-modal">
                     <div class="messages-modal-header">
-                        <h2>Messages for Prime</h2>
+                        <h2>Messages</h2>
                         <button class="messages-close-btn" aria-label="Close">×</button>
                     </div>
                     <div class="messages-modal-content">
@@ -576,10 +576,10 @@ export class InputManager {
 
             // Close functionality
             const closeModal = () => modal.remove();
-            
+
             const closeBtn = modal.querySelector('.messages-close-btn');
             closeBtn.addEventListener('click', closeModal);
-            
+
             // Close on overlay click
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) closeModal();
@@ -615,7 +615,7 @@ export class InputManager {
         try {
             const audio = new Audio(`assets/sounds/${soundFile}`);
             audio.volume = 0.3;
-            audio.play().catch(() => {}); // Ignore audio play failures
+            audio.play().catch(() => { }); // Ignore audio play failures
         } catch (e) {
             // Ignore audio errors
         }
@@ -632,7 +632,7 @@ export class InputManager {
         if (this.globalHandlers.has('click')) {
             document.removeEventListener('click', this.handleGlobalClick);
         }
-        
+
         this.globalHandlers.clear();
         this.activeHandlers.clear();
     }
@@ -643,7 +643,7 @@ function playSound(soundFile) {
     try {
         const audio = new Audio(`assets/sounds/${soundFile}`);
         audio.volume = 0.3;
-        audio.play().catch(() => {}); // Ignore failures in restrictive environments
+        audio.play().catch(() => { }); // Ignore failures in restrictive environments
     } catch (e) {
         // Audio not supported or file missing, ignore
     }
