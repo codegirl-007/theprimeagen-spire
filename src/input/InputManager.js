@@ -46,6 +46,19 @@ export class InputManager {
             this.handleEscapeKey(event);
         }
         
+        // Handle number keys for code review selection
+        if (this.root._codeReviewCards && event.key >= '1' && event.key <= '3') {
+            const selectedIndex = parseInt(event.key, 10) - 1;
+            if (selectedIndex < this.root._codeReviewCards.length) {
+                event.preventDefault();
+                if (this.root._codeReviewCallback) {
+                    this.root._codeReviewCallback(selectedIndex);
+                    this.root._codeReviewCards = null;
+                    this.root._codeReviewCallback = null;
+                }
+            }
+        }
+        
         // Add other global shortcuts here as needed
     }
 
@@ -103,9 +116,27 @@ export class InputManager {
             return;
         }
         
+        const buyRelicElement = target.closest('[data-buy-relic]');
+        if (buyRelicElement) {
+            this.handleShopRelicBuy(buyRelicElement, event);
+            return;
+        }
+        
+        const leaveElement = target.closest('[data-leave]');
+        if (leaveElement) {
+            this.handleLeaveShop(leaveElement, event);
+            return;
+        }
+        
         const relicElement = target.closest('[data-relic]');
         if (relicElement) {
             this.handleRelicSelection(relicElement, event);
+            return;
+        }
+        
+        const codeReviewElement = target.closest('[data-code-review-pick]');
+        if (codeReviewElement) {
+            this.handleCodeReviewPick(codeReviewElement, event);
             return;
         }
         
@@ -234,10 +265,114 @@ export class InputManager {
                 if (goldDisplay) {
                     goldDisplay.textContent = this.root.player.gold;
                 }
+                
+                // Update affordability of remaining items
+                this.updateShopAffordability();
+                
+                // Save immediately to persist purchase
+                this.root.save();
             } else {
                 this.root.log("Not enough gold!");
             }
         }
+    }
+
+    /**
+     * Handle shop relic purchases
+     */
+    handleShopRelicBuy(element, event) {
+        if (this.root.currentShopRelic) {
+            const relic = this.root.currentShopRelic;
+            if (this.root.player.gold >= 100) {
+                this.root.player.gold -= 100;
+                this.root.log(`Bought ${relic.name} for 100 gold.`);
+
+                // Attach the relic
+                import("../engine/battle.js").then(({ attachRelics }) => {
+                    const currentRelicIds = this.root.relicStates.map(r => r.id);
+                    const newRelicIds = [...currentRelicIds, relic.id];
+                    attachRelics(this.root, newRelicIds);
+                });
+                
+                element.disabled = true;
+                element.textContent = "SOLD";
+
+                // Update gold display
+                const goldDisplay = this.root.app.querySelector('.gold-amount');
+                if (goldDisplay) {
+                    goldDisplay.textContent = this.root.player.gold;
+                }
+
+                // Update affordability of remaining items
+                this.updateShopAffordability();
+                
+                // Save immediately to persist purchase
+                this.root.save();
+            } else {
+                this.root.log("Not enough gold!");
+            }
+        }
+    }
+
+    /**
+     * Update shop item affordability
+     */
+    updateShopAffordability() {
+        // Update card affordability
+        this.root.app.querySelectorAll("[data-buy-card]").forEach(btn => {
+            if (!btn.disabled) {
+                const cardContainer = btn.closest('.shop-card-container');
+                const overlay = cardContainer.querySelector('.card-disabled-overlay');
+
+                if (this.root.player.gold < 50) {
+                    btn.classList.remove('playable');
+                    btn.classList.add('unplayable');
+                    if (!overlay) {
+                        const newOverlay = document.createElement('div');
+                        newOverlay.className = 'card-disabled-overlay';
+                        newOverlay.innerHTML = '<span>Need 50 gold</span>';
+                        cardContainer.appendChild(newOverlay);
+                    }
+                } else {
+                    btn.classList.remove('unplayable');
+                    btn.classList.add('playable');
+                    if (overlay) {
+                        overlay.remove();
+                    }
+                }
+            }
+        });
+
+        // Update relic affordability
+        const relicBtn = this.root.app.querySelector("[data-buy-relic]");
+        if (relicBtn && !relicBtn.disabled) {
+            const relicContainer = relicBtn.closest('.shop-relic-container');
+            const overlay = relicContainer.querySelector('.relic-disabled-overlay');
+
+            if (this.root.player.gold < 100) {
+                relicBtn.classList.remove('affordable');
+                relicBtn.classList.add('unaffordable');
+                if (!overlay) {
+                    const newOverlay = document.createElement('div');
+                    newOverlay.className = 'relic-disabled-overlay';
+                    newOverlay.innerHTML = '<span>Need 100 gold</span>';
+                    relicContainer.appendChild(newOverlay);
+                }
+            } else {
+                relicBtn.classList.remove('unaffordable');
+                relicBtn.classList.add('affordable');
+                if (overlay) {
+                    overlay.remove();
+                }
+            }
+        }
+    }
+
+    /**
+     * Handle leaving the shop
+     */
+    handleLeaveShop(element, event) {
+        this.root.afterNode();
     }
 
     /**
@@ -246,6 +381,26 @@ export class InputManager {
     handleRelicSelection(element, event) {
         const relicId = element.dataset.relic;
         this.root.selectStartingRelic(relicId);
+    }
+
+    /**
+     * Handle code review card selection
+     */
+    handleCodeReviewPick(element, event) {
+        const selectedIndex = parseInt(element.dataset.codeReviewPick, 10);
+        
+        if (this.root._codeReviewCallback && this.root._codeReviewCards) {
+            try {
+                // Execute the callback with selected index
+                this.root._codeReviewCallback(selectedIndex);
+                
+                // Clean up state
+                this.root._codeReviewCards = null;
+                this.root._codeReviewCallback = null;
+            } catch (error) {
+                console.error('Error handling code review selection:', error);
+            }
+        }
     }
 
     /**
@@ -373,6 +528,15 @@ export class InputManager {
      * Handle Escape key presses
      */
     handleEscapeKey(event) {
+        // Handle code review modal cancellation
+        if (this.root._codeReviewCards) {
+            this.root._codeReviewCards = null;
+            this.root._codeReviewCallback = null;
+            // Return to battle without making a choice
+            this.root.render();
+            return;
+        }
+        
         // Close any open modals
         const modals = document.querySelectorAll('.messages-modal-overlay');
         modals.forEach(modal => modal.remove());

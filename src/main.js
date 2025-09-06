@@ -2,9 +2,9 @@ import { CARDS, CARD_POOL } from "./data/cards.js";
 import { START_RELIC_CHOICES } from "./data/relics.js";
 import { ENEMIES } from "./data/enemies.js";
 import { MAPS } from "./data/maps.js";
-import { makePlayer, initDeck, draw } from "./engine/core.js";
+import { makePlayer, initDeck, draw, peekTopCards, putCardOnBottomOfDeck, addCardToHand } from "./engine/core.js";
 import { createBattle, startPlayerTurn, playCard, endTurn, makeBattleContext, attachRelics } from "./engine/battle.js";
-import { renderBattle, renderMap, renderReward, renderRest, renderShop, renderWin, renderLose, renderEvent, renderRelicSelection, renderUpgrade, updateCardSelection, showDamageNumber } from "./ui/render.js";
+import { renderBattle, renderMap, renderReward, renderRest, renderShop, renderWin, renderLose, renderEvent, renderRelicSelection, renderUpgrade, updateCardSelection, showDamageNumber, renderCodeReviewSelection } from "./ui/render.js";
 import { InputManager } from "./input/InputManager.js";
 import { CommandInvoker } from "./commands/CommandInvoker.js";
 
@@ -23,6 +23,8 @@ const root = {
     currentEvent: null, // For event handling
     currentShopCards: null, // For shop handling
     currentShopRelic: null, // For shop relic handling
+    _codeReviewCards: null, // For code review card selection
+    _codeReviewCallback: null, // For code review completion
 
     log(m) { this.logs.push(m); this.logs = this.logs.slice(-200); },
     async render() { await renderBattle(this); },
@@ -556,7 +558,7 @@ root.inputManager.initGlobalListeners();
 // Make modules available globally for InputManager
 window.gameModules = {
     cards: { CARDS },
-    render: { renderMap, renderUpgrade, updateCardSelection }
+    render: { renderMap, renderUpgrade, updateCardSelection, renderCodeReviewSelection }
 };
 
 initializeGame();

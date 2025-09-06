@@ -1,7 +1,7 @@
 import { ENEMIES } from "../data/enemies.js";
 import { RELICS } from "../data/relics.js";
 import { CARDS } from "../data/cards.js";
-import { draw, endTurnDiscard, clamp, cloneCard, shuffle } from "./core.js";
+import { draw, endTurnDiscard, clamp, cloneCard, shuffle, peekTopCards, putCardOnBottomOfDeck, addCardToHand } from "./core.js";
 
 export function createBattle(ctx, enemyId) {
     const enemyData = ENEMIES[enemyId];
@@ -74,6 +74,12 @@ export function playCard(ctx, handIndex) {
     ctx.player.energy -= actualCost;
     ctx.lastCard = card.id;
 
+    // Remove the played card from hand BEFORE running effect to prevent index shifting issues
+    let usedCard = null;
+    if (card.type !== "power") {
+        const [removed] = ctx.player.hand.splice(handIndex, 1);
+        usedCard = removed;
+    }
 
     const prevDeal = ctx.deal;
     ctx.deal = (target, amount) => {
@@ -108,13 +114,12 @@ export function playCard(ctx, handIndex) {
         return;
     }
 
-
-    if (card.type !== "power") {
-        const [used] = ctx.player.hand.splice(handIndex, 1);
+    // Handle card disposal after effect (if it was removed from hand)
+    if (usedCard) {
         if (!card.exhaust) {
-            ctx.player.discard.push(used.id);
+            ctx.player.discard.push(usedCard.id);
         } else {
-            ctx.log(`${used.name} is exhausted and removed from the fight.`);
+            ctx.log(`${usedCard.name} is exhausted and removed from the fight.`);
         }
     }
 
@@ -167,6 +172,7 @@ export function enemyTurn(ctx) {
 
 
     if (ctx.player.hp <= 0) { ctx.onLose(); return; }
+    if (ctx.enemy.hp <= 0) { ctx.enemy.hp = 0; ctx.onWin(); return; }
 
     e.turn++;
     try {
@@ -235,6 +241,7 @@ export function makeBattleContext(root) {
         showDamageNumber: root.showDamageNumber,
         lastCard: null,
         flags: {},
+        root: root, // Provide access to root for complex card effects
         // New mechanics for advanced cards
         moveFromDiscardToHand: (cardId) => {
             const idx = root.player.discard.findIndex(id => id === cardId);
@@ -249,6 +256,10 @@ export function makeBattleContext(root) {
             }
             return false;
         },
+        // Code Review card mechanics
+        peekTop: (n) => peekTopCards(root.player, n),
+        putOnBottom: (cardId) => putCardOnBottomOfDeck(root.player, cardId),
+        addToHand: (card) => addCardToHand(root.player, card),
         countCardType: (type) => {
             const allCards = [...root.player.deck, ...root.player.hand.map(c => c.id), ...root.player.draw, ...root.player.discard];
             return allCards.filter(id => CARDS[id]?.type === type).length;

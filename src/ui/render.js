@@ -906,6 +906,10 @@ export function renderShop(root) {
             const availableRelics = START_RELIC_CHOICES.filter(id => !ownedRelicIds.includes(id));
             const shopRelic = availableRelics.length > 0 ? RELICS[availableRelics[0]] : null;
 
+            // Store shop cards for InputManager access
+            root.currentShopCards = shopCards;
+            root.currentShopRelic = shopRelic;
+
             root.app.innerHTML = `
             <div class="shop-screen">
               <div class="shop-header">
@@ -996,62 +1000,11 @@ export function renderShop(root) {
 
             if (!root.player.gold) root.player.gold = 100;
 
-            root.app.querySelectorAll("[data-buy-card]").forEach(btn => {
-                btn.addEventListener("click", () => {
-                    const idx = parseInt(btn.dataset.buyCard, 10);
-                    const card = shopCards[idx];
-                    if (root.player.gold >= 50) {
-                        root.player.gold -= 50;
-                        root.player.deck.push(card.id);
-                        root.log(`Bought ${card.name} for 50 gold.`);
-                        btn.disabled = true;
-                        btn.textContent = "SOLD";
-
-                        // Update gold display
-                        const goldDisplay = root.app.querySelector('.gold-amount');
-                        if (goldDisplay) {
-                            goldDisplay.textContent = root.player.gold;
-                        }
-
-                        // Update affordability of remaining items
-                        updateShopAffordability(root);
-                    } else {
-                        root.log("Not enough gold!");
-                    }
-                });
-            });
+            // Note: Card purchase events are now handled by InputManager
 
 
-            if (shopRelic) {
-                root.app.querySelector("[data-buy-relic]").addEventListener("click", () => {
-                    if (root.player.gold >= 100) {
-                        root.player.gold -= 100;
-                        root.log(`Bought ${shopRelic.name} for 100 gold.`);
-
-                        import("../engine/battle.js").then(({ attachRelics }) => {
-
-                            const currentRelicIds = root.relicStates.map(r => r.id);
-                            const newRelicIds = [...currentRelicIds, shopRelic.id];
-                            attachRelics(root, newRelicIds);
-                        });
-                        root.app.querySelector("[data-buy-relic]").disabled = true;
-                        root.app.querySelector("[data-buy-relic]").textContent = "SOLD";
-
-                        // Update gold display
-                        const goldDisplay = root.app.querySelector('.gold-amount');
-                        if (goldDisplay) {
-                            goldDisplay.textContent = root.player.gold;
-                        }
-
-                        // Update affordability of remaining items
-                        updateShopAffordability(root);
-                    } else {
-                        root.log("Not enough gold!");
-                    }
-                });
-            }
-
-            root.app.querySelector("[data-leave]").addEventListener("click", () => root.afterNode());
+            // Note: Shop purchase events are now handled by InputManager
+            // Note: Leave shop event is handled by InputManager
         });
     });
 }
@@ -1071,56 +1024,7 @@ export function updateCardSelection(root) {
     }
 }
 
-function updateShopAffordability(root) {
-    // Update card affordability
-    root.app.querySelectorAll("[data-buy-card]").forEach(btn => {
-        if (!btn.disabled) {
-            const cardContainer = btn.closest('.shop-card-container');
-            const overlay = cardContainer.querySelector('.card-disabled-overlay');
-
-            if (root.player.gold < 50) {
-                btn.classList.remove('playable');
-                btn.classList.add('unplayable');
-                if (!overlay) {
-                    const newOverlay = document.createElement('div');
-                    newOverlay.className = 'card-disabled-overlay';
-                    newOverlay.innerHTML = '<span>Need 50 gold</span>';
-                    cardContainer.appendChild(newOverlay);
-                }
-            } else {
-                btn.classList.remove('unplayable');
-                btn.classList.add('playable');
-                if (overlay) {
-                    overlay.remove();
-                }
-            }
-        }
-    });
-
-    // Update relic affordability
-    const relicBtn = root.app.querySelector("[data-buy-relic]");
-    if (relicBtn && !relicBtn.disabled) {
-        const relicContainer = relicBtn.closest('.shop-relic-container');
-        const overlay = relicContainer.querySelector('.relic-disabled-overlay');
-
-        if (root.player.gold < 100) {
-            relicBtn.classList.remove('affordable');
-            relicBtn.classList.add('unaffordable');
-            if (!overlay) {
-                const newOverlay = document.createElement('div');
-                newOverlay.className = 'relic-disabled-overlay';
-                newOverlay.innerHTML = '<span>Need 100 gold</span>';
-                relicContainer.appendChild(newOverlay);
-            }
-        } else {
-            relicBtn.classList.remove('unaffordable');
-            relicBtn.classList.add('affordable');
-            if (overlay) {
-                overlay.remove();
-            }
-        }
-    }
-}
+// updateShopAffordability function moved to InputManager
 
 function shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
@@ -1551,6 +1455,59 @@ export async function renderWin(root) {
     </div>
   `;
     root.app.querySelector("[data-replay]").addEventListener("click", () => root.reset());
+}
+
+export async function renderCodeReviewSelection(root, cards) {
+    const { CARDS } = await import("../data/cards.js");
+    
+    if (!cards || cards.length === 0) {
+        root.log("No cards available for code review.");
+        return;
+    }
+
+    root.app.innerHTML = `
+        <div class="code-review-modal-overlay">
+            <div class="code-review-modal">
+                <div class="code-review-header">
+                    <h2>🔍 Code Review</h2>
+                    <p>Choose 1 card to add to your hand. The rest will go to the bottom of your deck.</p>
+                </div>
+                
+                <div class="code-review-cards-container">
+                    ${cards.map((card, index) => {
+                        const cardType = card.type === 'attack' ? 'attack' : card.type === 'skill' ? 'skill' : 'power';
+                        return `
+                            <div class="code-review-card" data-code-review-pick="${index}">
+                                <div class="battle-card ${cardType} playable">
+                                    <div class="card-glow"></div>
+                                    <div class="card-frame">
+                                        <div class="card-header-row">
+                                            <div class="card-title">${card.name}</div>
+                                            <div class="card-cost-orb">${card.cost}</div>
+                                        </div>
+                                        
+                                        <div class="card-artwork">
+                                            <div class="card-art-icon">${getCardArt(card.id, CARDS)}</div>
+                                            <div class="card-type-badge ${cardType}">${card.type}</div>
+                                        </div>
+                                        
+                                        <div class="card-description-box">
+                                            <div class="card-text">${card.text}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="code-review-card-label">Click to choose</div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+                
+                <div class="code-review-footer">
+                    <p>💡 Press ESC to cancel</p>
+                </div>
+            </div>
+        </div>
+    `;
 }
 
 export async function renderLose(root) {

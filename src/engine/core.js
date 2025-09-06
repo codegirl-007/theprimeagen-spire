@@ -46,6 +46,41 @@ export function endTurnDiscard(player) {
     player.energy = player.maxEnergy;
 }
 
+// Peek at top N cards from draw pile without removing them
+export function peekTopCards(player, n = 3) {
+    const cards = [];
+    const drawPile = [...player.draw]; // Copy to avoid modifying original
+    
+    for (let i = 0; i < n && i < drawPile.length; i++) {
+        const cardId = drawPile[drawPile.length - 1 - i]; // Peek from top (end of array)
+        const originalCard = CARDS[cardId];
+        if (originalCard) {
+            const clonedCard = cloneCard(originalCard);
+            clonedCard._drawIndex = drawPile.length - 1 - i; // Store original position
+            cards.push(clonedCard);
+        }
+    }
+    
+    return cards;
+}
+
+// Put a specific card on the bottom of the draw pile
+export function putCardOnBottomOfDeck(player, cardId) {
+    // Remove from draw pile first (if it's there)
+    const drawIndex = player.draw.findIndex(id => id === cardId);
+    if (drawIndex >= 0) {
+        player.draw.splice(drawIndex, 1);
+    }
+    
+    // Add to bottom of draw pile (beginning of array)
+    player.draw.unshift(cardId);
+}
+
+// Add a specific card object to hand
+export function addCardToHand(player, card) {
+    player.hand.push(card);
+}
+
 export function cloneCard(c) {
 
     if (!c) {

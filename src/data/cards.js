@@ -130,9 +130,15 @@ export const CARDS = {
             ctx.deal(ctx.enemy, ctx.scalarFromWeak(5));
             if (prevHp > 0 && ctx.enemy.hp <= 0) {
                 ctx.log("Recursion activates and strikes again!");
-
                 ctx.enemy.hp = 1;
                 ctx.deal(ctx.enemy, ctx.scalarFromWeak(5));
+                
+                // Check for battle end after second attack
+                if (ctx.enemy.hp <= 0) { 
+                    ctx.enemy.hp = 0; 
+                    ctx.onWin(); 
+                    return; 
+                }
             }
         }
     },
@@ -156,8 +162,44 @@ export const CARDS = {
         id: "code_review", name: "Code Review", cost: 1, type: "skill", text: "Look at top 3 cards. Put 1 in hand, rest on bottom of deck.",
         art: "Monk_24.png",
         effect: (ctx) => {
-            ctx.draw(1);
-            ctx.log("Code review reveals useful insights. You draw a card.");
+            const topCards = ctx.peekTop(3);
+            if (topCards.length === 0) {
+                ctx.log("No cards left in deck to review.");
+                return;
+            }
+            
+            // Store selection state for modal
+            ctx.root._codeReviewCards = topCards;
+            ctx.root._codeReviewCallback = (selectedIndex) => {
+                // Get the selected card
+                const selectedCard = topCards[selectedIndex];
+                
+                // Remove the peeked cards from draw pile (they were only peeked)
+                topCards.forEach((card, i) => {
+                    const drawIndex = ctx.root.player.draw.findIndex(id => id === card.id);
+                    if (drawIndex >= 0) {
+                        ctx.root.player.draw.splice(drawIndex, 1);
+                    }
+                });
+                
+                // Add selected card to hand
+                ctx.addToHand(selectedCard);
+                
+                // Put remaining cards on bottom of deck
+                topCards.forEach((card, i) => {
+                    if (i !== selectedIndex) {
+                        ctx.putOnBottom(card.id);
+                    }
+                });
+                
+                ctx.log(`Code review complete. Added ${selectedCard.name} to hand.`);
+                ctx.render();
+            };
+            
+            // Show selection modal
+            if (window.gameModules?.render?.renderCodeReviewSelection) {
+                window.gameModules.render.renderCodeReviewSelection(ctx.root, topCards);
+            }
         }
     },
 
@@ -292,15 +334,12 @@ export const CARDS = {
         art: "Monk_34.png",
         effect: (ctx) => {
             ctx.deal(ctx.enemy, ctx.scalarFromWeak(15));
-            if (ctx.player.hand.length > 1) { // Don't remove this card itself
-                const otherCards = ctx.player.hand.filter(c => c.id !== "git_push_force");
-                if (otherCards.length > 0) {
-                    const randomCard = otherCards[Math.floor(Math.random() * otherCards.length)];
-                    const handIdx = ctx.player.hand.findIndex(c => c === randomCard);
-                    const [card] = ctx.player.hand.splice(handIdx, 1);
-                    ctx.player.draw.push(card.id);
-                    ctx.log(`${card.name} was force-pushed back to your deck!`);
-                }
+            if (ctx.player.hand.length > 0) { // Check if there are any cards left in hand
+                const randomCard = ctx.player.hand[Math.floor(Math.random() * ctx.player.hand.length)];
+                const handIdx = ctx.player.hand.findIndex(c => c === randomCard);
+                const [card] = ctx.player.hand.splice(handIdx, 1);
+                ctx.player.draw.push(card.id);
+                ctx.log(`${card.name} was force-pushed back to your deck!`);
             }
         }
     },
