@@ -211,6 +211,10 @@ Wishing you speed, happiness, and all the best commits for your next trip around
     {
         from: "AOP",
         message: "Happy birthday, and thanks for the feet pics"
+    },
+    {
+        from: "Defyus",
+        message: "Happy birthday, hope the next year brings lots of abundance, success, and joy. Keep on, oning. get it. many great wishes!"
     }
 ];
 
