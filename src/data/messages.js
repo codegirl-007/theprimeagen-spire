@@ -204,6 +204,14 @@ Wishing you speed, happiness, and all the best commits for your next trip around
         from: "bip0pular",
         message: "more life more love more sucess"
     },
+    {
+        from: "kenneth",
+        message: "luv u bb hbd"
+    },
+    {
+        from: "AOP",
+        message: "Happy birthday, and thanks for the feet pics"
+    }
 ];
 
 // Simple helper function to get all messages
