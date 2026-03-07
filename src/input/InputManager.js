@@ -10,6 +10,8 @@ import { EndTurnCommand } from '../commands/EndTurnCommand.js';
 import { MapMoveCommand } from '../commands/MapMoveCommand.js';
 import { RewardPickCommand } from '../commands/RewardPickCommand.js';
 import { RestActionCommand } from '../commands/RestActionCommand.js';
+import { CARDS } from '../data/cards.js';
+import { playSound } from '../systems/audio/playSound.js';
 
 export class InputManager {
     constructor(gameRoot) {
@@ -20,6 +22,7 @@ export class InputManager {
         // Bind methods to preserve 'this' context
         this.handleGlobalKeydown = this.handleGlobalKeydown.bind(this);
         this.handleGlobalClick = this.handleGlobalClick.bind(this);
+        this.handleMessagesModalEvent = this.handleMessagesModalEvent.bind(this);
     }
 
     /**
@@ -33,6 +36,9 @@ export class InputManager {
         // Global click handling for data attributes
         document.addEventListener('click', this.handleGlobalClick);
         this.globalHandlers.add('click');
+
+        document.addEventListener('show-messages-modal', this.handleMessagesModalEvent);
+        this.globalHandlers.add('show-messages-modal');
     }
 
     /**
@@ -42,6 +48,22 @@ export class InputManager {
         // Handle Escape key for modals
         if (event.key === 'Escape') {
             this.handleEscapeKey(event);
+        }
+
+        const currentStateName = this.root.stateMachine?.getCurrentStateName?.();
+        if (currentStateName === 'BATTLE') {
+            if (event.key.toLowerCase() === 'e') {
+                event.preventDefault();
+                this.handleEndTurn(null, event);
+                return;
+            }
+
+            const cardNumber = parseInt(event.key, 10);
+            if (cardNumber >= 1 && cardNumber <= this.root.player.hand.length) {
+                event.preventDefault();
+                this.handleBattleCardShortcut(cardNumber - 1);
+                return;
+            }
         }
 
         // Handle number keys for code review selection
@@ -175,8 +197,8 @@ export class InputManager {
             if (success) {
                 // Clear card selection
                 this.root.selectedCardIndex = null;
-                if (window.gameModules?.render?.updateCardSelection) {
-                    window.gameModules.render.updateCardSelection(this.root);
+                if (this.root.ui?.updateCardSelection) {
+                    this.root.ui.updateCardSelection(this.root);
                 }
             }
         } catch (error) {
@@ -235,7 +257,6 @@ export class InputManager {
         const oldCardId = this.root.player.deck[deckIndex];
 
         // Find the upgraded version and replace it
-        const { CARDS } = window.gameModules?.cards || {};
         if (CARDS && CARDS[oldCardId]?.upgrades) {
             this.root.player.deck[deckIndex] = CARDS[oldCardId].upgrades;
             this.root.log(`Upgraded ${CARDS[oldCardId].name} to ${CARDS[CARDS[oldCardId].upgrades].name}`);
@@ -445,8 +466,8 @@ export class InputManager {
             if (success) {
                 // Clear card selection
                 this.root.selectedCardIndex = null;
-                if (window.gameModules?.render?.updateCardSelection) {
-                    window.gameModules.render.updateCardSelection(this.root);
+                if (this.root.ui?.updateCardSelection) {
+                    this.root.ui.updateCardSelection(this.root);
                 }
             }
         } catch (error) {
@@ -460,7 +481,7 @@ export class InputManager {
     handleSpecificButtons(element, event) {
         // Skip reward button
         if (element.dataset.skip !== undefined) {
-            if (this.root._pendingChoices) {
+            if (this.root.currentRewardChoices) {
                 this.root.skipReward();
             } else {
                 this.root.afterNode();
@@ -490,35 +511,15 @@ export class InputManager {
         // Restart Act 2 button
         if (element.dataset.restartAct2 !== undefined) {
             if (this.root.loadAct2Checkpoint) {
-                this.root.loadAct2Checkpoint().then(() => {
-                    if (window.gameModules?.render?.renderMap) {
-                        window.gameModules.render.renderMap(this.root);
+                Promise.resolve(this.root.loadAct2Checkpoint()).then(() => {
+                    if (this.root.ui?.renderMap) {
+                        this.root.ui.renderMap(this.root);
                     }
                 });
             }
             return;
         }
 
-        // Buy relic button
-        if (element.dataset.buyRelic !== undefined) {
-            if (this.root.currentShopRelic && this.root.player.gold >= 100) {
-                this.root.player.gold -= 100;
-                this.root.log(`Bought ${this.root.currentShopRelic.name} for 100 gold.`);
-
-                // Add relic logic here
-                element.disabled = true;
-                element.textContent = "SOLD";
-            } else {
-                this.root.log("Not enough gold!");
-            }
-            return;
-        }
-
-        // Leave shop button
-        if (element.dataset.leave !== undefined) {
-            this.root.afterNode();
-            return;
-        }
     }
 
     /**
@@ -588,6 +589,10 @@ export class InputManager {
         }
     }
 
+    handleMessagesModalEvent() {
+        this.handleShowMessages();
+    }
+
     /**
      * Setup card hover sound effects
      */
@@ -605,17 +610,34 @@ export class InputManager {
         });
     }
 
+    handleBattleCardShortcut(cardIndex) {
+        const card = this.root.player.hand[cardIndex];
+        if (!card) {
+            return;
+        }
+
+        if (this.root.selectedCardIndex === cardIndex) {
+            if (this.root.player.energy >= card.cost) {
+                const cardElement = this.root.app.querySelector(`[data-play="${cardIndex}"]`);
+                if (cardElement) {
+                    this.handleCardPlay(cardElement);
+                }
+            }
+            return;
+        }
+
+        this.root.selectedCardIndex = cardIndex;
+        if (this.root.ui?.updateCardSelection) {
+            this.root.ui.updateCardSelection(this.root);
+        }
+        this.playSound('swipe.mp3');
+    }
+
     /**
      * Play sound utility
      */
     playSound(soundFile) {
-        try {
-            const audio = new Audio(`assets/sounds/${soundFile}`);
-            audio.volume = 0.3;
-            audio.play().catch(() => { }); // Ignore audio play failures
-        } catch (e) {
-            // Ignore audio errors
-        }
+        playSound(soundFile);
     }
 
     cleanup() {
@@ -626,19 +648,11 @@ export class InputManager {
         if (this.globalHandlers.has('click')) {
             document.removeEventListener('click', this.handleGlobalClick);
         }
+        if (this.globalHandlers.has('show-messages-modal')) {
+            document.removeEventListener('show-messages-modal', this.handleMessagesModalEvent);
+        }
 
         this.globalHandlers.clear();
         this.activeHandlers.clear();
-    }
-}
-
-// Simple audio utility function (moved from render.js)
-function playSound(soundFile) {
-    try {
-        const audio = new Audio(`assets/sounds/${soundFile}`);
-        audio.volume = 0.3;
-        audio.play().catch(() => { }); // Ignore failures in restrictive environments
-    } catch (e) {
-        // Audio not supported or file missing, ignore
     }
 }

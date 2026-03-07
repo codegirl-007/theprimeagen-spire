@@ -197,8 +197,8 @@ export const CARDS = {
             };
 
             // Show selection modal
-            if (window.gameModules?.render?.renderCodeReviewSelection) {
-                window.gameModules.render.renderCodeReviewSelection(ctx.root, topCards);
+            if (ctx.root.ui?.renderCodeReviewSelection) {
+                ctx.root.ui.renderCodeReviewSelection(ctx.root, topCards);
             }
         }
     },

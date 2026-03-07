@@ -21,8 +21,8 @@ export class RestActionCommand extends Command {
                 this.gameRoot.afterNode();
             } else if (this.action === 'upgrade') {
                 // Show upgrade selection (same as current logic)
-                if (window.gameModules?.render?.renderUpgrade) {
-                    window.gameModules.render.renderUpgrade(this.gameRoot);
+                if (this.gameRoot.ui?.renderUpgrade) {
+                    this.gameRoot.ui.renderUpgrade(this.gameRoot);
                 }
             } else {
                 console.warn(`Unknown rest action: ${this.action}`);
