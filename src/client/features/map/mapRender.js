@@ -3,7 +3,7 @@ import { attachMapTooltipHandlers } from "./mapTooltip.js";
 
 export async function renderMap(root) {
   const { CARDS } = await import("../../../data/cards.js");
-  const { ENEMIES } = await import("../../../data/enemies.js");
+  const { ENEMIES } = await import("../../../shared/data/enemies.js");
   const { RELICS } = await import("../../../shared/data/relics.js");
   const { getAllMessages } = await import("../../../data/messages.js");
   const { MAPS } = await import("../../../shared/data/maps.js");

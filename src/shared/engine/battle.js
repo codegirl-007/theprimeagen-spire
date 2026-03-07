@@ -1,4 +1,4 @@
-import { ENEMIES } from "../../data/enemies.js";
+import { ENEMIES } from "../data/enemies.js";
 import { RELICS } from "../data/relics.js";
 import { CARDS } from "../../data/cards.js";
 import {

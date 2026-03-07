@@ -14,7 +14,7 @@ export async function renderBattle(root) {
   const p = root.player;
   const e = root.enemy;
 
-  const { ENEMIES } = await import("../../../data/enemies.js");
+  const { ENEMIES } = await import("../../../shared/data/enemies.js");
   const { CARDS } = await import("../../../data/cards.js");
   const enemyData = ENEMIES[e.id];
   const intentInfo = getIntentInfo(e);
