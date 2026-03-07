@@ -2,7 +2,7 @@ import { MAPS } from "../../shared/data/maps.js";
 import { attachRelics } from "../../shared/engine/battle.js";
 import { InputManager } from "../input/InputManager.js";
 import { GameStateMachine } from "../../shared/state/GameStateMachine.js";
-import { createGameRoot } from "../../app/createGameRoot.js";
+import { createBrowserRoot } from "./createBrowserRoot.js";
 import { MapState } from "../features/map/MapState.js";
 import { BattleState } from "../features/battle/BattleState.js";
 import { RewardState } from "../features/reward/RewardState.js";
@@ -15,7 +15,7 @@ import { RelicSelectionState } from "../features/relic-selection/RelicSelectionS
 
 export async function bootstrap() {
   const app = document.getElementById("app");
-  const root = createGameRoot(app);
+  const root = createBrowserRoot(app);
 
   initializeStateMachine(root);
   initializeInput(root);
