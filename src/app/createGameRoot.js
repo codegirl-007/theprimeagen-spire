@@ -1,22 +1,22 @@
-import { MAPS } from "../data/maps.js";
-import { makePlayer, initDeck } from "../engine/core.js";
+import { MAPS } from "../shared/data/maps.js";
+import { makePlayer, initDeck } from "../shared/engine/core.js";
 import {
   playCard,
   endTurn,
   makeBattleContext,
   attachRelics,
-} from "../engine/battle.js";
-import { CommandInvoker } from "../commands/CommandInvoker.js";
+} from "../shared/engine/battle.js";
+import { CommandInvoker } from "../client/commands/CommandInvoker.js";
 import {
   renderBattle,
   showDamageNumber,
   updateCardSelection,
-} from "../features/battle/battleRender.js";
-import { renderMap } from "../features/map/mapRender.js";
-import { renderUpgrade } from "../features/rest/restRender.js";
-import { renderCodeReviewSelection } from "../features/endgame/codeReviewRender.js";
-import { attachPersistence } from "./persistence.js";
-import { attachRewardFlow } from "./rewardFlow.js";
+} from "../client/features/battle/battleRender.js";
+import { renderMap } from "../client/features/map/mapRender.js";
+import { renderUpgrade } from "../client/features/rest/restRender.js";
+import { renderCodeReviewSelection } from "../client/features/endgame/codeReviewRender.js";
+import { attachPersistence } from "../client/app/localPersistence.js";
+import { attachRewardFlow } from "../shared/game/rewardFlow.js";
 
 export function createGameRoot(app) {
   const root = {

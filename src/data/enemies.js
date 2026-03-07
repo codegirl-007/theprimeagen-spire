@@ -1,4 +1,4 @@
-import { preferWebpPath } from "../ui/shared/renderShared.js";
+import { preferWebpPath } from "../shared/utils/assets.js";
 
 export const ENEMIES = {
   old_man_judo: {

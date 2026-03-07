@@ -1,6 +1,6 @@
 # Cloudflare Co-op Multiplayer Tutorial
 
-This guide explains how to turn this single-player browser game into a 2-player co-op game on Cloudflare.
+This guide explains how to turn this browser game into a project that supports both local single-player and authoritative 2-4 player co-op on Cloudflare.
 
 It is written for this codebase specifically.
 
@@ -9,11 +9,24 @@ It is written for this codebase specifically.
 Build a version where:
 
 - the frontend is hosted on Cloudflare Pages
-- two players can join the same room
+- local single-player still works without Cloudflare room infrastructure
+- 2 to 4 players can join the same room
 - the room has authoritative game state
-- both players see the same map, battle, rewards, and progression
+- all players in the room see the same map, battle, rewards, and progression
 - reconnects work
 - cheating and desync are reduced by moving authority off the client
+
+## Scope note
+
+This document is the implementation source of truth for this repo.
+
+It aims for a Slay-the-Spire-style co-op structure inspired by publicly known Slay the Spire 2 direction, but it does not assume a complete official public StS2 rules spec exists.
+
+The key product goal here is:
+
+- preserve a fully playable local single-player mode
+- add an authoritative online co-op mode for up to 4 players
+- share as much simulation and rendering logic as possible between those modes
 
 ## What exists today
 
@@ -607,6 +620,8 @@ If you are new, I recommend this exact order:
 6. local frontend button that calls create-room
 7. local WebSocket room connect
 8. local one-command test like `end_turn`
+9. local 1-player room test
+10. local 2-4 player join/capacity test
 
 If all of that works locally, you will be in a strong place before touching production.
 
@@ -655,8 +670,8 @@ The key problem in multiplayer is avoiding conflicts and desyncs.
 
 Example:
 
-- player 1 clicks `play card`
-- player 2 clicks `end turn`
+- one player clicks `play card`
+- another player clicks `end turn`
 - both actions arrive close together
 
 If you let many different systems update the room independently, state gets messy fast.
@@ -692,7 +707,7 @@ When a player plays a card:
 1. frontend sends a command to the room
 2. room validates it
 3. room updates authoritative state
-4. room broadcasts the updated state to both players
+4. room broadcasts the updated state to all connected players
 
 ### 3d. Durable Object identity
 
@@ -713,7 +728,7 @@ What this means:
 
 The important part is that using the same room name gives you the same room object.
 
-That is how both players end up talking to the same room authority.
+That is how all players in the room end up talking to the same room authority.
 
 ### 3e. Durable Object storage
 
@@ -826,7 +841,7 @@ Here is the basic room lifecycle you should aim for.
 #### Join room
 
 - Worker or room validates join request
-- room adds second player
+- room adds another player until room capacity is reached
 - room saves updated snapshot
 
 #### Play game
@@ -979,17 +994,18 @@ You do not need either for MVP.
 
 Start with this ruleset:
 
-- 2 players only
+- local single-player remains playable through a local session runtime
+- co-op rooms support 2 to 4 players
 - shared run
 - shared map progression
 - shared enemy in battle
-- each player has their own deck, hand, HP, energy, relics
+- each player has their own deck, hand, HP, energy, relics, and combat flags
 - only one player acts at a time during battle
-- both players must be present to continue after major transitions
+- major transitions should wait for required ready players, not assume exactly two clients
 
 This is simpler than simultaneous turns and much easier to validate on the server.
 
-If you try to support both players acting at the same time on day one, the complexity jumps a lot.
+If you try to support multiple players acting at the same time on day one, the complexity jumps a lot.
 
 ## The main refactor idea
 
@@ -1003,7 +1019,25 @@ To make multiplayer work, split them.
 
 ### New model
 
-The server owns simulation.
+The simulation should be shared across both play modes.
+
+In co-op:
+
+- the room Durable Object is authoritative
+- clients send commands and render snapshots
+
+In single-player:
+
+- the browser runs the same simulation locally
+- no room server is required
+
+So the long-term goal is not "move all game logic to the server".
+
+The goal is:
+
+- extract a shared simulation layer
+- run it locally for solo play
+- run it authoritatively in a room for co-op
 
 The client owns:
 
@@ -1026,6 +1060,27 @@ Instead, it sends commands like:
 - `select_starting_relic`
 
 The room Durable Object validates the command, updates authoritative state, increments a version, then broadcasts the new state.
+
+### Single-player compatibility
+
+Do not build co-op by deleting or replacing solo mode.
+
+Instead, introduce two runtimes that share the same command and simulation model:
+
+- `LocalGameSession`
+  - used for single-player
+  - runs the shared simulation in the browser
+- `RemoteRoomSession`
+  - used for co-op
+  - sends commands to the room and renders authoritative snapshots
+
+The frontend should target a session interface, not Cloudflare APIs directly.
+
+That means the browser UI should eventually depend on concepts like:
+
+- `session.getState()`
+- `session.send(command)`
+- `session.subscribe(listener)`
 
 ## Step 1: Make render functions pure
 
@@ -1076,13 +1131,21 @@ For co-op, the authoritative room state should look more like this:
 {
   roomId: "abc123",
   version: 42,
+  maxPlayers: 4,
   phase: "BATTLE",
   currentAct: "act1",
   nodeId: "n7",
   completedNodes: ["n1", "n2"],
+  playerOrder: ["host-1", "ally-2", "ally-3", "ally-4"],
+  connectedPlayers: {
+    "host-1": true,
+    "ally-2": true,
+    "ally-3": false,
+    "ally-4": false
+  },
   players: {
-    p1: {
-      id: "p1",
+    "host-1": {
+      id: "host-1",
       name: "Player 1",
       hp: 70,
       maxHp: 70,
@@ -1096,10 +1159,12 @@ For co-op, the authoritative room state should look more like this:
       draw: [],
       discard: [],
       hand: [],
-      relicStates: []
+      relicStates: [],
+      flags: {},
+      lastCard: null
     },
-    p2: {
-      id: "p2",
+    "ally-2": {
+      id: "ally-2",
       name: "Player 2",
       hp: 70,
       maxHp: 70,
@@ -1113,12 +1178,16 @@ For co-op, the authoritative room state should look more like this:
       draw: [],
       discard: [],
       hand: [],
-      relicStates: []
+      relicStates: [],
+      flags: {},
+      lastCard: null
     }
   },
   battle: {
     enemy: null,
-    turnOwner: "p1",
+    activePlayerId: "host-1",
+    turnOrder: ["host-1", "ally-2"],
+    turnIndex: 0,
     turnNumber: 1,
     flags: {}
   },
@@ -1129,7 +1198,9 @@ For co-op, the authoritative room state should look more like this:
 }
 ```
 
-You do not need this exact shape, but you do need a room-centric shape.
+You do not need this exact shape, but you do need a room-centric shape that scales past 2 fixed slots.
+
+For single-player mode, keep a compatible state shape where one local player is present, so both runtimes can reuse the same reducers and render adapters.
 
 ## Step 3: Move authority into commands
 
@@ -1225,7 +1296,7 @@ Worker:
 - creates guest identity if needed
 - allocates room Durable Object
 - initializes room state
-- returns room id, player id, join code, websocket URL
+- returns room id, player id, join code, websocket URL, and room capacity metadata
 
 ### Join room
 
@@ -1236,7 +1307,8 @@ Client calls Worker:
 Worker:
 
 - validates invite or room code
-- registers the second player
+- rejects the request if the room is already full
+- registers the joining player
 - returns room bootstrap info and websocket URL
 
 ### Connect room socket
@@ -1248,7 +1320,7 @@ On connect:
 - authenticate player identity
 - attach player to room
 - send current snapshot
-- notify other player of presence
+- notify other players of presence
 
 ## Step 7: Use snapshots plus version numbers
 
@@ -1271,7 +1343,7 @@ Every command from the client should include the last version the client saw:
 {
   "type": "play_card",
   "roomId": "abc123",
-  "playerId": "p1",
+  "playerId": "host-1",
   "baseVersion": 42,
   "cardIndex": 1
 }
@@ -1304,6 +1376,8 @@ Store locally:
 - player id
 - session token
 
+For single-player mode, store only local session/save metadata and do not require room credentials.
+
 On reconnect:
 
 - reconnect socket
@@ -1322,7 +1396,8 @@ This is the biggest game-design decision.
 - each player has their own hand and energy
 - one active player at a time
 - active player plays any number of cards, then ends turn
-- enemy acts after both players have taken a turn, or after one shared round depending on your design
+- enemy acts after the active players in the current round have taken turns
+- the battle model should scale from solo play to 4-player co-op without changing the core rules engine
 
 Two good options:
 
@@ -1332,6 +1407,8 @@ Sequence:
 
 - player 1 turn
 - player 2 turn
+- player 3 turn if present
+- player 4 turn if present
 - enemy turn
 
 Pros:
@@ -1344,8 +1421,8 @@ Pros:
 
 Sequence:
 
-- both players act in any order
-- both must click end turn
+- all ready players act in any order
+- all participating players must click end turn
 - enemy turn
 
 Pros:
@@ -1360,6 +1437,16 @@ Cons:
 
 For the first version, choose Option A.
 
+For 4-player support, keep the architecture generic even if early milestone testing uses fewer connected players.
+
+The room should own a turn order list and skip:
+
+- disconnected players
+- dead players
+- empty player slots
+
+That gives you a consistent rule for rooms with 1, 2, 3, or 4 active players.
+
 ## Step 10: Update the frontend state model
 
 The browser should keep only a view model.
@@ -1370,7 +1457,7 @@ For example:
 {
   session: {
     roomId: "abc123",
-    playerId: "p1",
+    playerId: "host-1",
     token: "..."
   },
   connection: {
@@ -1394,27 +1481,34 @@ Important:
 - `currentShopCards` should be authoritative room state
 - `battle enemy` should be authoritative room state
 
-## Step 11: Change rendering to support two players
+## Step 11: Change rendering to support multiple players
 
 The current battle renderer is built around one player and one enemy.
 
 You will need to:
 
-- show both players
+- show up to 4 players
 - show which player is active
-- show each player hand, HP, block, and energy
+- show each player's HP, block, energy, and connection state
 - disable controls when it is not the local player's turn
 - show presence and reconnect indicators
+- keep solo mode using the same renderer concepts with a one-player roster
 
 ### Minimal battle UI changes
 
 Add these visual concepts:
 
 - `You`
-- `Teammate`
+- `Teammates`
 - `Current turn: Player 1`
 - disabled hand when it is not your turn
 - reconnect banner if socket is down
+
+For 3-4 player rooms, prefer:
+
+- a compact player roster or panel strip
+- one focused hand for the active player
+- smaller teammate panels instead of multiple full hands on screen at once
 
 You do not need perfect polish for the first pass.
 
@@ -1439,9 +1533,30 @@ Replace `localStorage` game saves with server room persistence.
 
 Do not store authoritative run state in the browser anymore.
 
+For local single-player, browser persistence is still valid because the browser is the local authority in that mode.
+
+## Step 12a: Define shared vs per-player resources
+
+Write these rules down early so the room schema and command validation stay consistent.
+
+Recommended defaults:
+
+- shared map progression
+- shared combat log
+- shared enemy state in battle
+- shared room version and reconnect metadata
+- separate HP, block, energy, deck, draw, discard, hand, relics, flags, and last-card state per player
+- shared gold only if you want the team economy to feel collaborative
+
+For reward/shop/rest/event flows, the server should explicitly know which player is the recipient or target of the action.
+
 ## Step 13: Start with a narrow feature slice
 
 Do not migrate the whole game at once.
+
+Also do not require all 4 player slots to be fully exercised in the very first playable milestone.
+
+Design the schema and turn system for up to 4 players from day one, but it is fine if early testing uses 1 or 2 connected players while you harden the room model.
 
 Build this slice first:
 
@@ -1497,12 +1612,14 @@ Keep the protocol small and explicit.
 ### Client -> room
 
 ```json
-{ "type": "join_room", "roomId": "abc123", "playerId": "p1", "token": "..." }
+{ "type": "join_room", "roomId": "abc123", "playerId": "host-1", "token": "..." }
 { "type": "play_card", "baseVersion": 12, "cardIndex": 0 }
 { "type": "end_turn", "baseVersion": 13 }
 { "type": "move_map", "baseVersion": 14, "nodeId": "n4" }
-{ "type": "pick_reward", "baseVersion": 15, "rewardIndex": 2 }
+{ "type": "pick_reward", "baseVersion": 15, "rewardIndex": 2, "targetPlayerId": "ally-2" }
 { "type": "choose_event", "baseVersion": 16, "choiceIndex": 1 }
+{ "type": "buy_shop_card", "baseVersion": 17, "shopIndex": 1, "targetPlayerId": "ally-3" }
+{ "type": "ready_up", "baseVersion": 18 }
 ```
 
 ### Room -> client
@@ -1511,7 +1628,7 @@ Keep the protocol small and explicit.
 { "type": "snapshot", "version": 12, "state": { } }
 { "type": "patch", "version": 13, "events": [ ] }
 { "type": "error", "code": "OUT_OF_DATE", "message": "Client version is stale" }
-{ "type": "presence", "playerId": "p2", "status": "connected" }
+{ "type": "presence", "playerId": "ally-2", "status": "connected" }
 ```
 
 For MVP, sending full snapshots is acceptable.
@@ -1573,6 +1690,7 @@ Here is the order I would actually build this in.
 - extract pure game logic from browser-owned `root`
 - create command handlers that accept plain room state
 - replace direct browser mutation with reducer-style updates
+- make the same engine runnable through a local single-player session
 
 ### Phase 3: Room backend
 
@@ -1588,6 +1706,12 @@ Here is the order I would actually build this in.
 - render from authoritative snapshots
 - disable actions when not allowed
 - add reconnect flow
+
+### Phase 4a: Preserve solo mode
+
+- introduce a local session runtime that uses the same shared engine
+- make the frontend switch between local session and remote room session
+- keep existing single-player flow playable without Cloudflare services
 
 ### Phase 5: Game expansion
 
@@ -1625,14 +1749,16 @@ The command layer is a helpful start, but it is not yet a networked action proto
 
 Your MVP is in good shape when all of this is true:
 
-- two players can create/join a room
-- both see the same room snapshot
+- single-player still works through the shared engine without room services
+- up to 4 players can create/join a room
+- all connected players see the same room snapshot
 - one player disconnecting does not destroy the room
 - reconnect restores the room state cleanly
 - all authoritative gameplay decisions happen in the room Durable Object
 - no render function mutates authoritative gameplay state
 - clients only send intents, not outcomes
 - the server rejects invalid or stale actions
+- turn ownership is enforced correctly across rooms with 1 to 4 active players
 
 ## Final recommendation
 
@@ -1641,9 +1767,10 @@ If you want the fastest path to success, do this:
 1. keep the frontend simple and static on Pages
 2. use one Durable Object per room
 3. use turn-based co-op, not simultaneous-action co-op
-4. make the server authoritative for RNG and state transitions
-5. refactor event/shop generation before adding networking
-6. migrate one narrow feature slice first, not the whole game at once
+4. keep a local single-player runtime using the same shared simulation
+5. make the room server authoritative for RNG and state transitions in co-op
+6. refactor event/shop generation before adding networking
+7. migrate one narrow feature slice first, not the whole game at once
 
 That path gives you the best chance of shipping a working co-op version without drowning in sync bugs.
 
