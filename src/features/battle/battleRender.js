@@ -97,7 +97,9 @@ function cacheBattleUi(root, battleInstanceId) {
         handHost: root.app.querySelector(".cards-battlefield"),
         controlsHost: root.app.querySelector(".hand-controls"),
         logContent: root.app.querySelector("#fight-log-content"),
-        overlayHost: root.app.querySelector(".battle-overlay-host")
+        overlayHost: root.app.querySelector(".battle-overlay-host"),
+        lastVisibleLogs: [],
+        selectedCardEl: null
     };
 }
 
@@ -128,6 +130,7 @@ function updateBattlePlayer(root) {
 
 function updateBattleHand(root, CARDS) {
     root.battleUi.handHost.innerHTML = getHandMarkup(root, CARDS);
+    root.battleUi.selectedCardEl = null;
 }
 
 function updateBattleControls(root, player) {
@@ -135,8 +138,23 @@ function updateBattleControls(root, player) {
 }
 
 function updateBattleLog(root) {
+    const visibleLogs = root.logs.slice(-20);
+    const previousLogs = root.battleUi.lastVisibleLogs || [];
     const logContent = root.battleUi.logContent;
-    logContent.innerHTML = getLogMarkup(root);
+
+    if (logsMatch(previousLogs, visibleLogs)) {
+        return;
+    }
+
+    const overlap = getLogOverlap(previousLogs, visibleLogs);
+    if (overlap > 0 || previousLogs.length === 0) {
+        removeLeadingLogEntries(logContent, previousLogs.length - overlap);
+        appendLogEntries(logContent, visibleLogs.slice(overlap));
+    } else {
+        rebuildBattleLog(logContent, visibleLogs);
+    }
+
+    root.battleUi.lastVisibleLogs = visibleLogs.slice();
     logContent.scrollTop = logContent.scrollHeight;
 }
 
@@ -299,4 +317,61 @@ function getEndTurnMarkup() {
 
 function getLogMarkup(root) {
     return root.logs.slice(-20).map((log) => `<div class="log-entry">${log}</div>`).join("");
+}
+
+function logsMatch(previousLogs, nextLogs) {
+    if (previousLogs.length !== nextLogs.length) {
+        return false;
+    }
+
+    return previousLogs.every((entry, index) => entry === nextLogs[index]);
+}
+
+function getLogOverlap(previousLogs, nextLogs) {
+    const maxOverlap = Math.min(previousLogs.length, nextLogs.length);
+
+    for (let overlap = maxOverlap; overlap >= 0; overlap--) {
+        let matches = true;
+
+        for (let index = 0; index < overlap; index++) {
+            if (previousLogs[previousLogs.length - overlap + index] !== nextLogs[index]) {
+                matches = false;
+                break;
+            }
+        }
+
+        if (matches) {
+            return overlap;
+        }
+    }
+
+    return 0;
+}
+
+function removeLeadingLogEntries(logContent, count) {
+    for (let index = 0; index < count; index++) {
+        if (!logContent.firstChild) {
+            break;
+        }
+
+        logContent.removeChild(logContent.firstChild);
+    }
+}
+
+function appendLogEntries(logContent, entries) {
+    const fragment = document.createDocumentFragment();
+
+    entries.forEach((entry) => {
+        const logEntry = document.createElement("div");
+        logEntry.className = "log-entry";
+        logEntry.textContent = entry;
+        fragment.appendChild(logEntry);
+    });
+
+    logContent.appendChild(fragment);
+}
+
+function rebuildBattleLog(logContent, entries) {
+    logContent.replaceChildren();
+    appendLogEntries(logContent, entries);
 }

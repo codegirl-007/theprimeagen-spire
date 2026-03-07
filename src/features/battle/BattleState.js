@@ -21,6 +21,7 @@ export class BattleState extends GameState {
     async exit(gameRoot, nextState = null) {
         gameRoot._battleInProgress = false;
         gameRoot.battleUi = null;
+        gameRoot._battleContext = null;
     }
 
     async render(gameRoot) {

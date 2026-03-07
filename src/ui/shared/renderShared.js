@@ -28,16 +28,25 @@ export function showDamageNumber(damage, target, isPlayer = false) {
 
 export function updateCardSelection(root) {
     const container = root.battleUi?.handHost || root.app;
+    const previousSelectedCard = root.battleUi?.selectedCardEl;
+    if (previousSelectedCard?.isConnected) {
+        previousSelectedCard.classList.remove('card-selected');
+    }
 
-    container.querySelectorAll('.battle-card').forEach((card) => {
-        card.classList.remove('card-selected');
-    });
-
-    if (root.selectedCardIndex !== null) {
-        const selectedCard = container.querySelector(`[data-play="${root.selectedCardIndex}"]`);
-        if (selectedCard) {
-            selectedCard.classList.add('card-selected');
+    if (root.selectedCardIndex === null) {
+        if (root.battleUi) {
+            root.battleUi.selectedCardEl = null;
         }
+        return;
+    }
+
+    const selectedCard = container.querySelector(`[data-play="${root.selectedCardIndex}"]`);
+    if (selectedCard) {
+        selectedCard.classList.add('card-selected');
+    }
+
+    if (root.battleUi) {
+        root.battleUi.selectedCardEl = selectedCard || null;
     }
 }
 

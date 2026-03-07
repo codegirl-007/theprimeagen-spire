@@ -10,6 +10,7 @@ export function createBattle(ctx, enemyId) {
     ctx.enemy = enemy;
     ctx.flags = {};
     ctx.lastCard = null;
+    ctx._battleContext = null;
 
     // Initialize draw pile from current deck for the battle
     ctx.player.draw = shuffle(ctx.player.deck.slice());
@@ -24,6 +25,8 @@ export function createBattle(ctx, enemyId) {
         applyVulnerable: (who, amt) => { who.vuln = (who.vuln || 0) + amt; ctx.log(`${who === ctx.player ? 'You are' : ctx.enemy.name + ' is'} vulnerable for ${amt} turn${amt > 1 ? 's' : ''}.`) }
     };
     for (const r of ctx.relicStates) r.hooks?.onBattleStart?.(relicCtx, r.state);
+
+    ctx._battleContext = makeBattleContext(ctx);
 
     startPlayerTurn(ctx);
 }
@@ -226,10 +229,7 @@ function applyDamage(ctx, target, raw, label) {
 }
 
 export function makeBattleContext(root) {
-    return {
-        player: root.player,
-        enemy: root.enemy,
-        discard: root.player.discard,
+    const battleContext = {
         relicStates: root.relicStates || [],
         draw: (n) => draw(root.player, n, root),
         log: (m) => root.log(m),
@@ -250,9 +250,6 @@ export function makeBattleContext(root) {
             }
         },
         scalarFromWeak: (base) => (root.player.weak > 0 ? Math.floor(base * 0.75) : base),
-        showDamageNumber: root.showDamageNumber,
-        lastCard: null,
-        flags: {},
         root: root, // Provide access to root for complex card effects
         // New mechanics for advanced cards
         moveFromDiscardToHand: (cardId) => {
@@ -279,12 +276,41 @@ export function makeBattleContext(root) {
         replayCard: (card) => {
             // Temporarily replay a card without removing it from hand
             if (typeof card.effect === 'function') {
-                const battleCtx = makeBattleContext(root);
+                const battleCtx = root._battleContext || makeBattleContext(root);
                 card.effect(battleCtx);
                 root.log(`${card.name} is replayed!`);
             }
         },
     };
+
+    Object.defineProperties(battleContext, {
+        player: {
+            get: () => root.player,
+        },
+        enemy: {
+            get: () => root.enemy,
+        },
+        discard: {
+            get: () => root.player.discard,
+        },
+        showDamageNumber: {
+            get: () => root.showDamageNumber,
+        },
+        lastCard: {
+            get: () => root.lastCard,
+            set: (value) => {
+                root.lastCard = value;
+            }
+        },
+        flags: {
+            get: () => root.flags,
+            set: (value) => {
+                root.flags = value;
+            }
+        }
+    });
+
+    return battleContext;
 }
 
 export function attachRelics(root, relicIds) {

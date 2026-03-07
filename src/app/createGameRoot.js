@@ -28,6 +28,7 @@ export function createGameRoot(app) {
         currentShopRelic: null,
         _codeReviewCards: null,
         _codeReviewCallback: null,
+        _battleContext: null,
         selectedCardIndex: null,
         ui: {
             renderMap,
@@ -50,14 +51,14 @@ export function createGameRoot(app) {
         },
 
         play(index) {
-            const battleCtx = makeBattleContext(this);
+            const battleCtx = this._battleContext || (this._battleContext = makeBattleContext(this));
             playCard(battleCtx, index);
         },
 
         showDamageNumber,
 
         end() {
-            const battleCtx = makeBattleContext(this);
+            const battleCtx = this._battleContext || (this._battleContext = makeBattleContext(this));
             endTurn(battleCtx);
         },
 
@@ -191,7 +192,7 @@ function decorateBattleAccessors(root) {
             return;
         }
 
-        const ctx = makeBattleContext(this);
+        const ctx = this._battleContext || (this._battleContext = makeBattleContext(this));
         this.deal = ctx.deal;
         this.applyWeak = ctx.applyWeak;
         this.applyVulnerable = ctx.applyVulnerable;
