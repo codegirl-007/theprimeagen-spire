@@ -5,13 +5,31 @@
  * into one place while maintaining exact same functionality.
  */
 
-import { PlayCardCommand } from '../commands/PlayCardCommand.js';
-import { EndTurnCommand } from '../commands/EndTurnCommand.js';
-import { MapMoveCommand } from '../commands/MapMoveCommand.js';
-import { RewardPickCommand } from '../commands/RewardPickCommand.js';
-import { RestActionCommand } from '../commands/RestActionCommand.js';
-import { CARDS } from '../data/cards.js';
 import { playSound } from '../systems/audio/playSound.js';
+import {
+    handleCardPlay,
+    handleEndTurn,
+    handleBattleCardShortcut,
+    setupCardHoverSounds
+} from '../features/battle/battleInput.js';
+import { handleMapNodeClick } from '../features/map/mapInput.js';
+import { handleRewardPick } from '../features/reward/rewardInput.js';
+import { handleRestAction, handleCardUpgrade } from '../features/rest/restInput.js';
+import { handleEventChoice } from '../features/event/eventInput.js';
+import {
+    handleShopCardBuy,
+    handleShopRelicBuy,
+    updateShopAffordability,
+    handleLeaveShop
+} from '../features/shop/shopInput.js';
+import { handleRelicSelection } from '../features/relic-selection/relicSelectionInput.js';
+import {
+    handleSkip,
+    handleReset,
+    handleReplay,
+    handleMenu,
+    handleRestartAct2
+} from '../features/endgame/endgameInput.js';
 
 export class InputManager {
     constructor(gameRoot) {
@@ -178,228 +196,70 @@ export class InputManager {
      * Handle card play clicks
      */
     handleCardPlay(element, event) {
-        if (!element.classList.contains('playable')) return;
-
-        const index = parseInt(element.dataset.play, 10);
-        const card = this.root.player.hand[index];
-
-        if (!card) return;
-        if (this.root.player.energy < card.cost) return;
-
-        try {
-            // Play sound
-            this.playSound('played-card.mp3');
-
-            // Create and execute PlayCardCommand
-            const command = new PlayCardCommand(this.root, index);
-            const success = this.root.commandInvoker.execute(command);
-
-            if (success) {
-                // Clear card selection
-                this.root.selectedCardIndex = null;
-                if (this.root.ui?.updateCardSelection) {
-                    this.root.ui.updateCardSelection(this.root);
-                }
-            }
-        } catch (error) {
-            console.error('Error playing card:', error);
-        }
+        handleCardPlay(this, element, event);
     }
 
     /**
      * Handle map node clicks
      */
     handleMapNodeClick(element, event) {
-        if (!element.dataset.node) return;
-
-        try {
-            // Create and execute MapMoveCommand
-            const command = new MapMoveCommand(this.root, element.dataset.node);
-            this.root.commandInvoker.execute(command);
-        } catch (error) {
-            console.error('Error moving on map:', error);
-        }
+        handleMapNodeClick(this, element, event);
     }
 
     /**
      * Handle reward card picks
      */
     handleRewardPick(element, event) {
-        const idx = parseInt(element.dataset.pick, 10);
-
-        try {
-            // Create and execute RewardPickCommand
-            const command = new RewardPickCommand(this.root, idx);
-            this.root.commandInvoker.execute(command);
-        } catch (error) {
-            console.error('Error picking reward:', error);
-        }
+        handleRewardPick(this, element, event);
     }
 
     /**
      * Handle event choice clicks
      */
     async handleEventChoice(element, event) {
-        const idx = parseInt(element.dataset.choice, 10);
-        
-        // Get the current event from the root (this will need to be accessible)
-        if (this.root.currentEvent && this.root.currentEvent.choices[idx]) {
-            this.root.currentEvent.choices[idx].effect();
-            await this.root.afterNode();
-        }
+        await handleEventChoice(this, element, event);
     }
 
     /**
      * Handle card upgrade clicks
      */
     handleCardUpgrade(element, event) {
-        const deckIndex = parseInt(element.dataset.upgrade, 10);
-        const oldCardId = this.root.player.deck[deckIndex];
-
-        // Find the upgraded version and replace it
-        if (CARDS && CARDS[oldCardId]?.upgrades) {
-            this.root.player.deck[deckIndex] = CARDS[oldCardId].upgrades;
-            this.root.log(`Upgraded ${CARDS[oldCardId].name} to ${CARDS[CARDS[oldCardId].upgrades].name}`);
-            this.root.afterNode();
-        }
+        handleCardUpgrade(this, element, event);
     }
 
     /**
      * Handle shop card purchases
      */
     handleShopCardBuy(element, event) {
-        const idx = parseInt(element.dataset.buyCard, 10);
-        // This will need access to the current shop cards
-        if (this.root.currentShopCards && this.root.currentShopCards[idx]) {
-            const card = this.root.currentShopCards[idx];
-            if (this.root.player.gold >= 50) {
-                this.root.player.gold -= 50;
-                this.root.player.deck.push(card.id);
-                this.root.log(`Bought ${card.name} for 50 gold.`);
-                element.disabled = true;
-                element.textContent = "SOLD";
-
-                // Update gold display
-                const goldDisplay = this.root.app.querySelector('.gold-amount');
-                if (goldDisplay) {
-                    goldDisplay.textContent = this.root.player.gold;
-                }
-
-                // Update affordability of remaining items
-                this.updateShopAffordability();
-
-                // Save immediately to persist purchase
-                this.root.save();
-            } else {
-                this.root.log("Not enough gold!");
-            }
-        }
+        handleShopCardBuy(this, element, event);
     }
 
     /**
      * Handle shop relic purchases
      */
     handleShopRelicBuy(element, event) {
-        if (this.root.currentShopRelic) {
-            const relic = this.root.currentShopRelic;
-            if (this.root.player.gold >= 100) {
-                this.root.player.gold -= 100;
-                this.root.log(`Bought ${relic.name} for 100 gold.`);
-
-                // Attach the relic
-                import("../engine/battle.js").then(({ attachRelics }) => {
-                    const currentRelicIds = this.root.relicStates.map(r => r.id);
-                    const newRelicIds = [...currentRelicIds, relic.id];
-                    attachRelics(this.root, newRelicIds);
-                });
-
-                element.disabled = true;
-                element.textContent = "SOLD";
-
-                // Update gold display
-                const goldDisplay = this.root.app.querySelector('.gold-amount');
-                if (goldDisplay) {
-                    goldDisplay.textContent = this.root.player.gold;
-                }
-
-                // Update affordability of remaining items
-                this.updateShopAffordability();
-
-                // Save immediately to persist purchase
-                this.root.save();
-            } else {
-                this.root.log("Not enough gold!");
-            }
-        }
+        handleShopRelicBuy(this, element, event);
     }
 
     /**
      * Update shop item affordability
      */
     updateShopAffordability() {
-        // Update card affordability
-        this.root.app.querySelectorAll("[data-buy-card]").forEach(btn => {
-            if (!btn.disabled) {
-                const cardContainer = btn.closest('.shop-card-container');
-                const overlay = cardContainer.querySelector('.card-disabled-overlay');
-
-                if (this.root.player.gold < 50) {
-                    btn.classList.remove('playable');
-                    btn.classList.add('unplayable');
-                    if (!overlay) {
-                        const newOverlay = document.createElement('div');
-                        newOverlay.className = 'card-disabled-overlay';
-                        newOverlay.innerHTML = '<span>Need 50 gold</span>';
-                        cardContainer.appendChild(newOverlay);
-                    }
-                } else {
-                    btn.classList.remove('unplayable');
-                    btn.classList.add('playable');
-                    if (overlay) {
-                        overlay.remove();
-                    }
-                }
-            }
-        });
-
-        // Update relic affordability
-        const relicBtn = this.root.app.querySelector("[data-buy-relic]");
-        if (relicBtn && !relicBtn.disabled) {
-            const relicContainer = relicBtn.closest('.shop-relic-container');
-            const overlay = relicContainer.querySelector('.relic-disabled-overlay');
-
-            if (this.root.player.gold < 100) {
-                relicBtn.classList.remove('affordable');
-                relicBtn.classList.add('unaffordable');
-                if (!overlay) {
-                    const newOverlay = document.createElement('div');
-                    newOverlay.className = 'relic-disabled-overlay';
-                    newOverlay.innerHTML = '<span>Need 100 gold</span>';
-                    relicContainer.appendChild(newOverlay);
-                }
-            } else {
-                relicBtn.classList.remove('unaffordable');
-                relicBtn.classList.add('affordable');
-                if (overlay) {
-                    overlay.remove();
-                }
-            }
-        }
+        updateShopAffordability(this);
     }
 
     /**
      * Handle leaving the shop
      */
     handleLeaveShop(element, event) {
-        this.root.afterNode();
+        handleLeaveShop(this, element, event);
     }
 
     /**
      * Handle relic selection
      */
     handleRelicSelection(element, event) {
-        const relicId = element.dataset.relic;
-        this.root.selectStartingRelic(relicId);
+        handleRelicSelection(this, element, event);
     }
 
     /**
@@ -443,36 +303,14 @@ export class InputManager {
      * Handle rest screen actions
      */
     handleRestAction(element, event) {
-        const action = element.dataset.act;
-
-        try {
-            // Create and execute RestActionCommand
-            const command = new RestActionCommand(this.root, action);
-            this.root.commandInvoker.execute(command);
-        } catch (error) {
-            console.error('Error with rest action:', error);
-        }
+        handleRestAction(this, element, event);
     }
 
     /**
      * Handle end turn button
      */
     handleEndTurn(element, event) {
-        try {
-            // Create and execute EndTurnCommand
-            const command = new EndTurnCommand(this.root);
-            const success = this.root.commandInvoker.execute(command);
-
-            if (success) {
-                // Clear card selection
-                this.root.selectedCardIndex = null;
-                if (this.root.ui?.updateCardSelection) {
-                    this.root.ui.updateCardSelection(this.root);
-                }
-            }
-        } catch (error) {
-            console.error('Error ending turn:', error);
-        }
+        handleEndTurn(this, element, event);
     }
 
     /**
@@ -481,42 +319,31 @@ export class InputManager {
     handleSpecificButtons(element, event) {
         // Skip reward button
         if (element.dataset.skip !== undefined) {
-            if (this.root.currentRewardChoices) {
-                this.root.skipReward();
-            } else {
-                this.root.afterNode();
-            }
+            handleSkip(this);
             return;
         }
 
         // Reset button
         if (element.dataset.reset !== undefined) {
-            this.root.clearSave();
-            this.root.reset();
+            handleReset(this);
             return;
         }
 
         // Replay button
         if (element.dataset.replay !== undefined) {
-            this.root.reset();
+            handleReplay(this);
             return;
         }
 
         // Menu button
         if (element.dataset.menu !== undefined) {
-            this.root.reset();
+            handleMenu(this);
             return;
         }
 
         // Restart Act 2 button
         if (element.dataset.restartAct2 !== undefined) {
-            if (this.root.loadAct2Checkpoint) {
-                Promise.resolve(this.root.loadAct2Checkpoint()).then(() => {
-                    if (this.root.ui?.renderMap) {
-                        this.root.ui.renderMap(this.root);
-                    }
-                });
-            }
+            handleRestartAct2(this);
             return;
         }
 
@@ -597,40 +424,11 @@ export class InputManager {
      * Setup card hover sound effects
      */
     setupCardHoverSounds() {
-        // This will be called after battle screen renders
-        this.root.app.querySelectorAll("[data-play]").forEach(btn => {
-            if (!btn.dataset.hoverSetup) {
-                btn.addEventListener("mouseenter", () => {
-                    if (btn.classList.contains('playable')) {
-                        this.playSound('swipe.mp3');
-                    }
-                });
-                btn.dataset.hoverSetup = 'true';
-            }
-        });
+        setupCardHoverSounds(this);
     }
 
     handleBattleCardShortcut(cardIndex) {
-        const card = this.root.player.hand[cardIndex];
-        if (!card) {
-            return;
-        }
-
-        if (this.root.selectedCardIndex === cardIndex) {
-            if (this.root.player.energy >= card.cost) {
-                const cardElement = this.root.app.querySelector(`[data-play="${cardIndex}"]`);
-                if (cardElement) {
-                    this.handleCardPlay(cardElement);
-                }
-            }
-            return;
-        }
-
-        this.root.selectedCardIndex = cardIndex;
-        if (this.root.ui?.updateCardSelection) {
-            this.root.ui.updateCardSelection(this.root);
-        }
-        this.playSound('swipe.mp3');
+        handleBattleCardShortcut(this, cardIndex);
     }
 
     /**

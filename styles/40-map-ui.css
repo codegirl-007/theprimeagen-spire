@@ -1,0 +1,290 @@
+.map-screen {
+    width: 100%;
+    margin: 0;
+    min-height: 100vh;
+    background: url('../assets/backgrounds/terrace.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+
+.main-content {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+}
+
+.map-header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.map-header-section h1 {
+    margin: 0;
+    flex: 1;
+}
+
+.game-logo {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.game-logo svg {
+    max-width: 100%;
+    height: auto;
+}
+
+.btn-reset-top {
+    background: linear-gradient(135deg, #dc3545 0%, #b02a37 100%);
+    color: white;
+    border: 2px solid #c82333;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.btn-reset-top:hover {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    border-color: #d32f2f;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+.btn-reset-top:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.btn-reset-status {
+    background: linear-gradient(135deg, #dc3545 0%, #b02a37 100%);
+    color: white;
+    border: 2px solid #c82333;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    margin-left: auto;
+}
+
+.btn-reset-status:hover {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    border-color: #d32f2f;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.btn-reset-status:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.player-status {
+    width: 1450px;
+    margin: 0 auto 10px auto;
+    display: flex;
+    gap: 30px;
+    align-items: center;
+    background:
+        radial-gradient(ellipse at 20% 30%, rgba(255, 255, 255, 0.03) 0%, transparent 60%),
+        linear-gradient(135deg, #2a2a3a 0%, #1a1a2a 100%);
+    border: 2px solid #3a3a4a;
+    border-radius: 6px;
+    padding: 10px 20px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #d0d0d0;
+}
+
+.status-icon {
+    font-size: 20px;
+}
+
+.status-icon-img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+
+.status-value {
+    font-weight: bold;
+    font-size: 18px;
+    color: #f0e68c;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.relics-inline {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.relic-inline {
+    font-size: 20px;
+    padding: 4px;
+    background: rgba(212, 175, 55, 0.1);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.relic-inline:hover {
+    background: rgba(212, 175, 55, 0.3);
+    border-color: rgba(212, 175, 55, 0.6);
+    transform: scale(1.1);
+}
+
+.relic-inline .relic-skill-art {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    vertical-align: middle;
+}
+
+
+.kreon-logo {
+    font-family: "Kreon", serif;
+    font-optical-sizing: auto;
+    font-weight: 700;
+    font-style: normal;
+}
+
+
+.custom-tooltip {
+    position: fixed;
+    background: linear-gradient(135deg, #2c1810 0%, #1a0f08 50%, #2c1810 100%);
+    border: 3px solid #d4af37;
+    border-radius: 12px;
+    padding: 20px 24px;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #f0e68c;
+    box-shadow:
+        0 12px 32px rgba(0, 0, 0, 0.8),
+        0 0 20px rgba(212, 175, 55, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+    z-index: 10000;
+    display: none;
+    max-width: 380px;
+    min-width: 260px;
+    pointer-events: none;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 400;
+}
+
+.custom-tooltip::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: -10px;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-right: 10px solid #d4af37;
+    filter: drop-shadow(-2px 0 4px rgba(0, 0, 0, 0.5));
+}
+
+.custom-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: -8px;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-right: 8px solid #2c1810;
+}
+
+
+.tooltip-with-avatar {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.tooltip-avatar {
+    flex-shrink: 0;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid #d4af37;
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.6),
+        0 0 15px rgba(212, 175, 55, 0.4),
+        inset 0 2px 0 rgba(255, 255, 255, 0.2);
+    position: relative;
+}
+
+.tooltip-avatar::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #d4af37, #b8941f, #d4af37);
+    z-index: -1;
+    animation: avatarGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes avatarGlow {
+    0% {
+        opacity: 0.6;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.tooltip-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.tooltip-content {
+    flex: 1;
+    min-width: 0;
+    padding-top: 4px;
+}
+
+.relics-section {
+    background: linear-gradient(135deg, #3a2f1f 0%, #2a1f0f 100%);
+    border: 2px solid #5a4a2a;
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.relics-grid {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+

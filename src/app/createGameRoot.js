@@ -5,7 +5,7 @@ import { CommandInvoker } from "../commands/CommandInvoker.js";
 import { renderBattle, showDamageNumber, updateCardSelection } from "../features/battle/battleRender.js";
 import { renderMap } from "../features/map/mapRender.js";
 import { renderUpgrade } from "../features/rest/restRender.js";
-import { renderCodeReviewSelection } from "../features/endgame/endgameRender.js";
+import { renderCodeReviewSelection } from "../features/endgame/codeReviewRender.js";
 import { attachPersistence } from "./persistence.js";
 import { attachRewardFlow } from "./rewardFlow.js";
 

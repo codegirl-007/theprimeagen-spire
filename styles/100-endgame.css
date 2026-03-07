@@ -1,0 +1,593 @@
+
+.defeat-screen {
+    min-height: 100vh;
+    background: url('../assets/backgrounds/terrace.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    color: #e8e8e8;
+    position: relative;
+}
+
+.defeat-screen::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 50% 50%, rgba(139, 69, 19, 0.2) 0%, rgba(0, 0, 0, 0.4) 70%);
+    pointer-events: none;
+}
+
+.defeat-header {
+    text-align: center;
+    margin-bottom: 40px;
+    z-index: 1;
+}
+
+.defeat-skull {
+    margin-bottom: 20px;
+    filter: drop-shadow(0 0 20px rgba(139, 69, 19, 0.6));
+}
+
+.skull-img {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    animation: defeatPulse 2s ease-in-out infinite;
+}
+
+@keyframes defeatPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 20px rgba(139, 69, 19, 0.6));
+    }
+
+    50% {
+        transform: scale(1.05);
+        filter: drop-shadow(0 0 30px rgba(139, 69, 19, 0.8));
+    }
+}
+
+.defeat-header h1 {
+    font-family: 'Kreon', serif;
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: #ff6b6b;
+    margin: 0 0 10px 0;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.7);
+    letter-spacing: 2px;
+}
+
+.defeat-header h2 {
+    font-family: 'Kreon', serif;
+    font-size: 1.8rem;
+    font-weight: 400;
+    color: #ffaa44;
+    margin: 0 0 15px 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+}
+
+.defeat-header p {
+    font-size: 1.1rem;
+    color: #cccccc;
+    margin: 0;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.defeat-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+    max-width: 1200px;
+    width: 100%;
+    z-index: 1;
+}
+
+.defeat-artwork {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.defeat-scene {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.defeat-glow {
+    position: relative;
+    padding: 20px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(139, 69, 19, 0.3) 0%, transparent 70%);
+}
+
+.defeat-bug {
+    width: 150px;
+    height: 150px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 25px rgba(139, 69, 19, 0.7));
+    animation: defeatFloat 3s ease-in-out infinite;
+}
+
+@keyframes defeatFloat {
+
+    0%,
+    100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-10px) rotate(2deg);
+    }
+}
+
+.defeat-stats {
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid #8b4513;
+    border-radius: 15px;
+    padding: 30px;
+    width: 100%;
+    max-width: 800px;
+    backdrop-filter: blur(10px);
+}
+
+.defeat-stats h3 {
+    font-family: 'Kreon', serif;
+    font-size: 1.8rem;
+    color: #ff6b6b;
+    margin: 0 0 25px 0;
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+}
+
+.defeat-relics {
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid #8b4513;
+    border-radius: 15px;
+    padding: 30px;
+    width: 100%;
+    max-width: 800px;
+    backdrop-filter: blur(10px);
+    margin-top: 30px;
+}
+
+.defeat-relics h3 {
+    font-family: 'Kreon', serif;
+    font-size: 1.8rem;
+    color: #ffaa44;
+    margin: 0 0 25px 0;
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+}
+
+.defeat-message {
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid #8b4513;
+    border-radius: 15px;
+    padding: 30px;
+    width: 100%;
+    max-width: 800px;
+    backdrop-filter: blur(10px);
+    text-align: center;
+    margin-top: 30px;
+}
+
+.debug-session h3 {
+    font-family: 'Kreon', serif;
+    font-size: 1.8rem;
+    color: #ffaa44;
+    margin: 0 0 20px 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+}
+
+.defeat-quote {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #e8e8e8;
+    font-style: italic;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.defeat-quote em {
+    color: #cccccc;
+    font-size: 0.9rem;
+    display: block;
+    margin-top: 15px;
+}
+
+.defeat-actions {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 30px;
+}
+
+.defeat-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 30px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    font-family: 'JetBrains Mono', monospace;
+    min-width: 160px;
+    justify-content: center;
+}
+
+.defeat-btn.primary-btn {
+    background: linear-gradient(135deg, #ff6b6b, #ff5252);
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+}
+
+.defeat-btn.primary-btn:hover {
+    background: linear-gradient(135deg, #ff5252, #ff4444);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+}
+
+.defeat-btn.secondary-btn {
+    background: linear-gradient(135deg, #666666, #555555);
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 102, 102, 0.3);
+}
+
+.defeat-btn.secondary-btn:hover {
+    background: linear-gradient(135deg, #777777, #666666);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 102, 102, 0.4);
+}
+
+.defeat-btn .btn-icon {
+    font-size: 1.2rem;
+}
+
+
+.victory-screen {
+    min-height: 100vh;
+    background: url('../assets/backgrounds/terrace.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    color: #e8e8e8;
+    position: relative;
+    overflow-y: auto;
+}
+
+.victory-screen::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 50% 50%, rgba(212, 175, 55, 0.1) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.victory-header {
+    text-align: center;
+    margin-bottom: 40px;
+    background: rgba(0, 0, 0, 0.9);
+    border: 3px solid #d4af37;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+    position: relative;
+    max-width: 800px;
+    width: 100%;
+}
+
+.victory-crown {
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: radial-gradient(circle, #d4af37 0%, #f4d03f 100%);
+    border-radius: 50%;
+    padding: 15px;
+    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5);
+}
+
+.crown-img {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
+}
+
+.victory-header h1 {
+    font-size: 42px;
+    color: #d4af37;
+    margin: 20px 0 15px 0;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.9);
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+.victory-header h2 {
+    font-size: 24px;
+    color: #f4d03f;
+    margin: 0 0 15px 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.victory-header p {
+    font-size: 16px;
+    color: #e8e8e8;
+    margin: 0;
+    opacity: 0.9;
+}
+
+.victory-content {
+    max-width: 1200px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 40px;
+}
+
+.victory-artwork {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.victory-scene {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.victory-trophy {
+    width: 200px;
+    height: 200px;
+    object-fit: contain;
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.6));
+    z-index: 2;
+    position: relative;
+}
+
+.victory-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.3) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: victoryGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes victoryGlow {
+    0% {
+        opacity: 0.5;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    100% {
+        opacity: 0.8;
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+}
+
+.victory-stats {
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid #3a3a4a;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
+}
+
+.victory-stats h3 {
+    font-size: 24px;
+    color: #d4af37;
+    margin: 0 0 25px 0;
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: rgba(42, 42, 58, 0.6);
+    border: 1px solid #4a4a5a;
+    border-radius: 12px;
+    padding: 15px;
+}
+
+.stat-icon {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #b8b8b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-value {
+    font-size: 18px;
+    color: #e8e8e8;
+    font-weight: bold;
+}
+
+.victory-relics {
+    grid-column: 1 / -1;
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid #3a3a4a;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
+}
+
+.victory-relics h3 {
+    font-size: 24px;
+    color: #d4af37;
+    margin: 0 0 25px 0;
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.relics-showcase {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.relic-showcase-item {
+    background: rgba(42, 42, 58, 0.6);
+    border: 2px solid #4a4a5a;
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 120px;
+}
+
+.relic-showcase-item:hover {
+    border-color: #d4af37;
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+}
+
+.relic-showcase-icon {
+    margin-bottom: 10px;
+}
+
+.relic-showcase-name {
+    font-size: 14px;
+    color: #e8e8e8;
+    font-weight: bold;
+}
+
+.no-relics {
+    color: #b8b8b8;
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+}
+
+.victory-message {
+    grid-column: 1 / -1;
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid #d4af37;
+    border-radius: 16px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 6px 25px rgba(212, 175, 55, 0.2);
+}
+
+.birthday-celebration h3 {
+    font-size: 24px;
+    color: #d4af37;
+    margin: 0 0 15px 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.birthday-celebration p {
+    font-size: 16px;
+    color: #e8e8e8;
+    margin: 0 0 15px 0;
+    line-height: 1.5;
+}
+
+.victory-quote {
+    font-style: italic;
+    color: #f4d03f !important;
+    font-size: 18px !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.victory-actions {
+    text-align: center;
+}
+
+.victory-btn {
+    background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
+    border: 3px solid #d4af37;
+    border-radius: 12px;
+    color: #1a1a1a;
+    padding: 20px 40px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+}
+
+.victory-btn:hover {
+    background: linear-gradient(135deg, #f4d03f 0%, #d4af37 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7);
+}
+
+.btn-icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+@media (max-width: 768px) {
+    .victory-content {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .victory-header h1 {
+        font-size: 32px;
+    }
+
+    .victory-trophy {
+        width: 150px;
+        height: 150px;
+    }
+}

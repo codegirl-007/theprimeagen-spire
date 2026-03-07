@@ -1,0 +1,281 @@
+.shop-screen {
+    min-height: 100vh;
+    background: url('../assets/backgrounds/terrace.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #e8e8e8;
+}
+
+.shop-header {
+    text-align: center;
+    margin-bottom: 40px;
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid #d4af37;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+    margin-top: 40px;
+}
+
+.shop-header h1 {
+    font-size: 36px;
+    color: #d4af37;
+    margin: 0 0 12px 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.shop-header p {
+    font-size: 16px;
+    margin: 0 0 20px 0;
+    opacity: 0.9;
+}
+
+.player-gold {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background: rgba(212, 175, 55, 0.2);
+    border: 2px solid #d4af37;
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.gold-icon,
+.price-icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+.gold-amount {
+    color: #d4af37;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.shop-inventory {
+    max-width: 1200px;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.shop-section {
+    margin-bottom: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid #3a3a4a;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
+}
+
+.shop-section-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.shop-section-header h2 {
+    font-size: 28px;
+    color: #d4af37;
+    margin: 0 0 8px 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.shop-section-header p {
+    font-size: 16px;
+    color: #b8b8b8;
+    margin: 0;
+}
+
+.shop-cards {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.shop-card-container {
+    position: relative;
+}
+
+.shop-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    transform: scale(0.9);
+    position: relative;
+}
+
+.shop-card:hover {
+    transform: scale(0.95) translateY(-5px);
+}
+
+.shop-card-price {
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
+    color: #1a1a1a;
+    border: 2px solid #d4af37;
+    border-radius: 12px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: bold;
+    font-size: 14px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.card-owned-indicator {
+    position: absolute;
+    top: -12px;
+    right: -12px;
+    background: linear-gradient(135deg, #4a9eff 0%, #007bff 100%);
+    color: white;
+    border: 2px solid #007bff;
+    border-radius: 8px;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.4);
+    z-index: 10;
+}
+
+.shop-relics {
+    display: flex;
+    justify-content: center;
+}
+
+.shop-relic {
+    background: linear-gradient(135deg, #2a2a3a 0%, #1a1a2a 100%);
+    border: 2px solid #3a3a4a;
+    border-radius: 16px;
+    padding: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    max-width: 400px;
+    position: relative;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.shop-relic:hover {
+    border-color: #4a4a5a;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+}
+
+.shop-relic.affordable {
+    border-color: #d4af37;
+}
+
+.shop-relic.affordable:hover {
+    border-color: #f4d03f;
+    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.3);
+}
+
+.relic-icon {
+    font-size: 48px;
+    flex-shrink: 0;
+}
+
+.relic-skill-art {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+.relic-inline .relic-skill-art {
+    width: 24px;
+    height: 24px;
+}
+
+.relic-info h3 {
+    color: #d4af37;
+    font-size: 20px;
+    margin: 0 0 8px 0;
+}
+
+.relic-info p {
+    color: #e8e8e8;
+    font-size: 14px;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.shop-relic-price {
+    position: absolute;
+    top: -15px;
+    right: 15px;
+    background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
+    color: #1a1a1a;
+    border: 2px solid #d4af37;
+    border-radius: 12px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: bold;
+    font-size: 14px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.relic-disabled-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
+    pointer-events: none;
+    /* Allow clicks to pass through to elements behind */
+    color: #ff6b6b;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.shop-actions {
+    text-align: center;
+}
+
+.shop-leave-btn {
+    background: linear-gradient(135deg, #3a3a4a 0%, #2a2a3a 100%);
+    border: 2px solid #4a4a5a;
+    border-radius: 12px;
+    color: #e8e8e8;
+    padding: 15px 25px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.shop-leave-btn:hover {
+    border-color: #5a5a6a;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+}
+
+.leave-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+
+

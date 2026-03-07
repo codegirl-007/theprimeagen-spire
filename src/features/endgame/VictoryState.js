@@ -1,5 +1,5 @@
 import { GameState } from "../../systems/state/GameState.js";
-import { renderWin } from "./endgameRender.js";
+import { renderWin } from "./victoryRender.js";
 
 export class VictoryState extends GameState {
     constructor() {
