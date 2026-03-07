@@ -2,7 +2,7 @@
     width: 100%;
     margin: 0;
     min-height: 100vh;
-    background: url('../assets/backgrounds/terrace.png');
+    background: url('../assets/backgrounds/terrace.webp');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -260,4 +260,3 @@
     gap: 15px;
     flex-wrap: wrap;
 }
-

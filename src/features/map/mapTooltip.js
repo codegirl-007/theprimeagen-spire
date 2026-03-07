@@ -1,3 +1,5 @@
+import { renderImage } from "../../ui/shared/renderShared.js";
+
 export function attachMapTooltipHandlers(root) {
     if (root._mapTooltipBound) {
         return;
@@ -48,8 +50,7 @@ function showTooltip(node) {
         tooltipHTML = `
             <div class="tooltip-with-avatar">
                 <div class="tooltip-avatar">
-                    <img src="${avatarPath}" alt="Enemy Avatar" class="tooltip-avatar-img"
-                         onerror="this.style.display='none';">
+                    ${renderImage(avatarPath, "Enemy Avatar", "tooltip-avatar-img", { onerror: "this.style.display='none';" })}
                 </div>
                 <div class="tooltip-content">${content}</div>
             </div>

@@ -1,6 +1,6 @@
 .game-screen.relic-select {
     min-height: 100vh;
-    background-image: url('../assets/backgrounds/terrace.png');
+    background-image: url('../assets/backgrounds/terrace.webp');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -265,4 +265,3 @@
     font-size: 24px;
     font-weight: bold;
 }
-

@@ -1,7 +1,8 @@
 import {
     getRelicArt,
     getRelicText,
-    getCardArt
+    getCardArt,
+    renderImage
 } from "../../ui/shared/renderShared.js";
 
 export function renderMapScreen(root, data) {
@@ -102,23 +103,23 @@ function renderPlayerStatus(root, RELICS) {
     return `
       <div class="player-status">
         <div class="status-item">
-          <img src="assets/card-art/heart.png" alt="Health" class="status-icon-img">
+          ${renderImage("assets/card-art/heart.png", "Health", "status-icon-img")}
           <div class="hp-bar player-hp" style="width: 80px;">
             <div class="hp-fill" style="width: ${(root.player.hp / root.player.maxHp) * 100}%"></div>
             <span class="hp-text">${root.player.hp}/${root.player.maxHp}</span>
           </div>
         </div>
         <div class="status-item">
-          <img src="assets/card-art/bag_of_gold.png" alt="Gold" class="status-icon-img">
+          ${renderImage("assets/card-art/bag_of_gold.png", "Gold", "status-icon-img")}
           <span class="status-value">${root.player.gold || 0}</span>
         </div>
         <div class="status-item">
-          <img src="assets/card-art/book.png" alt="Deck" class="status-icon-img">
+          ${renderImage("assets/card-art/book.png", "Deck", "status-icon-img")}
           <span class="status-value">${root.player.deck.length} cards</span>
         </div>
         ${root.relicStates.length > 0 ? `
         <div class="status-item relics-status">
-          <img src="assets/card-art/runestone.png" alt="Relics" class="status-icon-img">
+          ${renderImage("assets/card-art/runestone.png", "Relics", "status-icon-img")}
           <div class="relics-inline">
             ${root.relicStates.map((relic) => `
               <div class="relic-inline" title="${getRelicText(relic.id, RELICS)}">
@@ -187,12 +188,12 @@ function renderLegend() {
     return `
       <div class="map-legend-overlay">
         <div class="legend-title">Legend</div>
-        <div class="legend-item"><img src="assets/card-art/potion_heal.png" alt="Rest" class="legend-icon-img"> Rest</div>
-        <div class="legend-item"><img src="assets/card-art/crossed_swords.png" alt="Battle" class="legend-icon-img"> Enemy</div>
-        <div class="legend-item"><img src="assets/card-art/crown.png" alt="Battle" class="legend-icon-img"> Elite</div>
-        <div class="legend-item"><img src="assets/card-art/skull.png" alt="Battle" class="legend-icon-img"> Boss</div>
-        <div class="legend-item"><img src="assets/card-art/crystal_cluster.png" alt="Event" class="legend-icon-img"> Events</div>
-        <div class="legend-item"><img src="assets/card-art/diamond.png" alt="Shop" class="legend-icon-img"> Shop</div>
+        <div class="legend-item">${renderImage("assets/card-art/potion_heal.png", "Rest", "legend-icon-img")} Rest</div>
+        <div class="legend-item">${renderImage("assets/card-art/crossed_swords.png", "Battle", "legend-icon-img")} Enemy</div>
+        <div class="legend-item">${renderImage("assets/card-art/crown.png", "Battle", "legend-icon-img")} Elite</div>
+        <div class="legend-item">${renderImage("assets/card-art/skull.png", "Battle", "legend-icon-img")} Boss</div>
+        <div class="legend-item">${renderImage("assets/card-art/crystal_cluster.png", "Event", "legend-icon-img")} Events</div>
+        <div class="legend-item">${renderImage("assets/card-art/diamond.png", "Shop", "legend-icon-img")} Shop</div>
       </div>
     `;
 }
@@ -294,13 +295,13 @@ function renderDeckStack(root, CARDS) {
 
 function getNodeEmoji(kind) {
     const emojis = {
-        start: '<img src="assets/card-art/staff.png" alt="Start" class="node-icon-img">',
-        battle: '<img src="assets/card-art/crossed_swords.png" alt="Battle" class="node-icon-img">',
-        elite: '<img src="assets/card-art/crown.png" alt="Battle" class="node-icon-img">',
-        boss: '<img src="assets/card-art/skull.png" alt="Boss" class="node-icon-img">',
-        rest: '<img src="assets/card-art/potion_heal.png" alt="Rest" class="node-icon-img">',
-        shop: '<img src="assets/card-art/diamond.png" alt="Shop" class="node-icon-img">',
-        event: '<img src="assets/card-art/crystal_cluster.png" alt="Event" class="node-icon-img">'
+        start: renderImage("assets/card-art/staff.png", "Start", "node-icon-img"),
+        battle: renderImage("assets/card-art/crossed_swords.png", "Battle", "node-icon-img"),
+        elite: renderImage("assets/card-art/crown.png", "Battle", "node-icon-img"),
+        boss: renderImage("assets/card-art/skull.png", "Boss", "node-icon-img"),
+        rest: renderImage("assets/card-art/potion_heal.png", "Rest", "node-icon-img"),
+        shop: renderImage("assets/card-art/diamond.png", "Shop", "node-icon-img"),
+        event: renderImage("assets/card-art/crystal_cluster.png", "Event", "node-icon-img")
     };
     return emojis[kind] || "❓";
 }

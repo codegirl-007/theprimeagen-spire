@@ -1,4 +1,4 @@
-import { getRelicArt, getRelicName, getRelicText } from "../../ui/shared/renderShared.js";
+import { getRelicArt, getRelicName, getRelicText, renderImage } from "../../ui/shared/renderShared.js";
 
 export async function renderWin(root) {
     const { RELICS } = await import("../../data/relics.js");
@@ -16,7 +16,7 @@ export async function renderWin(root) {
     <div class="victory-screen">
       <div class="victory-header">
         <div class="victory-crown">
-          <img src="assets/card-art/crown.png" alt="Victory Crown" class="crown-img">
+          ${renderImage("assets/card-art/crown.png", "Victory Crown", "crown-img")}
         </div>
         <h1>VICTORY ACHIEVED!</h1>
         <h2>ThePrimeagen Spire Has Been Conquered!</h2>
@@ -26,7 +26,7 @@ export async function renderWin(root) {
       <div class="victory-content">
         <div class="victory-artwork">
           <div class="victory-scene">
-            <img src="assets/card-art/trophy.png" alt="Trophy" class="victory-trophy">
+            ${renderImage("assets/card-art/trophy.png", "Trophy", "victory-trophy")}
             <div class="victory-glow"></div>
           </div>
         </div>
@@ -35,28 +35,28 @@ export async function renderWin(root) {
           <h3>Final Statistics</h3>
           <div class="stats-grid">
             <div class="stat-item">
-              <img src="assets/card-art/heart.png" alt="Health" class="stat-icon">
+              ${renderImage("assets/card-art/heart.png", "Health", "stat-icon")}
               <div class="stat-info">
                 <span class="stat-label">Final Health</span>
                 <span class="stat-value">${finalStats.finalHP}/${finalStats.maxHP}</span>
               </div>
             </div>
             <div class="stat-item">
-              <img src="assets/card-art/bag_of_gold.png" alt="Gold" class="stat-icon">
+              ${renderImage("assets/card-art/bag_of_gold.png", "Gold", "stat-icon")}
               <div class="stat-info">
                 <span class="stat-label">Gold Remaining</span>
                 <span class="stat-value">${finalStats.finalGold}</span>
               </div>
             </div>
             <div class="stat-item">
-              <img src="assets/card-art/book.png" alt="Deck" class="stat-icon">
+              ${renderImage("assets/card-art/book.png", "Deck", "stat-icon")}
               <div class="stat-info">
                 <span class="stat-label">Final Deck Size</span>
                 <span class="stat-value">${finalStats.deckSize} cards</span>
               </div>
             </div>
             <div class="stat-item">
-              <img src="assets/card-art/runestone.png" alt="Relics" class="stat-icon">
+              ${renderImage("assets/card-art/runestone.png", "Relics", "stat-icon")}
               <div class="stat-info">
                 <span class="stat-label">Relics Collected</span>
                 <span class="stat-value">${finalStats.relicsCollected}</span>
@@ -88,7 +88,7 @@ export async function renderWin(root) {
 
       <div class="victory-actions">
         <button class="victory-btn primary" data-replay>
-          <img src="assets/card-art/scroll.png" alt="New Run" class="btn-icon">
+          ${renderImage("assets/card-art/scroll.png", "New Run", "btn-icon")}
           <span>Start New Adventure</span>
         </button>
       </div>

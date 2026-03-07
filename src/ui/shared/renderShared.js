@@ -47,10 +47,75 @@ export function shuffle(array) {
     return array;
 }
 
+function isConvertibleRasterPath(path) {
+    return /\.(png|jpe?g)$/i.test(path);
+}
+
+function toWebpPath(path) {
+    return path.replace(/\.(png|jpe?g)$/i, ".webp");
+}
+
+function getMimeType(path) {
+    if (/\.png$/i.test(path)) {
+        return "image/png";
+    }
+    if (/\.jpe?g$/i.test(path)) {
+        return "image/jpeg";
+    }
+    return null;
+}
+
+function escapeAttribute(value) {
+    return String(value).replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+}
+
+function serializeAttributes(attributes) {
+    return Object.entries(attributes)
+        .filter(([, value]) => value !== undefined && value !== null && value !== false)
+        .map(([key, value]) => value === true ? ` ${key}` : ` ${key}="${escapeAttribute(value)}"`)
+        .join("");
+}
+
+export function renderImage(path, alt, className = "", attributes = {}) {
+    const imageAttributes = { ...attributes };
+    if (className) {
+        imageAttributes.class = className;
+    }
+
+    const serialized = serializeAttributes(imageAttributes);
+    const escapedPath = escapeAttribute(path);
+    const escapedAlt = escapeAttribute(alt);
+
+    if (!isConvertibleRasterPath(path)) {
+        return `<img src="${escapedPath}" alt="${escapedAlt}"${serialized}>`;
+    }
+
+    return `<picture><source srcset="${escapeAttribute(toWebpPath(path))}" type="image/webp"><img src="${escapedPath}" alt="${escapedAlt}"${serialized}></picture>`;
+}
+
+export function renderBackgroundImageStyle(path, extraDeclarations = []) {
+    const declarations = [];
+
+    if (path) {
+        declarations.push(`background-image: url('${path}')`);
+        if (isConvertibleRasterPath(path)) {
+            const mimeType = getMimeType(path);
+            declarations.push(`background-image: image-set(url('${toWebpPath(path)}') type('image/webp'), url('${path}') type('${mimeType}'))`);
+        }
+    }
+
+    declarations.push(...extraDeclarations);
+    return declarations.join("; ");
+}
+
+export function preferWebpPath(path) {
+    return isConvertibleRasterPath(path) ? toWebpPath(path) : path;
+}
+
 export function getRelicArt(relicId, RELICS = null) {
     if (RELICS && RELICS[relicId]?.art) {
         const imagePath = RELICS[relicId].art;
-        return `<img src="assets/skill-art/${imagePath}" alt="${relicId}" class="relic-skill-art">`;
+        return renderImage(`assets/skill-art/${imagePath}`, relicId, "relic-skill-art");
     }
     return '💎';
 }
@@ -66,7 +131,7 @@ export function getRelicText(relicId, RELICS = null) {
 export function getCardArt(cardId, CARDS = null) {
     if (CARDS && CARDS[cardId]?.art) {
         const imagePath = CARDS[cardId].art;
-        return `<img src="assets/skill-art/${imagePath}" alt="${cardId}" class="card-art-image">`;
+        return renderImage(`assets/skill-art/${imagePath}`, cardId, "card-art-image");
     }
 
     return '<span>🃏</span>';
@@ -75,7 +140,7 @@ export function getCardArt(cardId, CARDS = null) {
 export function getEnemyArt(enemyId, ENEMIES = null) {
     const enemyData = ENEMIES?.[enemyId];
     const avatarPath = enemyData?.avatar || `assets/avatars/${enemyId}.png`;
-    return `<img src="${avatarPath}" alt="${enemyId}" class="enemy-avatar-img">`;
+    return renderImage(avatarPath, enemyId, "enemy-avatar-img");
 }
 
 export function getEnemyType(enemyId) {

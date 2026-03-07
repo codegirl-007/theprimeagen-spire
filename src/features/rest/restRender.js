@@ -1,4 +1,4 @@
-import { getCardArt } from "../../ui/shared/renderShared.js";
+import { getCardArt, renderImage } from "../../ui/shared/renderShared.js";
 
 export async function renderRest(root) {
     root.app.innerHTML = `
@@ -11,7 +11,7 @@ export async function renderRest(root) {
       <div class="rest-options">
         <button class="rest-option" data-act="heal">
           <div class="rest-icon">
-            <img src="assets/card-art/heart.png" alt="Heal" class="rest-icon-img">
+            ${renderImage("assets/card-art/heart.png", "Heal", "rest-icon-img")}
           </div>
           <div class="rest-content">
             <h3>Rest and Heal</h3>
@@ -21,7 +21,7 @@ export async function renderRest(root) {
         
         <button class="rest-option" data-act="upgrade">
           <div class="rest-icon">
-            <img src="assets/card-art/scroll.png" alt="Upgrade" class="rest-icon-img">
+            ${renderImage("assets/card-art/scroll.png", "Upgrade", "rest-icon-img")}
           </div>
           <div class="rest-content">
             <h3>Upgrade a Card</h3>

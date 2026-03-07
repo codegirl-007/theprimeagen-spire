@@ -1,3 +1,5 @@
+import { renderImage } from "../../ui/shared/renderShared.js";
+
 export function renderEvent(root) {
     const events = [
         {
@@ -147,11 +149,11 @@ export function renderEvent(root) {
         <p>A birthday adventure awaits your decision</p>
         <div class="player-status-inline">
           <div class="status-item">
-            <img src="assets/card-art/heart.png" alt="Health" class="status-icon-img">
+            ${renderImage("assets/card-art/heart.png", "Health", "status-icon-img")}
             <span>${root.player.hp}/${root.player.maxHp} HP</span>
           </div>
           <div class="status-item">
-            <img src="assets/card-art/bag_of_gold.png" alt="Gold" class="status-icon-img">
+            ${renderImage("assets/card-art/bag_of_gold.png", "Gold", "status-icon-img")}
             <span>${root.player.gold || 0} Gold</span>
           </div>
         </div>
@@ -160,7 +162,7 @@ export function renderEvent(root) {
       <div class="event-content">
         <div class="event-story">
           <div class="event-artwork">
-            <img src="${event.artwork}" alt="Event" class="event-artwork-img">
+            ${renderImage(event.artwork, "Event", "event-artwork-img")}
           </div>
           <div class="event-description">
       <p>${event.text}</p>
@@ -173,7 +175,7 @@ export function renderEvent(root) {
       ${event.choices.map((choice, idx) => `
               <div class="event-choice ${choice.risk}-risk" data-choice="${idx}">
                 <div class="choice-icon">
-                  <img src="${choice.icon}" alt="Choice" class="choice-icon-img">
+                  ${renderImage(choice.icon, "Choice", "choice-icon-img")}
                 </div>
                 <div class="choice-content">
                   <div class="choice-text">${choice.text}</div>

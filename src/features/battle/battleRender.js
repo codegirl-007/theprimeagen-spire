@@ -3,7 +3,9 @@ import {
     updateCardSelection,
     getCardArt,
     getEnemyArt,
-    getEnemyType
+    getEnemyType,
+    renderImage,
+    renderBackgroundImageStyle
 } from "../../ui/shared/renderShared.js";
 
 export { showDamageNumber, updateCardSelection };
@@ -28,7 +30,7 @@ export async function renderBattle(root) {
     app.innerHTML = `
     <div class="battle-scene">
 
-      <div class="battle-arena" ${backgroundImage ? `style="background-image: url('${backgroundImage}'); background-size: cover; background-position: center; background-repeat: no-repeat;"` : ''}>
+      <div class="battle-arena" ${backgroundImage ? `style="${renderBackgroundImageStyle(backgroundImage, ["background-size: cover", "background-position: center", "background-repeat: no-repeat"])}"` : ''}>
       
       <div class="enemy-battle-zone">
         <div class="enemy-container">
@@ -37,8 +39,8 @@ export async function renderBattle(root) {
             <div class="enemy-sprite">
               <div class="enemy-avatar">${getEnemyArt(e.id, ENEMIES)}</div>
               <div class="enemy-shadow"></div>
-              ${e.block > 0 ? `<div class="shield-effect"><img src="assets/card-art/shield.png" alt="Shield" class="shield-effect-img"></div>` : ''}
-              ${e.weak > 0 ? `<div class="debuff-effect"><img src="assets/card-art/heart_damaged.png" alt="Weak" class="debuff-effect-img"></div>` : ''}
+              ${e.block > 0 ? `<div class="shield-effect">${renderImage("assets/card-art/shield.png", "Shield", "shield-effect-img")}</div>` : ''}
+              ${e.weak > 0 ? `<div class="debuff-effect">${renderImage("assets/card-art/heart_damaged.png", "Weak", "debuff-effect-img")}</div>` : ''}
             </div>
           </div>
 
@@ -58,7 +60,7 @@ export async function renderBattle(root) {
               </div>
               ${e.block > 0 ? `
                 <div class="status-effect block-status">
-                  <img src="assets/card-art/shield.png" alt="Block" class="status-icon-img">
+                  ${renderImage("assets/card-art/shield.png", "Block", "status-icon-img")}
                   <span class="status-value">${e.block}</span>
                   <span class="status-label">Block</span>
                 </div>
@@ -87,8 +89,8 @@ export async function renderBattle(root) {
                 <img src="assets/prime.webp" alt="Prime" class="player-avatar-img" />
               </div>
               <div class="player-shadow"></div>
-              ${p.block > 0 ? `<div class="shield-effect"><img src="assets/card-art/shield.png" alt="Shield" class="shield-effect-img"></div>` : ''}
-              ${p.weak > 0 ? `<div class="debuff-effect"><img src="assets/card-art/heart_damaged.png" alt="Weak" class="debuff-effect-img"></div>` : ''}
+              ${p.block > 0 ? `<div class="shield-effect">${renderImage("assets/card-art/shield.png", "Shield", "shield-effect-img")}</div>` : ''}
+              ${p.weak > 0 ? `<div class="debuff-effect">${renderImage("assets/card-art/heart_damaged.png", "Weak", "debuff-effect-img")}</div>` : ''}
             </div>
           </div>
 
@@ -109,14 +111,14 @@ export async function renderBattle(root) {
               </div>
               ${p.block > 0 ? `
                 <div class="status-effect block-status">
-                  <img src="assets/card-art/shield.png" alt="Block" class="status-icon-img">
+                  ${renderImage("assets/card-art/shield.png", "Block", "status-icon-img")}
                   <span class="status-value">${p.block}</span>
                   <span class="status-label">Block</span>
                 </div>
               ` : ''}
               ${p.weak > 0 ? `
                 <div class="status-effect weak-status">
-                  <img src="assets/card-art/heart_damaged.png" alt="Weak" class="status-icon-img">
+                  ${renderImage("assets/card-art/heart_damaged.png", "Weak", "status-icon-img")}
                   <span class="status-value">${p.weak}</span>
                   <span class="status-label">Weak</span>
                 </div>

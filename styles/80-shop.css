@@ -1,6 +1,6 @@
 .shop-screen {
     min-height: 100vh;
-    background: url('../assets/backgrounds/terrace.png');
+    background: url('../assets/backgrounds/terrace.webp');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -277,5 +277,3 @@
     height: 20px;
     object-fit: contain;
 }
-
-

@@ -1,4 +1,4 @@
-import { shuffle, getRelicArt, getCardArt } from "../../ui/shared/renderShared.js";
+import { shuffle, getRelicArt, getCardArt, renderImage } from "../../ui/shared/renderShared.js";
 
 export function renderShop(root) {
     import("../../data/cards.js").then(({ CARDS, CARD_POOL }) => {
@@ -23,7 +23,7 @@ export function renderShop(root) {
                 <h1>Merchant's Shop</h1>
                 <p>Spend your hard-earned gold on powerful upgrades</p>
                 <div class="player-gold">
-                  <img src="assets/card-art/bag_of_gold.png" alt="Gold" class="gold-icon">
+                  ${renderImage("assets/card-art/bag_of_gold.png", "Gold", "gold-icon")}
                   <span class="gold-amount">${root.player.gold || 100}</span>
               </div>
             </div>
@@ -59,7 +59,7 @@ export function renderShop(root) {
                               </div>
                             </div>
                             <div class="shop-card-price">
-                              <img src="assets/card-art/bag_of_gold.png" alt="Gold" class="price-icon">
+                              ${renderImage("assets/card-art/bag_of_gold.png", "Gold", "price-icon")}
                               <span>50</span>
                             </div>
                             ${ownedCount > 0 ? `<div class="card-owned-indicator">Owned: ${ownedCount}</div>` : ''}
@@ -86,7 +86,7 @@ export function renderShop(root) {
                           <p>${shopRelic.text}</p>
                         </div>
                         <div class="shop-relic-price">
-                          <img src="assets/card-art/bag_of_gold.png" alt="Gold" class="price-icon">
+                          ${renderImage("assets/card-art/bag_of_gold.png", "Gold", "price-icon")}
                           <span>100</span>
                         </div>
                       </div>
@@ -98,7 +98,7 @@ export function renderShop(root) {
 
               <div class="shop-actions">
                 <button class="shop-leave-btn" data-leave>
-                  <img src="assets/card-art/exit.png" alt="Leave" class="leave-icon">
+                  ${renderImage("assets/card-art/exit.png", "Leave", "leave-icon")}
                   <span>Leave Shop</span>
                 </button>
               </div>

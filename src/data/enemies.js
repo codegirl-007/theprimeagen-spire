@@ -1,3 +1,5 @@
+import { preferWebpPath } from "../ui/shared/renderShared.js";
+
 export const ENEMIES = {
     old_man_judo: {
         id: "old_man_judo", name: "Old Man Judo", maxHp: 40,
@@ -187,3 +189,12 @@ export const ENEMIES = {
     }
 
 };
+
+for (const enemy of Object.values(ENEMIES)) {
+    if (enemy.avatar) {
+        enemy.avatar = preferWebpPath(enemy.avatar);
+    }
+    if (enemy.background) {
+        enemy.background = preferWebpPath(enemy.background);
+    }
+}
