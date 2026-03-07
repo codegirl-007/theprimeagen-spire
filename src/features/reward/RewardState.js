@@ -7,7 +7,7 @@ export class RewardState extends GameState {
     }
 
     async enter(gameRoot, previousState = null) {
-        gameRoot.save();
+        gameRoot.scheduleSave();
         await gameRoot.render();
     }
 

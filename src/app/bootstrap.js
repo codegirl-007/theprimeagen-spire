@@ -19,6 +19,7 @@ export async function bootstrap() {
 
     initializeStateMachine(root);
     initializeInput(root);
+    initializePersistenceLifecycle(root);
 
     await initializeGame(root);
 }
@@ -47,6 +48,20 @@ function initializeInput(root) {
     } catch (error) {
         console.error("Error initializing InputManager:", error);
     }
+}
+
+function initializePersistenceLifecycle(root) {
+    const flushSave = () => {
+        root.flushSave?.();
+    };
+
+    window.addEventListener("pagehide", flushSave);
+    window.addEventListener("beforeunload", flushSave);
+    document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+            flushSave();
+        }
+    });
 }
 
 async function initializeGame(root) {

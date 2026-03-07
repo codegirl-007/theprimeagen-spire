@@ -2,23 +2,79 @@ import { CARDS } from "../data/cards.js";
 import { MAPS } from "../data/maps.js";
 
 export function attachPersistence(root) {
-    root.save = function save() {
+    root._saveDirty = false;
+    root._saveScheduled = false;
+    root._saveTimerId = null;
+    root._saveIdleId = null;
+
+    root.buildSaveData = function buildSaveData() {
+        return {
+            player: this.player,
+            nodeId: this.nodeId,
+            currentAct: this.currentAct,
+            relicStates: this.relicStates,
+            completedNodes: this.completedNodes,
+            logs: this.logs.slice(-50),
+            battleInProgress: this._battleInProgress || false,
+            enemy: this.enemy,
+            flags: this.flags,
+            lastCard: this.lastCard,
+            stateMachine: this.stateMachine ? this.stateMachine.getSaveData() : null,
+            timestamp: Date.now()
+        };
+    };
+
+    root.cancelScheduledSave = function cancelScheduledSave() {
+        if (this._saveIdleId !== null && typeof window !== "undefined" && "cancelIdleCallback" in window) {
+            window.cancelIdleCallback(this._saveIdleId);
+        }
+        if (this._saveTimerId !== null) {
+            clearTimeout(this._saveTimerId);
+        }
+
+        this._saveIdleId = null;
+        this._saveTimerId = null;
+        this._saveScheduled = false;
+    };
+
+    root.flushSave = function flushSave() {
         try {
-            const saveData = {
-                player: this.player,
-                nodeId: this.nodeId,
-                currentAct: this.currentAct,
-                relicStates: this.relicStates,
-                completedNodes: this.completedNodes,
-                logs: this.logs.slice(-50),
-                battleInProgress: this._battleInProgress || false,
-                stateMachine: this.stateMachine ? this.stateMachine.getSaveData() : null,
-                timestamp: Date.now()
-            };
+            this.cancelScheduledSave();
+            if (!this._saveDirty) {
+                return;
+            }
+
+            const saveData = this.buildSaveData();
             localStorage.setItem("birthday-spire-save", JSON.stringify(saveData));
+            this._saveDirty = false;
         } catch (error) {
             console.warn("Failed to save game:", error);
         }
+    };
+
+    root.scheduleSave = function scheduleSave() {
+        this._saveDirty = true;
+        if (this._saveScheduled) {
+            return;
+        }
+
+        this._saveScheduled = true;
+
+        if (typeof window !== "undefined" && "requestIdleCallback" in window) {
+            this._saveIdleId = window.requestIdleCallback(() => {
+                this.flushSave();
+            }, { timeout: 500 });
+            return;
+        }
+
+        this._saveTimerId = setTimeout(() => {
+            this.flushSave();
+        }, 75);
+    };
+
+    root.save = function save() {
+        this._saveDirty = true;
+        this.flushSave();
     };
 
     root.saveAct2Checkpoint = function saveAct2Checkpoint() {
@@ -62,6 +118,8 @@ export function attachPersistence(root) {
             this.completedNodes = [];
             this.relicStates = data.relicStates || [];
             this._battleInProgress = false;
+            this._saveDirty = false;
+            this.cancelScheduledSave();
 
             this.log("Restarting from Act 2 checkpoint...");
             return true;
@@ -152,6 +210,8 @@ export function attachPersistence(root) {
             }
 
             this.restoreCardEffects();
+            this._saveDirty = false;
+            this.cancelScheduledSave();
             this.log("Game loaded from save.");
             return true;
         } catch (error) {
@@ -163,6 +223,8 @@ export function attachPersistence(root) {
     };
 
     root.clearSave = function clearSave() {
+        this.cancelScheduledSave();
+        this._saveDirty = false;
         localStorage.removeItem("birthday-spire-save");
         localStorage.removeItem("birthday-spire-act2-checkpoint");
     };

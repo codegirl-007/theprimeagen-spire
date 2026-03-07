@@ -28,13 +28,13 @@ export function attachRewardFlow(root) {
             this.log(`Added card: ${card.name}`);
         }
         this.currentRewardChoices = null;
-        this.save();
+        this.scheduleSave();
         await this.stateMachine.setState("MAP");
     };
 
     root.skipReward = async function skipReward() {
         this.currentRewardChoices = null;
-        this.save();
+        this.scheduleSave();
         await this.stateMachine.setState("MAP");
     };
 }

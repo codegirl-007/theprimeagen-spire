@@ -9,7 +9,7 @@ export class MapState extends GameState {
     async enter(gameRoot, previousState = null) {
         gameRoot.enemy = null;
         gameRoot._battleInProgress = false;
-        gameRoot.save();
+        gameRoot.scheduleSave();
         await gameRoot.render();
     }
 

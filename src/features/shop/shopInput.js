@@ -15,7 +15,7 @@ export function handleShopCardBuy(manager, element) {
             }
 
             updateShopAffordability(manager);
-            manager.root.save();
+            manager.root.scheduleSave();
         } else {
             manager.root.log("Not enough gold!");
         }
@@ -44,7 +44,7 @@ export function handleShopRelicBuy(manager, element) {
             }
 
             updateShopAffordability(manager);
-            manager.root.save();
+            manager.root.scheduleSave();
         } else {
             manager.root.log("Not enough gold!");
         }
