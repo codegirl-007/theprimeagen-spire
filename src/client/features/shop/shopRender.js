@@ -1,36 +1,12 @@
-import {
-  shuffle,
-  getRelicArt,
-  getCardArt,
-  renderImage,
-} from "../../ui/shared/renderShared.js";
+import { getRelicArt, getCardArt, renderImage } from "../../ui/shared/renderShared.js";
 
-export function renderShop(root) {
-  import("../../../data/cards.js").then(({ CARDS, CARD_POOL }) => {
-    import("../../../shared/data/relics.js").then(({ RELICS, START_RELIC_CHOICES }) => {
-      const availableCards = CARD_POOL.filter((cardId) => {
-        const ownedCount = root.player.deck.filter(
-          (deckCardId) => deckCardId === cardId,
-        ).length;
-        return ownedCount < 3;
-      });
+export async function renderShop(root) {
+  const { CARDS } = await import("../../../data/cards.js");
+  const { RELICS } = await import("../../../shared/data/relics.js");
+  const shopCards = root.currentShopCards || [];
+  const shopRelic = root.currentShopRelic;
 
-      const cardsToShow =
-        availableCards.length >= 3 ? availableCards : CARD_POOL;
-      const shopCards = shuffle(cardsToShow.slice())
-        .slice(0, 3)
-        .map((id) => CARDS[id]);
-      const ownedRelicIds = root.relicStates.map((r) => r.id);
-      const availableRelics = START_RELIC_CHOICES.filter(
-        (id) => !ownedRelicIds.includes(id),
-      );
-      const shopRelic =
-        availableRelics.length > 0 ? RELICS[availableRelics[0]] : null;
-
-      root.currentShopCards = shopCards;
-      root.currentShopRelic = shopRelic;
-
-      root.app.innerHTML = `
+  root.app.innerHTML = `
             <div class="shop-screen">
               <div class="shop-header">
                 <h1>Merchant's Shop</h1>
@@ -48,7 +24,7 @@ export function renderShop(root) {
                     <p>50 gold each</p>
                   </div>
                   <div class="shop-cards">
-                    ${shopCards
+                   ${shopCards
                       .map((card, idx) => {
                         const cardType =
                           card.type === "attack"
@@ -131,7 +107,5 @@ export function renderShop(root) {
             </div>
           `;
 
-      if (!root.player.gold) root.player.gold = 100;
-    });
-  });
+  if (!root.player.gold) root.player.gold = 100;
 }

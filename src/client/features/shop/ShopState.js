@@ -1,4 +1,5 @@
 import { GameState } from "../../../shared/state/GameState.js";
+import { ensureShopInventory } from "../../../shared/game/shop.js";
 import { renderShop } from "./shopRender.js";
 
 export class ShopState extends GameState {
@@ -7,6 +8,7 @@ export class ShopState extends GameState {
   }
 
   async enter(gameRoot, previousState = null) {
+    ensureShopInventory(gameRoot);
     gameRoot.scheduleSave();
     await gameRoot.render();
   }

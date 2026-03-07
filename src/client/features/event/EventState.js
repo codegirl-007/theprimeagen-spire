@@ -1,4 +1,5 @@
 import { GameState } from "../../../shared/state/GameState.js";
+import { ensureCurrentEvent } from "../../../shared/game/events.js";
 import { renderEvent } from "./eventRender.js";
 
 export class EventState extends GameState {
@@ -7,6 +8,7 @@ export class EventState extends GameState {
   }
 
   async enter(gameRoot, previousState = null) {
+    ensureCurrentEvent(gameRoot);
     gameRoot.scheduleSave();
     await gameRoot.render();
   }
