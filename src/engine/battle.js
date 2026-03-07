@@ -147,6 +147,9 @@ export function endTurn(ctx) {
 
 export function enemyTurn(ctx) {
     const e = ctx.enemy;
+    if (e.block > 0) {
+        e.block = 0;
+    }
 
     if (e.intent.type === "attack") {
         let dmg = e.intent.value;
