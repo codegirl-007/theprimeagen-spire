@@ -1,336 +1,429 @@
 import { ENEMIES } from "../data/enemies.js";
 import { RELICS } from "../data/relics.js";
 import { CARDS } from "../data/cards.js";
-import { draw, endTurnDiscard, clamp, cloneCard, shuffle, peekTopCards, putCardOnBottomOfDeck, addCardToHand } from "./core.js";
+import {
+  draw,
+  endTurnDiscard,
+  clamp,
+  cloneCard,
+  shuffle,
+  peekTopCards,
+  putCardOnBottomOfDeck,
+  addCardToHand,
+} from "./core.js";
 
 export function createBattle(ctx, enemyId) {
-    ctx._battleInstanceId = (ctx._battleInstanceId || 0) + 1;
-    const enemyData = ENEMIES[enemyId];
-    const enemy = { id: enemyId, name: enemyData.name, maxHp: enemyData.maxHp, hp: enemyData.maxHp, block: 0, weak: 0, vuln: 0, turn: 1, intent: enemyData.ai(1) };
-    ctx.enemy = enemy;
-    ctx.player.block = 0;
-    ctx.flags = {};
-    ctx.lastCard = null;
-    ctx._battleContext = null;
+  ctx._battleInstanceId = (ctx._battleInstanceId || 0) + 1;
+  const enemyData = ENEMIES[enemyId];
+  const enemy = {
+    id: enemyId,
+    name: enemyData.name,
+    maxHp: enemyData.maxHp,
+    hp: enemyData.maxHp,
+    block: 0,
+    weak: 0,
+    vuln: 0,
+    turn: 1,
+    intent: enemyData.ai(1),
+  };
+  ctx.enemy = enemy;
+  ctx.player.block = 0;
+  ctx.flags = {};
+  ctx.lastCard = null;
+  ctx._battleContext = null;
 
-    // Initialize draw pile from current deck for the battle
-    ctx.player.draw = shuffle(ctx.player.deck.slice());
-    ctx.player.discard = [];
-    ctx.player.hand = [];
+  // Initialize draw pile from current deck for the battle
+  ctx.player.draw = shuffle(ctx.player.deck.slice());
+  ctx.player.discard = [];
+  ctx.player.hand = [];
 
+  const relicCtx = {
+    ...ctx,
+    draw: (n) => draw(ctx.player, n, ctx),
+    applyWeak: (who, amt) => {
+      who.weak = (who.weak || 0) + amt;
+      ctx.log(
+        `${who === ctx.player ? "You are" : ctx.enemy.name + " is"} weakened for ${amt} turn${amt > 1 ? "s" : ""}.`,
+      );
+    },
+    applyVulnerable: (who, amt) => {
+      who.vuln = (who.vuln || 0) + amt;
+      ctx.log(
+        `${who === ctx.player ? "You are" : ctx.enemy.name + " is"} vulnerable for ${amt} turn${amt > 1 ? "s" : ""}.`,
+      );
+    },
+  };
+  for (const r of ctx.relicStates) r.hooks?.onBattleStart?.(relicCtx, r.state);
 
-    const relicCtx = { 
-        ...ctx, 
-        draw: (n) => draw(ctx.player, n, ctx),
-        applyWeak: (who, amt) => { who.weak = (who.weak || 0) + amt; ctx.log(`${who === ctx.player ? 'You are' : ctx.enemy.name + ' is'} weakened for ${amt} turn${amt > 1 ? 's' : ''}.`) },
-        applyVulnerable: (who, amt) => { who.vuln = (who.vuln || 0) + amt; ctx.log(`${who === ctx.player ? 'You are' : ctx.enemy.name + ' is'} vulnerable for ${amt} turn${amt > 1 ? 's' : ''}.`) }
-    };
-    for (const r of ctx.relicStates) r.hooks?.onBattleStart?.(relicCtx, r.state);
+  ctx._battleContext = makeBattleContext(ctx);
 
-    ctx._battleContext = makeBattleContext(ctx);
-
-    startPlayerTurn(ctx);
+  startPlayerTurn(ctx);
 }
 
 export function startPlayerTurn(ctx) {
-    if (ctx.flags.skipThisTurn) { ctx.flags.skipThisTurn = false; enemyTurn(ctx); return; }
-    ctx.player.energy = ctx.player.maxEnergy + (ctx.flags.nextTurnEnergyBonus || 0) - (ctx.flags.nextTurnEnergyPenalty || 0);
-    ctx.flags.nextTurnEnergyBonus = 0;
-    ctx.flags.nextTurnEnergyPenalty = 0;
-    draw(ctx.player, 5 - ctx.player.hand.length, ctx);
+  if (ctx.flags.skipThisTurn) {
+    ctx.flags.skipThisTurn = false;
+    enemyTurn(ctx);
+    return;
+  }
+  ctx.player.energy =
+    ctx.player.maxEnergy +
+    (ctx.flags.nextTurnEnergyBonus || 0) -
+    (ctx.flags.nextTurnEnergyPenalty || 0);
+  ctx.flags.nextTurnEnergyBonus = 0;
+  ctx.flags.nextTurnEnergyPenalty = 0;
+  draw(ctx.player, 5 - ctx.player.hand.length, ctx);
 
-    // Clear card selection when new turn starts
-    ctx.selectedCardIndex = null;
+  // Clear card selection when new turn starts
+  ctx.selectedCardIndex = null;
 
-    const relicCtx = { ...ctx, draw: (n) => draw(ctx.player, n, ctx) };
-    for (const r of ctx.relicStates) r.hooks?.onTurnStart?.(relicCtx, r.state);
-    ctx.log(`Your turn begins. You have ${ctx.player.energy} energy to spend.`);
+  const relicCtx = { ...ctx, draw: (n) => draw(ctx.player, n, ctx) };
+  for (const r of ctx.relicStates) r.hooks?.onTurnStart?.(relicCtx, r.state);
+  ctx.log(`Your turn begins. You have ${ctx.player.energy} energy to spend.`);
 
-    ctx.render();
+  ctx.render();
 }
 
 export function playCard(ctx, handIndex) {
-    const card = ctx.player.hand[handIndex];
-    if (!card) return;
-    
+  const card = ctx.player.hand[handIndex];
+  if (!card) return;
 
-    let actualCost = card.cost;
-    if (ctx.flags.nextCardFree) {
-        actualCost = 0;
-        ctx.flags.nextCardFree = false;
-        ctx.log("Infinite Vim makes your next card free!");
-    }
-    
-    if (ctx.player.energy < actualCost) { ctx.log(`You need ${actualCost} energy but only have ${ctx.player.energy}.`); return; }
-    if (card.oncePerFight && card._used) { ctx.log(`${card.name} can only be used once per fight.`); return; }
-    
-    // Check card-specific play conditions
-    if (card.id === "hotfix" && ctx.player.hp > ctx.player.maxHp * 0.5) {
-        ctx.log("Hotfix can only be deployed when HP is below 50%!");
-        return;
-    }
-    
-    // Prevent playing curse cards
-    if (card.type === "curse") {
-        ctx.log(`${card.name} cannot be played!`);
-        return;
-    }
+  let actualCost = card.cost;
+  if (ctx.flags.nextCardFree) {
+    actualCost = 0;
+    ctx.flags.nextCardFree = false;
+    ctx.log("Infinite Vim makes your next card free!");
+  }
 
-    ctx.player.energy -= actualCost;
-    ctx.lastCard = card.id;
+  if (ctx.player.energy < actualCost) {
+    ctx.log(
+      `You need ${actualCost} energy but only have ${ctx.player.energy}.`,
+    );
+    return;
+  }
+  if (card.oncePerFight && card._used) {
+    ctx.log(`${card.name} can only be used once per fight.`);
+    return;
+  }
 
-    // Remove the played card from hand BEFORE running effect to prevent index shifting issues
-    let usedCard = null;
-    if (card.type !== "power") {
-        const [removed] = ctx.player.hand.splice(handIndex, 1);
-        usedCard = removed;
-    }
+  // Check card-specific play conditions
+  if (card.id === "hotfix" && ctx.player.hp > ctx.player.maxHp * 0.5) {
+    ctx.log("Hotfix can only be deployed when HP is below 50%!");
+    return;
+  }
 
-    const prevDeal = ctx.deal;
-    ctx.deal = (target, amount) => {
-        let amt = amount;
-        
-        // Handle doubleNextCard flag
-        if (ctx.flags.doubleNextCard) {
-            amt *= 2;
-            ctx.flags.doubleNextCard = false;
-            ctx.log("Pair Programming doubles the damage!");
-        }
-        
-        for (const r of ctx.relicStates) {
-            if (r.hooks?.onPlayerAttack) amt = r.hooks.onPlayerAttack(ctx, r.state, amt);
-        }
-        prevDeal(target, amt);
-    };
+  // Prevent playing curse cards
+  if (card.type === "curse") {
+    ctx.log(`${card.name} cannot be played!`);
+    return;
+  }
 
+  ctx.player.energy -= actualCost;
+  ctx.lastCard = card.id;
 
-    if (typeof card.effect !== 'function') {
-        console.error('Card effect is not a function:', card);
-        ctx.log(`Error: ${card.name || 'Unknown card'} has no effect function`);
-        return;
-    }
-    
-    try {
-        card.effect(ctx);
-        card._used = true;
-    } catch (error) {
-        console.error('Card effect error:', error, 'Card:', card);
-        ctx.log(`Error playing ${card.name || 'Unknown card'}: ${error.message}`);
-        return;
+  // Remove the played card from hand BEFORE running effect to prevent index shifting issues
+  let usedCard = null;
+  if (card.type !== "power") {
+    const [removed] = ctx.player.hand.splice(handIndex, 1);
+    usedCard = removed;
+  }
+
+  const prevDeal = ctx.deal;
+  ctx.deal = (target, amount) => {
+    let amt = amount;
+
+    // Handle doubleNextCard flag
+    if (ctx.flags.doubleNextCard) {
+      amt *= 2;
+      ctx.flags.doubleNextCard = false;
+      ctx.log("Pair Programming doubles the damage!");
     }
 
-    // Handle card disposal after effect (if it was removed from hand)
-    if (usedCard) {
-        if (!card.exhaust) {
-            ctx.player.discard.push(usedCard.id);
-        } else {
-            ctx.log(`${usedCard.name} is exhausted and removed from the fight.`);
-        }
+    for (const r of ctx.relicStates) {
+      if (r.hooks?.onPlayerAttack)
+        amt = r.hooks.onPlayerAttack(ctx, r.state, amt);
     }
+    prevDeal(target, amt);
+  };
 
-    if (ctx.enemy.hp <= 0) { ctx.enemy.hp = 0; ctx.onWin(); return; }
-    if (ctx.player.hp <= 0) { ctx.onLose(); return; }
-    
-    // Keep the battle shell updated under overlay-based card flows
-    if (ctx.root._codeReviewCards) {
-        ctx.render();
-        return;
+  if (typeof card.effect !== "function") {
+    console.error("Card effect is not a function:", card);
+    ctx.log(`Error: ${card.name || "Unknown card"} has no effect function`);
+    return;
+  }
+
+  try {
+    card.effect(ctx);
+    card._used = true;
+  } catch (error) {
+    console.error("Card effect error:", error, "Card:", card);
+    ctx.log(`Error playing ${card.name || "Unknown card"}: ${error.message}`);
+    return;
+  }
+
+  // Handle card disposal after effect (if it was removed from hand)
+  if (usedCard) {
+    if (!card.exhaust) {
+      ctx.player.discard.push(usedCard.id);
+    } else {
+      ctx.log(`${usedCard.name} is exhausted and removed from the fight.`);
     }
-    
+  }
+
+  if (ctx.enemy.hp <= 0) {
+    ctx.enemy.hp = 0;
+    ctx.onWin();
+    return;
+  }
+  if (ctx.player.hp <= 0) {
+    ctx.onLose();
+    return;
+  }
+
+  // Keep the battle shell updated under overlay-based card flows
+  if (ctx.root._codeReviewCards) {
     ctx.render();
+    return;
+  }
+
+  ctx.render();
 }
 
 export function endTurn(ctx) {
-    endTurnDiscard(ctx.player);
-    enemyTurn(ctx);
+  endTurnDiscard(ctx.player);
+  enemyTurn(ctx);
 }
 
 export function enemyTurn(ctx) {
-    const e = ctx.enemy;
-    if (e.block > 0) {
-        e.block = 0;
-    }
+  const e = ctx.enemy;
+  if (e.block > 0) {
+    e.block = 0;
+  }
 
-    if (e.intent.type === "attack") {
-        let dmg = e.intent.value;
-        if (e.weak > 0) dmg = Math.floor(dmg * 0.75);
-        applyDamage(ctx, ctx.player, dmg, `${e.name} attacks`);
-    } else if (e.intent.type === "block") {
-        try {
-            ENEMIES[e.id].onBlock?.(ctx, e.intent.value);
-            e.block += e.intent.value;
-            ctx.log(`${e.name} defends and gains ${e.intent.value} block.`);
-        } catch (error) {
-            console.error('Enemy block effect error:', error, 'Enemy:', e.id);
-            ctx.log(`${e.name} tries to defend but fumbles!`);
-        }
-    } else if (e.intent.type === "debuff") {
-        try {
-            ENEMIES[e.id].onDebuff?.(ctx, e.intent.value);
-            ctx.log(`${e.name} casts a debuffing spell.`);
-        } catch (error) {
-            console.error('Enemy debuff effect error:', error, 'Enemy:', e.id);
-            ctx.log(`${e.name} tries to cast a spell but it fizzles!`);
-        }
-    } else if (e.intent.type === "heal") {
-        try {
-            ENEMIES[e.id].onHeal?.(ctx, e.intent.value);
-        } catch (error) {
-            console.error('Enemy heal effect error:', error, 'Enemy:', e.id);
-            ctx.log(`${e.name} tries to heal but something goes wrong!`);
-        }
-    }
-
-
-    if (e.weak > 0) e.weak--;
-    if (ctx.player.weak > 0) ctx.player.weak--;
-
-
-    if (ctx.player.hp <= 0) { ctx.onLose(); return; }
-    if (ctx.enemy.hp <= 0) { ctx.enemy.hp = 0; ctx.onWin(); return; }
-
-    e.turn++;
+  if (e.intent.type === "attack") {
+    let dmg = e.intent.value;
+    if (e.weak > 0) dmg = Math.floor(dmg * 0.75);
+    applyDamage(ctx, ctx.player, dmg, `${e.name} attacks`);
+  } else if (e.intent.type === "block") {
     try {
-        e.intent = ENEMIES[e.id].ai(e.turn);
-        if (!e.intent || !e.intent.type) {
-            throw new Error('Invalid enemy intent returned');
-        }
+      ENEMIES[e.id].onBlock?.(ctx, e.intent.value);
+      e.block += e.intent.value;
+      ctx.log(`${e.name} defends and gains ${e.intent.value} block.`);
     } catch (error) {
-        console.error('Enemy AI error:', error, 'Enemy:', e.id);
-        ctx.log(`Enemy AI malfunction! ${e.name} does nothing this turn.`);
-        e.intent = { type: "block", value: 0 }; // Safe fallback
+      console.error("Enemy block effect error:", error, "Enemy:", e.id);
+      ctx.log(`${e.name} tries to defend but fumbles!`);
     }
-    
-    // Reset block at the end of enemy turn (after damage has been applied)
-    ctx.player.block = 0;
-    
-    startPlayerTurn(ctx);
+  } else if (e.intent.type === "debuff") {
+    try {
+      ENEMIES[e.id].onDebuff?.(ctx, e.intent.value);
+      ctx.log(`${e.name} casts a debuffing spell.`);
+    } catch (error) {
+      console.error("Enemy debuff effect error:", error, "Enemy:", e.id);
+      ctx.log(`${e.name} tries to cast a spell but it fizzles!`);
+    }
+  } else if (e.intent.type === "heal") {
+    try {
+      ENEMIES[e.id].onHeal?.(ctx, e.intent.value);
+    } catch (error) {
+      console.error("Enemy heal effect error:", error, "Enemy:", e.id);
+      ctx.log(`${e.name} tries to heal but something goes wrong!`);
+    }
+  }
+
+  if (e.weak > 0) e.weak--;
+  if (ctx.player.weak > 0) ctx.player.weak--;
+
+  if (ctx.player.hp <= 0) {
+    ctx.onLose();
+    return;
+  }
+  if (ctx.enemy.hp <= 0) {
+    ctx.enemy.hp = 0;
+    ctx.onWin();
+    return;
+  }
+
+  e.turn++;
+  try {
+    e.intent = ENEMIES[e.id].ai(e.turn);
+    if (!e.intent || !e.intent.type) {
+      throw new Error("Invalid enemy intent returned");
+    }
+  } catch (error) {
+    console.error("Enemy AI error:", error, "Enemy:", e.id);
+    ctx.log(`Enemy AI malfunction! ${e.name} does nothing this turn.`);
+    e.intent = { type: "block", value: 0 }; // Safe fallback
+  }
+
+  // Reset block at the end of enemy turn (after damage has been applied)
+  ctx.player.block = 0;
+
+  startPlayerTurn(ctx);
 }
 
 function applyDamage(ctx, target, raw, label) {
-    let dmg = raw;
-    for (const r of ctx.relicStates) {
-        if (r.hooks?.onDamageTaken && target === ctx.player) dmg = r.hooks.onDamageTaken(ctx, dmg);
-    }
-    const blocked = Math.min(dmg, target.block);
-    const hpLoss = Math.max(0, dmg - blocked);
-    target.block -= blocked;
-    target.hp = clamp(target.hp - hpLoss, 0, target.maxHp);
-    const isPlayer = target === ctx.player;
-    if (blocked > 0 && hpLoss > 0) {
-        ctx.log(`${label} for ${dmg} damage. ${blocked} blocked, ${hpLoss} damage taken.`);
-    } else if (blocked > 0) {
-        ctx.log(`${label} for ${dmg} damage, but it's completely blocked!`);
-    } else {
-        ctx.log(`${label} for ${dmg} damage!`);
-    }
-    
+  let dmg = raw;
+  for (const r of ctx.relicStates) {
+    if (r.hooks?.onDamageTaken && target === ctx.player)
+      dmg = r.hooks.onDamageTaken(ctx, dmg);
+  }
+  const blocked = Math.min(dmg, target.block);
+  const hpLoss = Math.max(0, dmg - blocked);
+  target.block -= blocked;
+  target.hp = clamp(target.hp - hpLoss, 0, target.maxHp);
+  const isPlayer = target === ctx.player;
+  if (blocked > 0 && hpLoss > 0) {
+    ctx.log(
+      `${label} for ${dmg} damage. ${blocked} blocked, ${hpLoss} damage taken.`,
+    );
+  } else if (blocked > 0) {
+    ctx.log(`${label} for ${dmg} damage, but it's completely blocked!`);
+  } else {
+    ctx.log(`${label} for ${dmg} damage!`);
+  }
 
-    if (hpLoss > 0 && ctx.showDamageNumber) {
-        const isPlayer = target === ctx.player;
-        ctx.showDamageNumber(hpLoss, target, isPlayer);
-    }
+  if (hpLoss > 0 && ctx.showDamageNumber) {
+    const isPlayer = target === ctx.player;
+    ctx.showDamageNumber(hpLoss, target, isPlayer);
+  }
 }
 
 export function makeBattleContext(root) {
-    const battleContext = {
-        relicStates: root.relicStates || [],
-        draw: (n) => draw(root.player, n, root),
-        log: (m) => root.log(m),
-        render: () => root.render(),
-        onWin: () => root.onWin(),
-        onLose: () => root.onLose(),
-        intentIsAttack: () => root.enemy.intent.type === "attack",
-        deal: (target, amount) => applyDamage(root, target, amount, target === root.enemy ? "You attack" : `${root.enemy.name} hits you`),
-        applyWeak: (who, amt) => { who.weak = (who.weak || 0) + amt; root.log(`${who === root.player ? 'You are' : root.enemy.name + ' is'} weakened for ${amt} turn${amt > 1 ? 's' : ''}.`) },
-        applyVulnerable: (who, amt) => { who.vuln = (who.vuln || 0) + amt; root.log(`${who === root.player ? 'You are' : root.enemy.name + ' is'} vulnerable for ${amt} turn${amt > 1 ? 's' : ''}.`) },
-        forceEndTurn: () => endTurn(root),
-        promptExhaust: async (count) => { // MVP: exhaust first N non-basics
-            while (count-- > 0 && root.player.hand.length > 0) {
-                const idx = root.player.hand.findIndex(c => !["strike", "defend"].includes(c.id));
-                const drop = idx >= 0 ? idx : 0;
-                const [ex] = root.player.hand.splice(drop, 1);
-                root.log(`${ex.name} is exhausted and removed from the fight.`);
-            }
-        },
-        scalarFromWeak: (base) => (root.player.weak > 0 ? Math.floor(base * 0.75) : base),
-        root: root, // Provide access to root for complex card effects
-        // New mechanics for advanced cards
-        moveFromDiscardToHand: (cardId) => {
-            const idx = root.player.discard.findIndex(id => id === cardId);
-            if (idx >= 0) {
-                const [id] = root.player.discard.splice(idx, 1);
-                const originalCard = CARDS[id];
-                if (originalCard) {
-                    const clonedCard = cloneCard(originalCard);
-                    root.player.hand.push(clonedCard);
-                    return true;
-                }
-            }
-            return false;
-        },
-        // Code Review card mechanics
-        peekTop: (n) => peekTopCards(root.player, n),
-        putOnBottom: (cardId) => putCardOnBottomOfDeck(root.player, cardId),
-        addToHand: (card) => addCardToHand(root.player, card),
-        countCardType: (type) => {
-            const allCards = [...root.player.deck, ...root.player.hand.map(c => c.id), ...root.player.draw, ...root.player.discard];
-            return allCards.filter(id => CARDS[id]?.type === type).length;
-        },
-        replayCard: (card) => {
-            // Temporarily replay a card without removing it from hand
-            if (typeof card.effect === 'function') {
-                const battleCtx = root._battleContext || makeBattleContext(root);
-                card.effect(battleCtx);
-                root.log(`${card.name} is replayed!`);
-            }
-        },
-    };
-
-    Object.defineProperties(battleContext, {
-        player: {
-            get: () => root.player,
-        },
-        enemy: {
-            get: () => root.enemy,
-        },
-        discard: {
-            get: () => root.player.discard,
-        },
-        showDamageNumber: {
-            get: () => root.showDamageNumber,
-        },
-        lastCard: {
-            get: () => root.lastCard,
-            set: (value) => {
-                root.lastCard = value;
-            }
-        },
-        flags: {
-            get: () => root.flags,
-            set: (value) => {
-                root.flags = value;
-            }
+  const battleContext = {
+    relicStates: root.relicStates || [],
+    draw: (n) => draw(root.player, n, root),
+    log: (m) => root.log(m),
+    render: () => root.render(),
+    onWin: () => root.onWin(),
+    onLose: () => root.onLose(),
+    intentIsAttack: () => root.enemy.intent.type === "attack",
+    deal: (target, amount) =>
+      applyDamage(
+        root,
+        target,
+        amount,
+        target === root.enemy ? "You attack" : `${root.enemy.name} hits you`,
+      ),
+    applyWeak: (who, amt) => {
+      who.weak = (who.weak || 0) + amt;
+      root.log(
+        `${who === root.player ? "You are" : root.enemy.name + " is"} weakened for ${amt} turn${amt > 1 ? "s" : ""}.`,
+      );
+    },
+    applyVulnerable: (who, amt) => {
+      who.vuln = (who.vuln || 0) + amt;
+      root.log(
+        `${who === root.player ? "You are" : root.enemy.name + " is"} vulnerable for ${amt} turn${amt > 1 ? "s" : ""}.`,
+      );
+    },
+    forceEndTurn: () => endTurn(root),
+    promptExhaust: async (count) => {
+      // MVP: exhaust first N non-basics
+      while (count-- > 0 && root.player.hand.length > 0) {
+        const idx = root.player.hand.findIndex(
+          (c) => !["strike", "defend"].includes(c.id),
+        );
+        const drop = idx >= 0 ? idx : 0;
+        const [ex] = root.player.hand.splice(drop, 1);
+        root.log(`${ex.name} is exhausted and removed from the fight.`);
+      }
+    },
+    scalarFromWeak: (base) =>
+      root.player.weak > 0 ? Math.floor(base * 0.75) : base,
+    root: root, // Provide access to root for complex card effects
+    // New mechanics for advanced cards
+    moveFromDiscardToHand: (cardId) => {
+      const idx = root.player.discard.findIndex((id) => id === cardId);
+      if (idx >= 0) {
+        const [id] = root.player.discard.splice(idx, 1);
+        const originalCard = CARDS[id];
+        if (originalCard) {
+          const clonedCard = cloneCard(originalCard);
+          root.player.hand.push(clonedCard);
+          return true;
         }
-    });
+      }
+      return false;
+    },
+    // Code Review card mechanics
+    peekTop: (n) => peekTopCards(root.player, n),
+    putOnBottom: (cardId) => putCardOnBottomOfDeck(root.player, cardId),
+    addToHand: (card) => addCardToHand(root.player, card),
+    countCardType: (type) => {
+      const allCards = [
+        ...root.player.deck,
+        ...root.player.hand.map((c) => c.id),
+        ...root.player.draw,
+        ...root.player.discard,
+      ];
+      return allCards.filter((id) => CARDS[id]?.type === type).length;
+    },
+    replayCard: (card) => {
+      // Temporarily replay a card without removing it from hand
+      if (typeof card.effect === "function") {
+        const battleCtx = root._battleContext || makeBattleContext(root);
+        card.effect(battleCtx);
+        root.log(`${card.name} is replayed!`);
+      }
+    },
+  };
 
-    return battleContext;
+  Object.defineProperties(battleContext, {
+    player: {
+      get: () => root.player,
+    },
+    enemy: {
+      get: () => root.enemy,
+    },
+    discard: {
+      get: () => root.player.discard,
+    },
+    showDamageNumber: {
+      get: () => root.showDamageNumber,
+    },
+    lastCard: {
+      get: () => root.lastCard,
+      set: (value) => {
+        root.lastCard = value;
+      },
+    },
+    flags: {
+      get: () => root.flags,
+      set: (value) => {
+        root.flags = value;
+      },
+    },
+  });
+
+  return battleContext;
 }
 
 export function attachRelics(root, relicIds) {
-    root.relicStates = relicIds.filter(id => {
-        if (!RELICS[id]) {
-            console.error(`Relic with ID '${id}' not found in RELICS data`);
-            return false;
-        }
-        return true;
-    }).map(id => ({ id, hooks: RELICS[id].hooks || {}, state: structuredClone(RELICS[id].state || {}) }));
+  root.relicStates = relicIds
+    .filter((id) => {
+      if (!RELICS[id]) {
+        console.error(`Relic with ID '${id}' not found in RELICS data`);
+        return false;
+      }
+      return true;
+    })
+    .map((id) => ({
+      id,
+      hooks: RELICS[id].hooks || {},
+      state: structuredClone(RELICS[id].state || {}),
+    }));
 
-    const relicCtx = { 
-        ...root, 
-        draw: (n) => draw(root.player, n),
-        applyWeak: (who, amt) => { who.weak = (who.weak || 0) + amt; root.log(`Weak +${amt}`) },
-        applyVulnerable: (who, amt) => { who.vuln = (who.vuln || 0) + amt; root.log(`Vulnerable +${amt}`) }
-    };
-    for (const r of root.relicStates) r.hooks?.onRunStart?.(relicCtx, r.state);
+  const relicCtx = {
+    ...root,
+    draw: (n) => draw(root.player, n),
+    applyWeak: (who, amt) => {
+      who.weak = (who.weak || 0) + amt;
+      root.log(`Weak +${amt}`);
+    },
+    applyVulnerable: (who, amt) => {
+      who.vuln = (who.vuln || 0) + amt;
+      root.log(`Vulnerable +${amt}`);
+    },
+  };
+  for (const r of root.relicStates) r.hooks?.onRunStart?.(relicCtx, r.state);
 }

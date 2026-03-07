@@ -1,57 +1,75 @@
 import {
-    showDamageNumber,
-    updateCardSelection,
-    getCardArt,
-    getEnemyArt,
-    getEnemyType,
-    renderImage,
-    renderBackgroundImageStyle
+  showDamageNumber,
+  updateCardSelection,
+  getCardArt,
+  getEnemyArt,
+  getEnemyType,
+  renderImage,
+  renderBackgroundImageStyle,
 } from "../../ui/shared/renderShared.js";
 
 export { showDamageNumber, updateCardSelection };
 
 export async function renderBattle(root) {
-    const p = root.player;
-    const e = root.enemy;
+  const p = root.player;
+  const e = root.enemy;
 
-    const { ENEMIES } = await import("../../data/enemies.js");
-    const { CARDS } = await import("../../data/cards.js");
-    const enemyData = ENEMIES[e.id];
-    const intentInfo = getIntentInfo(e);
+  const { ENEMIES } = await import("../../data/enemies.js");
+  const { CARDS } = await import("../../data/cards.js");
+  const enemyData = ENEMIES[e.id];
+  const intentInfo = getIntentInfo(e);
 
-    root.selectedCardIndex ??= null;
+  root.selectedCardIndex ??= null;
 
-    ensureBattleShell(root, enemyData);
-    updateBattleArena(root, enemyData);
-    updateBattleEnemy(root, enemyData, intentInfo, ENEMIES);
-    updateBattlePlayer(root);
-    updateBattleHand(root, CARDS);
-    updateBattleControls(root, p);
-    updateBattleLog(root);
-    updateBattleSelection(root);
+  ensureBattleShell(root, enemyData);
+  updateBattleArena(root, enemyData);
+  updateBattleEnemy(root, enemyData, intentInfo, ENEMIES);
+  updateBattlePlayer(root);
+  updateBattleHand(root, CARDS);
+  updateBattleControls(root, p);
+  updateBattleLog(root);
+  updateBattleSelection(root);
 }
 
 function getIntentInfo(enemy) {
-    return {
-        attack: { emoji: "", text: `Will attack for ${enemy.intent.value} damage`, color: "danger" },
-        block: { emoji: "", text: `Will gain ${enemy.intent.value} block`, color: "info" },
-        debuff: { emoji: "", text: "Will apply a debuff", color: "warning" },
-        heal: { emoji: "", text: `Will heal for ${enemy.intent.value} HP`, color: "success" }
-    }[enemy.intent.type] || { emoji: "", text: "Unknown intent", color: "neutral" };
+  return (
+    {
+      attack: {
+        emoji: "",
+        text: `Will attack for ${enemy.intent.value} damage`,
+        color: "danger",
+      },
+      block: {
+        emoji: "",
+        text: `Will gain ${enemy.intent.value} block`,
+        color: "info",
+      },
+      debuff: { emoji: "", text: "Will apply a debuff", color: "warning" },
+      heal: {
+        emoji: "",
+        text: `Will heal for ${enemy.intent.value} HP`,
+        color: "success",
+      },
+    }[enemy.intent.type] || {
+      emoji: "",
+      text: "Unknown intent",
+      color: "neutral",
+    }
+  );
 }
 
 function ensureBattleShell(root, enemyData) {
-    const battleInstanceId = root._battleInstanceId || 0;
-    if (root.battleUi?.battleInstanceId === battleInstanceId) {
-        return;
-    }
+  const battleInstanceId = root._battleInstanceId || 0;
+  if (root.battleUi?.battleInstanceId === battleInstanceId) {
+    return;
+  }
 
-    root.app.innerHTML = createBattleShellMarkup(enemyData?.background || null);
-    root.battleUi = cacheBattleUi(root, battleInstanceId);
+  root.app.innerHTML = createBattleShellMarkup(enemyData?.background || null);
+  root.battleUi = cacheBattleUi(root, battleInstanceId);
 }
 
 function createBattleShellMarkup(backgroundImage) {
-    return `
+  return `
     <div class="battle-scene">
       <div class="battle-arena" ${backgroundImage ? `style="${renderBackgroundImageStyle(backgroundImage, ["background-size: cover", "background-position: center", "background-repeat: no-repeat"])}"` : ""}>
         <div class="enemy-battle-zone">
@@ -88,84 +106,89 @@ function createBattleShellMarkup(backgroundImage) {
 }
 
 function cacheBattleUi(root, battleInstanceId) {
-    return {
-        battleInstanceId,
-        scene: root.app.querySelector(".battle-scene"),
-        arena: root.app.querySelector(".battle-arena"),
-        enemyHost: root.app.querySelector(".enemy-panel-host"),
-        playerHost: root.app.querySelector(".player-panel-host"),
-        handHost: root.app.querySelector(".cards-battlefield"),
-        controlsHost: root.app.querySelector(".hand-controls"),
-        logContent: root.app.querySelector("#fight-log-content"),
-        overlayHost: root.app.querySelector(".battle-overlay-host"),
-        lastVisibleLogs: [],
-        selectedCardEl: null
-    };
+  return {
+    battleInstanceId,
+    scene: root.app.querySelector(".battle-scene"),
+    arena: root.app.querySelector(".battle-arena"),
+    enemyHost: root.app.querySelector(".enemy-panel-host"),
+    playerHost: root.app.querySelector(".player-panel-host"),
+    handHost: root.app.querySelector(".cards-battlefield"),
+    controlsHost: root.app.querySelector(".hand-controls"),
+    logContent: root.app.querySelector("#fight-log-content"),
+    overlayHost: root.app.querySelector(".battle-overlay-host"),
+    lastVisibleLogs: [],
+    selectedCardEl: null,
+  };
 }
 
 function updateBattleArena(root, enemyData) {
-    const backgroundImage = enemyData?.background || null;
-    if (!backgroundImage) {
-        root.battleUi.arena.removeAttribute("style");
-        return;
-    }
+  const backgroundImage = enemyData?.background || null;
+  if (!backgroundImage) {
+    root.battleUi.arena.removeAttribute("style");
+    return;
+  }
 
-    root.battleUi.arena.setAttribute(
-        "style",
-        renderBackgroundImageStyle(backgroundImage, [
-            "background-size: cover",
-            "background-position: center",
-            "background-repeat: no-repeat"
-        ])
-    );
+  root.battleUi.arena.setAttribute(
+    "style",
+    renderBackgroundImageStyle(backgroundImage, [
+      "background-size: cover",
+      "background-position: center",
+      "background-repeat: no-repeat",
+    ]),
+  );
 }
 
 function updateBattleEnemy(root, enemyData, intentInfo, ENEMIES) {
-    root.battleUi.enemyHost.innerHTML = getEnemyMarkup(root, enemyData, intentInfo, ENEMIES);
+  root.battleUi.enemyHost.innerHTML = getEnemyMarkup(
+    root,
+    enemyData,
+    intentInfo,
+    ENEMIES,
+  );
 }
 
 function updateBattlePlayer(root) {
-    root.battleUi.playerHost.innerHTML = getPlayerMarkup(root);
+  root.battleUi.playerHost.innerHTML = getPlayerMarkup(root);
 }
 
 function updateBattleHand(root, CARDS) {
-    root.battleUi.handHost.innerHTML = getHandMarkup(root, CARDS);
-    root.battleUi.selectedCardEl = null;
+  root.battleUi.handHost.innerHTML = getHandMarkup(root, CARDS);
+  root.battleUi.selectedCardEl = null;
 }
 
 function updateBattleControls(root, player) {
-    root.battleUi.controlsHost.innerHTML = getEndTurnMarkup(player);
+  root.battleUi.controlsHost.innerHTML = getEndTurnMarkup(player);
 }
 
 function updateBattleLog(root) {
-    const visibleLogs = root.logs.slice(-20);
-    const previousLogs = root.battleUi.lastVisibleLogs || [];
-    const logContent = root.battleUi.logContent;
+  const visibleLogs = root.logs.slice(-20);
+  const previousLogs = root.battleUi.lastVisibleLogs || [];
+  const logContent = root.battleUi.logContent;
 
-    if (logsMatch(previousLogs, visibleLogs)) {
-        return;
-    }
+  if (logsMatch(previousLogs, visibleLogs)) {
+    return;
+  }
 
-    const overlap = getLogOverlap(previousLogs, visibleLogs);
-    if (overlap > 0 || previousLogs.length === 0) {
-        removeLeadingLogEntries(logContent, previousLogs.length - overlap);
-        appendLogEntries(logContent, visibleLogs.slice(overlap));
-    } else {
-        rebuildBattleLog(logContent, visibleLogs);
-    }
+  const overlap = getLogOverlap(previousLogs, visibleLogs);
+  if (overlap > 0 || previousLogs.length === 0) {
+    removeLeadingLogEntries(logContent, previousLogs.length - overlap);
+    appendLogEntries(logContent, visibleLogs.slice(overlap));
+  } else {
+    rebuildBattleLog(logContent, visibleLogs);
+  }
 
-    root.battleUi.lastVisibleLogs = visibleLogs.slice();
-    logContent.scrollTop = logContent.scrollHeight;
+  root.battleUi.lastVisibleLogs = visibleLogs.slice();
+  logContent.scrollTop = logContent.scrollHeight;
 }
 
 function updateBattleSelection(root) {
-    updateCardSelection(root);
+  updateCardSelection(root);
 }
 
 function getEnemyMarkup(root, enemyData, intentInfo, ENEMIES) {
-    const e = root.enemy;
+  const e = root.enemy;
 
-    return `
+  return `
       <div class="enemy-container">
         <div class="enemy-character">
           <div class="enemy-sprite">
@@ -189,13 +212,17 @@ function getEnemyMarkup(root, enemyData, intentInfo, ENEMIES) {
                 <div class="health-glow"></div>
               </div>
             </div>
-            ${e.block > 0 ? `
+            ${
+              e.block > 0
+                ? `
               <div class="status-effect block-status">
                 ${renderImage("assets/card-art/shield.png", "Block", "status-icon-img")}
                 <span class="status-value">${e.block}</span>
                 <span class="status-label">Block</span>
               </div>
-            ` : ""}
+            `
+                : ""
+            }
           </div>
 
           <div class="intent-panel intent-${intentInfo.color}">
@@ -213,9 +240,9 @@ function getEnemyMarkup(root, enemyData, intentInfo, ENEMIES) {
 }
 
 function getPlayerMarkup(root) {
-    const p = root.player;
+  const p = root.player;
 
-    return `
+  return `
       <div class="player-container">
         <div class="player-character">
           <div class="player-sprite">
@@ -242,20 +269,28 @@ function getPlayerMarkup(root) {
                 <div class="health-glow"></div>
               </div>
             </div>
-            ${p.block > 0 ? `
+            ${
+              p.block > 0
+                ? `
               <div class="status-effect block-status">
                 ${renderImage("assets/card-art/shield.png", "Block", "status-icon-img")}
                 <span class="status-value">${p.block}</span>
                 <span class="status-label">Block</span>
               </div>
-            ` : ""}
-            ${p.weak > 0 ? `
+            `
+                : ""
+            }
+            ${
+              p.weak > 0
+                ? `
               <div class="status-effect weak-status">
                 ${renderImage("assets/card-art/heart_damaged.png", "Weak", "status-icon-img")}
                 <span class="status-value">${p.weak}</span>
                 <span class="status-label">Weak</span>
               </div>
-            ` : ""}
+            `
+                : ""
+            }
           </div>
 
           <div class="player-energy-section">
@@ -272,17 +307,23 @@ function getPlayerMarkup(root) {
 }
 
 function getHandMarkup(root, CARDS) {
-    const p = root.player;
+  const p = root.player;
 
-    if (p.hand.length === 0) {
-        return '<div class="no-cards-message">🎴 No cards in hand - End turn to draw new cards</div>';
-    }
+  if (p.hand.length === 0) {
+    return '<div class="no-cards-message">🎴 No cards in hand - End turn to draw new cards</div>';
+  }
 
-    return p.hand.map((card, i) => {
-        const canPlay = p.energy >= card.cost;
-        const cardType = card.type === "attack" ? "attack" : card.type === "skill" ? "skill" : "power";
+  return p.hand
+    .map((card, i) => {
+      const canPlay = p.energy >= card.cost;
+      const cardType =
+        card.type === "attack"
+          ? "attack"
+          : card.type === "skill"
+            ? "skill"
+            : "power";
 
-        return `
+      return `
           <div class="battle-card ${cardType} ${canPlay ? "playable" : "unplayable"}" data-play="${i}">
             <div class="card-glow"></div>
             <div class="card-frame">
@@ -303,11 +344,12 @@ function getHandMarkup(root, CARDS) {
             ${canPlay ? "" : `<div class="card-disabled-overlay"><span>Need ${card.cost} energy</span></div>`}
           </div>
         `;
-    }).join("");
+    })
+    .join("");
 }
 
 function getEndTurnMarkup() {
-    return `
+  return `
       <button class="end-turn-btn" data-action="end">
         <span class="end-turn-text">End Turn</span>
         <span class="end-turn-hotkey">E</span>
@@ -316,62 +358,67 @@ function getEndTurnMarkup() {
 }
 
 function getLogMarkup(root) {
-    return root.logs.slice(-20).map((log) => `<div class="log-entry">${log}</div>`).join("");
+  return root.logs
+    .slice(-20)
+    .map((log) => `<div class="log-entry">${log}</div>`)
+    .join("");
 }
 
 function logsMatch(previousLogs, nextLogs) {
-    if (previousLogs.length !== nextLogs.length) {
-        return false;
-    }
+  if (previousLogs.length !== nextLogs.length) {
+    return false;
+  }
 
-    return previousLogs.every((entry, index) => entry === nextLogs[index]);
+  return previousLogs.every((entry, index) => entry === nextLogs[index]);
 }
 
 function getLogOverlap(previousLogs, nextLogs) {
-    const maxOverlap = Math.min(previousLogs.length, nextLogs.length);
+  const maxOverlap = Math.min(previousLogs.length, nextLogs.length);
 
-    for (let overlap = maxOverlap; overlap >= 0; overlap--) {
-        let matches = true;
+  for (let overlap = maxOverlap; overlap >= 0; overlap--) {
+    let matches = true;
 
-        for (let index = 0; index < overlap; index++) {
-            if (previousLogs[previousLogs.length - overlap + index] !== nextLogs[index]) {
-                matches = false;
-                break;
-            }
-        }
-
-        if (matches) {
-            return overlap;
-        }
+    for (let index = 0; index < overlap; index++) {
+      if (
+        previousLogs[previousLogs.length - overlap + index] !== nextLogs[index]
+      ) {
+        matches = false;
+        break;
+      }
     }
 
-    return 0;
+    if (matches) {
+      return overlap;
+    }
+  }
+
+  return 0;
 }
 
 function removeLeadingLogEntries(logContent, count) {
-    for (let index = 0; index < count; index++) {
-        if (!logContent.firstChild) {
-            break;
-        }
-
-        logContent.removeChild(logContent.firstChild);
+  for (let index = 0; index < count; index++) {
+    if (!logContent.firstChild) {
+      break;
     }
+
+    logContent.removeChild(logContent.firstChild);
+  }
 }
 
 function appendLogEntries(logContent, entries) {
-    const fragment = document.createDocumentFragment();
+  const fragment = document.createDocumentFragment();
 
-    entries.forEach((entry) => {
-        const logEntry = document.createElement("div");
-        logEntry.className = "log-entry";
-        logEntry.textContent = entry;
-        fragment.appendChild(logEntry);
-    });
+  entries.forEach((entry) => {
+    const logEntry = document.createElement("div");
+    logEntry.className = "log-entry";
+    logEntry.textContent = entry;
+    fragment.appendChild(logEntry);
+  });
 
-    logContent.appendChild(fragment);
+  logContent.appendChild(fragment);
 }
 
 function rebuildBattleLog(logContent, entries) {
-    logContent.replaceChildren();
-    appendLogEntries(logContent, entries);
+  logContent.replaceChildren();
+  appendLogEntries(logContent, entries);
 }

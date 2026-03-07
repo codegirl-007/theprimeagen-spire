@@ -1,23 +1,36 @@
-import { shuffle, getRelicArt, getCardArt, renderImage } from "../../ui/shared/renderShared.js";
+import {
+  shuffle,
+  getRelicArt,
+  getCardArt,
+  renderImage,
+} from "../../ui/shared/renderShared.js";
 
 export function renderShop(root) {
-    import("../../data/cards.js").then(({ CARDS, CARD_POOL }) => {
-        import("../../data/relics.js").then(({ RELICS, START_RELIC_CHOICES }) => {
-            const availableCards = CARD_POOL.filter((cardId) => {
-                const ownedCount = root.player.deck.filter((deckCardId) => deckCardId === cardId).length;
-                return ownedCount < 3;
-            });
+  import("../../data/cards.js").then(({ CARDS, CARD_POOL }) => {
+    import("../../data/relics.js").then(({ RELICS, START_RELIC_CHOICES }) => {
+      const availableCards = CARD_POOL.filter((cardId) => {
+        const ownedCount = root.player.deck.filter(
+          (deckCardId) => deckCardId === cardId,
+        ).length;
+        return ownedCount < 3;
+      });
 
-            const cardsToShow = availableCards.length >= 3 ? availableCards : CARD_POOL;
-            const shopCards = shuffle(cardsToShow.slice()).slice(0, 3).map((id) => CARDS[id]);
-            const ownedRelicIds = root.relicStates.map((r) => r.id);
-            const availableRelics = START_RELIC_CHOICES.filter((id) => !ownedRelicIds.includes(id));
-            const shopRelic = availableRelics.length > 0 ? RELICS[availableRelics[0]] : null;
+      const cardsToShow =
+        availableCards.length >= 3 ? availableCards : CARD_POOL;
+      const shopCards = shuffle(cardsToShow.slice())
+        .slice(0, 3)
+        .map((id) => CARDS[id]);
+      const ownedRelicIds = root.relicStates.map((r) => r.id);
+      const availableRelics = START_RELIC_CHOICES.filter(
+        (id) => !ownedRelicIds.includes(id),
+      );
+      const shopRelic =
+        availableRelics.length > 0 ? RELICS[availableRelics[0]] : null;
 
-            root.currentShopCards = shopCards;
-            root.currentShopRelic = shopRelic;
+      root.currentShopCards = shopCards;
+      root.currentShopRelic = shopRelic;
 
-            root.app.innerHTML = `
+      root.app.innerHTML = `
             <div class="shop-screen">
               <div class="shop-header">
                 <h1>Merchant's Shop</h1>
@@ -35,13 +48,21 @@ export function renderShop(root) {
                     <p>50 gold each</p>
                   </div>
                   <div class="shop-cards">
-                    ${shopCards.map((card, idx) => {
-                const cardType = card.type === 'attack' ? 'attack' : card.type === 'skill' ? 'skill' : 'power';
-                const canAfford = (root.player.gold || 100) >= 50;
-                const ownedCount = root.player.deck.filter((deckCardId) => deckCardId === card.id).length;
-                return `
+                    ${shopCards
+                      .map((card, idx) => {
+                        const cardType =
+                          card.type === "attack"
+                            ? "attack"
+                            : card.type === "skill"
+                              ? "skill"
+                              : "power";
+                        const canAfford = (root.player.gold || 100) >= 50;
+                        const ownedCount = root.player.deck.filter(
+                          (deckCardId) => deckCardId === card.id,
+                        ).length;
+                        return `
                         <div class="shop-card-container">
-                          <div class="battle-card ${cardType} ${canAfford ? 'playable' : 'unplayable'} shop-card" data-buy-card="${idx}">
+                          <div class="battle-card ${cardType} ${canAfford ? "playable" : "unplayable"} shop-card" data-buy-card="${idx}">
                             <div class="card-glow"></div>
                             <div class="card-frame">
                               <div class="card-header-row">
@@ -62,16 +83,19 @@ export function renderShop(root) {
                               ${renderImage("assets/card-art/bag_of_gold.png", "Gold", "price-icon")}
                               <span>50</span>
                             </div>
-                            ${ownedCount > 0 ? `<div class="card-owned-indicator">Owned: ${ownedCount}</div>` : ''}
-                            ${!canAfford ? `<div class="card-disabled-overlay"><span>Need 50 gold</span></div>` : ''}
+                            ${ownedCount > 0 ? `<div class="card-owned-indicator">Owned: ${ownedCount}</div>` : ""}
+                            ${!canAfford ? `<div class="card-disabled-overlay"><span>Need 50 gold</span></div>` : ""}
                           </div>
                         </div>
                       `;
-            }).join("")}
+                      })
+                      .join("")}
                   </div>
                 </div>
 
-            ${shopRelic ? `
+            ${
+              shopRelic
+                ? `
                 <div class="shop-section">
                   <div class="shop-section-header">
                     <h2>Mystical Relic</h2>
@@ -79,7 +103,7 @@ export function renderShop(root) {
                   </div>
                   <div class="shop-relics">
                     <div class="shop-relic-container">
-                      <div class="shop-relic ${(root.player.gold || 100) >= 100 ? 'affordable' : 'unaffordable'}" data-buy-relic>
+                      <div class="shop-relic ${(root.player.gold || 100) >= 100 ? "affordable" : "unaffordable"}" data-buy-relic>
                         <div class="relic-icon">${getRelicArt(shopRelic.id, RELICS)}</div>
                         <div class="relic-info">
                           <h3>${shopRelic.name}</h3>
@@ -93,7 +117,9 @@ export function renderShop(root) {
                     </div>
                   </div>
             </div>
-            ` : ''}
+            `
+                : ""
+            }
               </div>
 
               <div class="shop-actions">
@@ -105,7 +131,7 @@ export function renderShop(root) {
             </div>
           `;
 
-            if (!root.player.gold) root.player.gold = 100;
-        });
+      if (!root.player.gold) root.player.gold = 100;
     });
+  });
 }

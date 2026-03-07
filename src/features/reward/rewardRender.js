@@ -1,14 +1,20 @@
 import { getCardArt } from "../../ui/shared/renderShared.js";
 
 export async function renderReward(root, choices) {
-    const { CARDS } = await import("../../data/cards.js");
-    root.app.innerHTML = `
+  const { CARDS } = await import("../../data/cards.js");
+  root.app.innerHTML = `
     <div class="reward-screen">
       <h1>Choose a Card</h1>
       <div class="reward-cards-container">
-        ${choices.map((c, idx) => {
-        const cardType = c.type === 'attack' ? 'attack' : c.type === 'skill' ? 'skill' : 'power';
-        return `
+        ${choices
+          .map((c, idx) => {
+            const cardType =
+              c.type === "attack"
+                ? "attack"
+                : c.type === "skill"
+                  ? "skill"
+                  : "power";
+            return `
             <div class="reward-card-wrapper" data-pick="${idx}">
               <div class="battle-card ${cardType} reward-card">
                 <div class="card-glow"></div>
@@ -32,7 +38,8 @@ export async function renderReward(root, choices) {
               </div>
             </div>
           `;
-    }).join("")}
+          })
+          .join("")}
       </div>
       <div class="reward-actions">
         <button class="btn secondary skip-btn" data-skip>Skip Reward</button>

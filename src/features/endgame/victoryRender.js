@@ -1,18 +1,23 @@
-import { getRelicArt, getRelicName, getRelicText, renderImage } from "../../ui/shared/renderShared.js";
+import {
+  getRelicArt,
+  getRelicName,
+  getRelicText,
+  renderImage,
+} from "../../ui/shared/renderShared.js";
 
 export async function renderWin(root) {
-    const { RELICS } = await import("../../data/relics.js");
-    const finalStats = {
-        totalTurns: root.turnCount || 0,
-        cardsPlayed: root.cardsPlayedCount || 0,
-        finalHP: root.player.hp,
-        maxHP: root.player.maxHp,
-        finalGold: root.player.gold || 0,
-        deckSize: root.player.deck.length,
-        relicsCollected: root.relicStates.length
-    };
+  const { RELICS } = await import("../../data/relics.js");
+  const finalStats = {
+    totalTurns: root.turnCount || 0,
+    cardsPlayed: root.cardsPlayedCount || 0,
+    finalHP: root.player.hp,
+    maxHP: root.player.maxHp,
+    finalGold: root.player.gold || 0,
+    deckSize: root.player.deck.length,
+    relicsCollected: root.relicStates.length,
+  };
 
-    root.app.innerHTML = `
+  root.app.innerHTML = `
     <div class="victory-screen">
       <div class="victory-header">
         <div class="victory-crown">
@@ -68,12 +73,20 @@ export async function renderWin(root) {
         <div class="victory-relics">
           <h3>Relics Mastered</h3>
           <div class="relics-showcase">
-            ${root.relicStates.length > 0 ? root.relicStates.map((relic) => `
+            ${
+              root.relicStates.length > 0
+                ? root.relicStates
+                    .map(
+                      (relic) => `
                 <div class="relic-showcase-item" title="${getRelicText(relic.id, RELICS)}">
                   <div class="relic-showcase-icon">${getRelicArt(relic.id, RELICS)}</div>
                   <div class="relic-showcase-name">${getRelicName(relic.id, RELICS)}</div>
                 </div>
-              `).join("") : '<div class="no-relics">No relics collected this run</div>'}
+              `,
+                    )
+                    .join("")
+                : '<div class="no-relics">No relics collected this run</div>'
+            }
           </div>
         </div>
 

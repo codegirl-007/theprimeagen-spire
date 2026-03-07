@@ -1,19 +1,19 @@
 import { getCardArt } from "../../ui/shared/renderShared.js";
 
 export async function renderCodeReviewSelection(root, cards) {
-    const { CARDS } = await import("../../data/cards.js");
+  const { CARDS } = await import("../../data/cards.js");
 
-    if (!cards || cards.length === 0) {
-        root.log("No cards available for code review.");
-        return;
-    }
+  if (!cards || cards.length === 0) {
+    root.log("No cards available for code review.");
+    return;
+  }
 
-    const overlayHost = root.battleUi?.overlayHost;
-    if (!overlayHost) {
-        return;
-    }
+  const overlayHost = root.battleUi?.overlayHost;
+  if (!overlayHost) {
+    return;
+  }
 
-    overlayHost.innerHTML = `
+  overlayHost.innerHTML = `
         <div class="code-review-modal-overlay">
             <div class="code-review-modal">
                 <div class="code-review-header">
@@ -22,9 +22,15 @@ export async function renderCodeReviewSelection(root, cards) {
                 </div>
 
                 <div class="code-review-cards-container">
-                    ${cards.map((card, index) => {
-        const cardType = card.type === "attack" ? "attack" : card.type === "skill" ? "skill" : "power";
-        return `
+                    ${cards
+                      .map((card, index) => {
+                        const cardType =
+                          card.type === "attack"
+                            ? "attack"
+                            : card.type === "skill"
+                              ? "skill"
+                              : "power";
+                        return `
                             <div class="code-review-card" data-code-review-pick="${index}">
                                 <div class="battle-card ${cardType} playable">
                                     <div class="card-glow"></div>
@@ -47,7 +53,8 @@ export async function renderCodeReviewSelection(root, cards) {
                                 <div class="code-review-card-label">Click to choose</div>
                             </div>
                         `;
-    }).join("")}
+                      })
+                      .join("")}
                 </div>
 
                 <div class="code-review-footer">

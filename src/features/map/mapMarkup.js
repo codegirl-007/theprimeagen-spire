@@ -1,23 +1,23 @@
 import {
-    getRelicArt,
-    getRelicText,
-    getCardArt,
-    renderImage
+  getRelicArt,
+  getRelicText,
+  getCardArt,
+  renderImage,
 } from "../../ui/shared/renderShared.js";
 
 export function renderMapScreen(root, data) {
-    const {
-        CARDS,
-        ENEMIES,
-        RELICS,
-        MAPS,
-        messageCount,
-        map,
-        currentId,
-        nextIds
-    } = data;
+  const {
+    CARDS,
+    ENEMIES,
+    RELICS,
+    MAPS,
+    messageCount,
+    map,
+    currentId,
+    nextIds,
+  } = data;
 
-    return `
+  return `
     <div class="map-screen">
       <div class="map-header-section">
         <button class="messages-button" data-action="show-messages">
@@ -59,7 +59,7 @@ export function renderMapScreen(root, data) {
 }
 
 function renderLogo() {
-    return `
+  return `
       <svg width="600" height="240" viewBox="0 0 600 240" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <linearGradient id="textGradient" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -100,7 +100,7 @@ function renderLogo() {
 }
 
 function renderPlayerStatus(root, RELICS) {
-    return `
+  return `
       <div class="player-status">
         <div class="status-item">
           ${renderImage("assets/card-art/heart.png", "Health", "status-icon-img")}
@@ -117,18 +117,26 @@ function renderPlayerStatus(root, RELICS) {
           ${renderImage("assets/card-art/book.png", "Deck", "status-icon-img")}
           <span class="status-value">${root.player.deck.length} cards</span>
         </div>
-        ${root.relicStates.length > 0 ? `
+        ${
+          root.relicStates.length > 0
+            ? `
         <div class="status-item relics-status">
           ${renderImage("assets/card-art/runestone.png", "Relics", "status-icon-img")}
           <div class="relics-inline">
-            ${root.relicStates.map((relic) => `
+            ${root.relicStates
+              .map(
+                (relic) => `
               <div class="relic-inline" title="${getRelicText(relic.id, RELICS)}">
                 ${getRelicArt(relic.id, RELICS)}
               </div>
-            `).join("")}
+            `,
+              )
+              .join("")}
           </div>
         </div>
-        ` : ""}
+        `
+            : ""
+        }
         <button class="btn-reset-status" data-reset>
           Start New Run
         </button>
@@ -137,7 +145,7 @@ function renderPlayerStatus(root, RELICS) {
 }
 
 function renderWelcomePanel() {
-    return `
+  return `
       <div class="welcome-panel">
         <div class="birthday-message">
           <h2>Happy Birthday Prime!</h2>
@@ -167,7 +175,7 @@ But cake lies ahead at the top of the Spire.</p>
 }
 
 function renderActProgress(root, MAPS) {
-    return `
+  return `
       <div class="act-progress-indicator">
         <div class="act-progress-bar">
           <div class="act-step ${root.currentAct === "act1" ? "current" : "completed"}">
@@ -185,7 +193,7 @@ function renderActProgress(root, MAPS) {
 }
 
 function renderLegend() {
-    return `
+  return `
       <div class="map-legend-overlay">
         <div class="legend-title">Legend</div>
         <div class="legend-item">${renderImage("assets/card-art/potion_heal.png", "Rest", "legend-icon-img")} Rest</div>
@@ -199,46 +207,53 @@ function renderLegend() {
 }
 
 function renderPaths(map, currentId, nextIds) {
-    const getNodePos = (nodeId) => {
-        const node = map.nodes.find((entry) => entry.id === nodeId);
-        return node ? { x: node.x, y: node.y } : null;
-    };
+  const getNodePos = (nodeId) => {
+    const node = map.nodes.find((entry) => entry.id === nodeId);
+    return node ? { x: node.x, y: node.y } : null;
+  };
 
-    return map.nodes.map((node) => {
-        if (!node.next || node.next.length === 0) return "";
+  return map.nodes
+    .map((node) => {
+      if (!node.next || node.next.length === 0) return "";
 
-        return node.next.map((nextId) => {
-            const fromPos = { x: node.x, y: node.y };
-            const toPos = getNodePos(nextId);
-            if (!fromPos || !toPos) return "";
+      return node.next
+        .map((nextId) => {
+          const fromPos = { x: node.x, y: node.y };
+          const toPos = getNodePos(nextId);
+          if (!fromPos || !toPos) return "";
 
-            const isActivePath = (node.id === currentId && nextIds.includes(nextId))
-                || (parseInt(nextId.replace("n", ""), 10) <= parseInt(currentId.replace("n", ""), 10));
+          const isActivePath =
+            (node.id === currentId && nextIds.includes(nextId)) ||
+            parseInt(nextId.replace("n", ""), 10) <=
+              parseInt(currentId.replace("n", ""), 10);
 
-            return `<line x1="${fromPos.x}" y1="${fromPos.y}" x2="${toPos.x}" y2="${toPos.y}"
+          return `<line x1="${fromPos.x}" y1="${fromPos.y}" x2="${toPos.x}" y2="${toPos.y}"
                                class="spire-path ${isActivePath ? "active" : ""}"
                                stroke="${isActivePath ? "#8B7355" : "#4A3A2A"}"
                                stroke-width="2"
                                stroke-dasharray="8,4"
                                opacity="${isActivePath ? "1" : "0.6"}"/>`;
-        }).join("");
-    }).join("");
+        })
+        .join("");
+    })
+    .join("");
 }
 
 function renderNodes(map, currentId, nextIds, completedNodes, ENEMIES) {
-    return map.nodes.map((node) => {
-        const isNext = nextIds.includes(node.id);
-        const isCurrent = node.id === currentId;
-        const isCompleted = completedNodes.includes(node.id);
-        const locked = !isNext && !isCurrent && !isCompleted;
+  return map.nodes
+    .map((node) => {
+      const isNext = nextIds.includes(node.id);
+      const isCurrent = node.id === currentId;
+      const isCompleted = completedNodes.includes(node.id);
+      const locked = !isNext && !isCurrent && !isCompleted;
 
-        if (!node.x || !node.y) return "";
+      if (!node.x || !node.y) return "";
 
-        const leftPercent = (node.x / 1000) * 100;
-        const topPercent = (node.y / 800) * 100;
-        const tooltipData = getNodeTooltipData(node, ENEMIES);
+      const leftPercent = (node.x / 1000) * 100;
+      const topPercent = (node.y / 800) * 100;
+      const tooltipData = getNodeTooltipData(node, ENEMIES);
 
-        return `
+      return `
           <div class="spire-node ${isCurrent ? "current" : ""} ${isNext ? "available" : ""} ${isCompleted ? "completed" : ""} ${locked ? "locked" : ""}"
                style="left: ${leftPercent}%; top: ${topPercent}%; transform: translate(-50%, -50%);"
                data-node="${isNext ? node.id : ""}"
@@ -251,28 +266,37 @@ function renderNodes(map, currentId, nextIds, completedNodes, ENEMIES) {
             ${isCurrent ? '<div class="current-indicator">★</div>' : ""}
           </div>
         `;
-    }).join("");
+    })
+    .join("");
 }
 
 function renderDeckStack(root, CARDS) {
-    const deckCounts = Object.entries(root.player.deck.reduce((accumulator, cardId) => {
-        accumulator[cardId] = (accumulator[cardId] || 0) + 1;
-        return accumulator;
-    }, {}));
+  const deckCounts = Object.entries(
+    root.player.deck.reduce((accumulator, cardId) => {
+      accumulator[cardId] = (accumulator[cardId] || 0) + 1;
+      return accumulator;
+    }, {}),
+  );
 
-    return `
+  return `
       <div class="deck-stack-container">
         <div class="deck-stack-header">
           <span class="deck-count">Your deck</span>
         </div>
         <div class="deck-stack" data-tooltip="Hover to view deck">
-          ${deckCounts.map(([cardId, count], index) => {
-            const card = CARDS[cardId];
-            if (!card) return "";
+          ${deckCounts
+            .map(([cardId, count], index) => {
+              const card = CARDS[cardId];
+              if (!card) return "";
 
-            const cardType = card.type === "attack" ? "attack" : card.type === "skill" ? "skill" : "power";
+              const cardType =
+                card.type === "attack"
+                  ? "attack"
+                  : card.type === "skill"
+                    ? "skill"
+                    : "power";
 
-            return `
+              return `
               <div class="deck-stack-card ${cardType}" style="--card-index: ${index}">
                   <div class="card-frame">
                     <div class="card-header-row">
@@ -287,62 +311,75 @@ function renderDeckStack(root, CARDS) {
                   </div>
               </div>
             `;
-        }).join("")}
+            })
+            .join("")}
         </div>
       </div>
     `;
 }
 
 function getNodeEmoji(kind) {
-    const emojis = {
-        start: renderImage("assets/card-art/staff.png", "Start", "node-icon-img"),
-        battle: renderImage("assets/card-art/crossed_swords.png", "Battle", "node-icon-img"),
-        elite: renderImage("assets/card-art/crown.png", "Battle", "node-icon-img"),
-        boss: renderImage("assets/card-art/skull.png", "Boss", "node-icon-img"),
-        rest: renderImage("assets/card-art/potion_heal.png", "Rest", "node-icon-img"),
-        shop: renderImage("assets/card-art/diamond.png", "Shop", "node-icon-img"),
-        event: renderImage("assets/card-art/crystal_cluster.png", "Event", "node-icon-img")
-    };
-    return emojis[kind] || "❓";
+  const emojis = {
+    start: renderImage("assets/card-art/staff.png", "Start", "node-icon-img"),
+    battle: renderImage(
+      "assets/card-art/crossed_swords.png",
+      "Battle",
+      "node-icon-img",
+    ),
+    elite: renderImage("assets/card-art/crown.png", "Battle", "node-icon-img"),
+    boss: renderImage("assets/card-art/skull.png", "Boss", "node-icon-img"),
+    rest: renderImage(
+      "assets/card-art/potion_heal.png",
+      "Rest",
+      "node-icon-img",
+    ),
+    shop: renderImage("assets/card-art/diamond.png", "Shop", "node-icon-img"),
+    event: renderImage(
+      "assets/card-art/crystal_cluster.png",
+      "Event",
+      "node-icon-img",
+    ),
+  };
+  return emojis[kind] || "❓";
 }
 
 function getNodeTooltipData(node, ENEMIES) {
-    const description = getNodeDescription(node, ENEMIES);
-    let avatarPath = null;
+  const description = getNodeDescription(node, ENEMIES);
+  let avatarPath = null;
 
-    if (["battle", "elite", "boss"].includes(node.kind) && node.enemy) {
-        const enemy = ENEMIES[node.enemy];
-        if (enemy?.avatar) {
-            avatarPath = enemy.avatar;
-        }
+  if (["battle", "elite", "boss"].includes(node.kind) && node.enemy) {
+    const enemy = ENEMIES[node.enemy];
+    if (enemy?.avatar) {
+      avatarPath = enemy.avatar;
     }
+  }
 
-    return { description, avatarPath };
+  return { description, avatarPath };
 }
 
 function getNodeDescription(node, ENEMIES) {
-    switch (node.kind) {
-        case "start":
-            return "<strong>Starting Point</strong>\nBegin your journey up ThePrimeagen Spire";
-        case "battle": {
-            const enemy = ENEMIES[node.enemy];
-            return `<strong>Battle</strong>\nFight: ${enemy?.name || "Unknown Enemy"}\nHP: ${enemy?.maxHp || "?"}`;
-        }
-        case "elite": {
-            const elite = ENEMIES[node.enemy];
-            return `<strong>Elite Battle</strong>\nFight: ${elite?.name || "Unknown Elite"}\nHP: ${elite?.maxHp || "?"}\nTough enemy with better rewards`;
-        }
-        case "boss": {
-            const boss = ENEMIES[node.enemy];
-            return `<strong>Boss Battle</strong>\nFight: ${boss?.name || "Unknown Boss"}\nHP: ${boss?.maxHp || "?"}\nFinal challenge of the act`;
-        }
-        case "rest":
-            return "<strong>Rest Site</strong>\nHeal up to 20% max HP\nor upgrade a card";
-        case "shop":
-            return "<strong>Shop</strong>\nSpend your hard-earned gold";
-        case "event":
-            return "<strong>Random Event</strong>\nBirthday-themed encounter\nUnknown outcome\nPotential rewards or challenges";
-        default:
-            return "<strong>Unknown</strong>\nMysterious node";
+  switch (node.kind) {
+    case "start":
+      return "<strong>Starting Point</strong>\nBegin your journey up ThePrimeagen Spire";
+    case "battle": {
+      const enemy = ENEMIES[node.enemy];
+      return `<strong>Battle</strong>\nFight: ${enemy?.name || "Unknown Enemy"}\nHP: ${enemy?.maxHp || "?"}`;
     }
+    case "elite": {
+      const elite = ENEMIES[node.enemy];
+      return `<strong>Elite Battle</strong>\nFight: ${elite?.name || "Unknown Elite"}\nHP: ${elite?.maxHp || "?"}\nTough enemy with better rewards`;
+    }
+    case "boss": {
+      const boss = ENEMIES[node.enemy];
+      return `<strong>Boss Battle</strong>\nFight: ${boss?.name || "Unknown Boss"}\nHP: ${boss?.maxHp || "?"}\nFinal challenge of the act`;
+    }
+    case "rest":
+      return "<strong>Rest Site</strong>\nHeal up to 20% max HP\nor upgrade a card";
+    case "shop":
+      return "<strong>Shop</strong>\nSpend your hard-earned gold";
+    case "event":
+      return "<strong>Random Event</strong>\nBirthday-themed encounter\nUnknown outcome\nPotential rewards or challenges";
+    default:
+      return "<strong>Unknown</strong>\nMysterious node";
+  }
 }

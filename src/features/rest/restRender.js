@@ -1,7 +1,7 @@
 import { getCardArt, renderImage } from "../../ui/shared/renderShared.js";
 
 export async function renderRest(root) {
-    root.app.innerHTML = `
+  root.app.innerHTML = `
     <div class="rest-screen">
       <div class="rest-header">
         <h1>Rest and Recover</h1>
@@ -34,22 +34,22 @@ export async function renderRest(root) {
 }
 
 export function renderUpgrade(root) {
-    import("../../data/cards.js").then(({ CARDS }) => {
-        const upgradableCards = root.player.deck
-            .map((cardId, index) => ({ cardId, index }))
-            .filter(({ cardId }) => {
-                const card = CARDS[cardId];
-                return card?.upgrades && !cardId.endsWith('+');
-            })
-            .slice(0, 3);
+  import("../../data/cards.js").then(({ CARDS }) => {
+    const upgradableCards = root.player.deck
+      .map((cardId, index) => ({ cardId, index }))
+      .filter(({ cardId }) => {
+        const card = CARDS[cardId];
+        return card?.upgrades && !cardId.endsWith("+");
+      })
+      .slice(0, 3);
 
-        if (upgradableCards.length === 0) {
-            root.log("No cards can be upgraded.");
-            root.afterNode();
-            return;
-        }
+    if (upgradableCards.length === 0) {
+      root.log("No cards can be upgraded.");
+      root.afterNode();
+      return;
+    }
 
-        root.app.innerHTML = `
+    root.app.innerHTML = `
         <div class="upgrade-screen">
           <div class="upgrade-header">
         <h1>Upgrade a Card</h1>
@@ -57,15 +57,16 @@ export function renderUpgrade(root) {
           </div>
           
           <div class="upgrade-options">
-          ${upgradableCards.map(({ cardId, index }) => {
-            const card = CARDS[cardId];
-            const upgradedCard = CARDS[card.upgrades];
+          ${upgradableCards
+            .map(({ cardId, index }) => {
+              const card = CARDS[cardId];
+              const upgradedCard = CARDS[card.upgrades];
 
-            if (!upgradedCard) {
-                return '';
-            }
+              if (!upgradedCard) {
+                return "";
+              }
 
-            return `
+              return `
                 <div class="upgrade-option" data-upgrade="${index}">
                   <div class="upgrade-preview">
                     <div class="upgrade-action-header">
@@ -121,7 +122,8 @@ export function renderUpgrade(root) {
                   </div>
                 </div>
             `;
-        }).join("")}
+            })
+            .join("")}
         </div>
           
           <div class="upgrade-actions">
@@ -130,16 +132,20 @@ export function renderUpgrade(root) {
         </div>
       `;
 
-        root.app.querySelectorAll("[data-upgrade]").forEach((btn) => {
-            btn.addEventListener("click", () => {
-                const deckIndex = parseInt(btn.dataset.upgrade, 10);
-                const oldCardId = root.player.deck[deckIndex];
-                const newCardId = CARDS[oldCardId].upgrades;
-                root.player.deck[deckIndex] = newCardId;
-                root.log(`Upgraded ${CARDS[oldCardId].name} → ${CARDS[newCardId].name}`);
-                root.afterNode();
-            });
-        });
-        root.app.querySelector("[data-skip]").addEventListener("click", () => root.afterNode());
+    root.app.querySelectorAll("[data-upgrade]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const deckIndex = parseInt(btn.dataset.upgrade, 10);
+        const oldCardId = root.player.deck[deckIndex];
+        const newCardId = CARDS[oldCardId].upgrades;
+        root.player.deck[deckIndex] = newCardId;
+        root.log(
+          `Upgraded ${CARDS[oldCardId].name} → ${CARDS[newCardId].name}`,
+        );
+        root.afterNode();
+      });
     });
+    root.app
+      .querySelector("[data-skip]")
+      .addEventListener("click", () => root.afterNode());
+  });
 }

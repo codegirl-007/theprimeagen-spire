@@ -1,11 +1,11 @@
 import { getRelicArt } from "../../ui/shared/renderShared.js";
 
 export function renderRelicSelection(root) {
-    import("../../data/relics.js").then(({ RELICS, START_RELIC_CHOICES }) => {
-        import("../../data/messages.js").then(({ getAllMessages }) => {
-            const relicChoices = START_RELIC_CHOICES.slice(0, 3);
+  import("../../data/relics.js").then(({ RELICS, START_RELIC_CHOICES }) => {
+    import("../../data/messages.js").then(({ getAllMessages }) => {
+      const relicChoices = START_RELIC_CHOICES.slice(0, 3);
 
-            root.app.innerHTML = `
+      root.app.innerHTML = `
             <div class="game-screen relic-select">
               <div class="game-header">
                 <button class="messages-button" data-action="show-messages">
@@ -65,9 +65,10 @@ Your Inbox holds something prepared secretly.</p>
               </div>
 
               <div class="relic-options">
-                ${relicChoices.map((relicId) => {
-                const relic = RELICS[relicId];
-                return `
+                ${relicChoices
+                  .map((relicId) => {
+                    const relic = RELICS[relicId];
+                    return `
                     <div class="relic-option" data-relic="${relicId}">
                       <div class="relic-portrait">
                         <div class="relic-icon">${getRelicArt(relicId, RELICS)}</div>
@@ -78,11 +79,12 @@ Your Inbox holds something prepared secretly.</p>
                       </div>
                     </div>
                   `;
-            }).join("")}
+                  })
+                  .join("")}
               </div>
 
             </div>
             `;
-        });
     });
+  });
 }

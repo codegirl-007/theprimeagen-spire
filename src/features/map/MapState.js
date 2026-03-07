@@ -2,33 +2,34 @@ import { GameState } from "../../systems/state/GameState.js";
 import { renderMap } from "../../ui/render.js";
 
 export class MapState extends GameState {
-    constructor() {
-        super("MAP");
-    }
+  constructor() {
+    super("MAP");
+  }
 
-    async enter(gameRoot, previousState = null) {
-        gameRoot.enemy = null;
-        gameRoot._battleInProgress = false;
-        gameRoot.scheduleSave();
-        await gameRoot.render();
-    }
+  async enter(gameRoot, previousState = null) {
+    gameRoot.enemy = null;
+    gameRoot._battleInProgress = false;
+    gameRoot.scheduleSave();
+    await gameRoot.render();
+  }
 
-    async render(gameRoot) {
-        await renderMap(gameRoot);
-    }
+  async render(gameRoot) {
+    await renderMap(gameRoot);
+  }
 
-    getSaveData(gameRoot) {
-        return {
-            ...super.getSaveData(gameRoot),
-            nodeId: gameRoot.nodeId,
-            currentAct: gameRoot.currentAct,
-            completedNodes: gameRoot.completedNodes
-        };
-    }
+  getSaveData(gameRoot) {
+    return {
+      ...super.getSaveData(gameRoot),
+      nodeId: gameRoot.nodeId,
+      currentAct: gameRoot.currentAct,
+      completedNodes: gameRoot.completedNodes,
+    };
+  }
 
-    restoreFromSave(gameRoot, saveData) {
-        if (saveData.nodeId) gameRoot.nodeId = saveData.nodeId;
-        if (saveData.currentAct) gameRoot.currentAct = saveData.currentAct;
-        if (saveData.completedNodes) gameRoot.completedNodes = saveData.completedNodes;
-    }
+  restoreFromSave(gameRoot, saveData) {
+    if (saveData.nodeId) gameRoot.nodeId = saveData.nodeId;
+    if (saveData.currentAct) gameRoot.currentAct = saveData.currentAct;
+    if (saveData.completedNodes)
+      gameRoot.completedNodes = saveData.completedNodes;
+  }
 }

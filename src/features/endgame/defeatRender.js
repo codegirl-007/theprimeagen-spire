@@ -1,19 +1,19 @@
 import { getRelicArt } from "../../ui/shared/renderShared.js";
 
 export async function renderLose(root) {
-    const { RELICS } = await import("../../data/relics.js");
-    const finalStats = {
-        totalTurns: root.turnCount || 0,
-        cardsPlayed: root.cardsPlayedCount || 0,
-        finalHP: 0,
-        maxHP: root.player.maxHp,
-        finalGold: root.player.gold || 0,
-        deckSize: root.player.deck.length,
-        relicsCollected: root.relicStates.length,
-        nodeId: root.nodeId || "unknown"
-    };
+  const { RELICS } = await import("../../data/relics.js");
+  const finalStats = {
+    totalTurns: root.turnCount || 0,
+    cardsPlayed: root.cardsPlayedCount || 0,
+    finalHP: 0,
+    maxHP: root.player.maxHp,
+    finalGold: root.player.gold || 0,
+    deckSize: root.player.deck.length,
+    relicsCollected: root.relicStates.length,
+    nodeId: root.nodeId || "unknown",
+  };
 
-    root.app.innerHTML = `
+  root.app.innerHTML = `
     <div class="defeat-screen">
       <div class="defeat-header">
         <h1>You Failed!</h1>
@@ -34,23 +34,31 @@ Better luck on the next run!</p>
           </div>
         </div>
 
-        ${root.relicStates.length > 0 ? `
+        ${
+          root.relicStates.length > 0
+            ? `
         <div class="defeat-relics">
           <h3>Tools Collected</h3>
           <div class="relics-showcase">
-            ${root.relicStates.map((relic) => `
+            ${root.relicStates
+              .map(
+                (relic) => `
               <div class="relic-showcase-item">
                 <div class="relic-showcase-icon">${getRelicArt(relic.id, RELICS)}</div>
                 <div class="relic-showcase-name">${relic.id.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase())}</div>
               </div>
-            `).join("")}
+            `,
+              )
+              .join("")}
           </div>
         </div>
-        ` : `
+        `
+            : `
         <div class="defeat-relics">
           <div class="no-relics">No relics were collected during this run.</div>
         </div>
-        `}
+        `
+        }
 
         <div class="defeat-message">
           <div class="debug-session">
@@ -65,7 +73,9 @@ Better luck on the next run!</p>
         </div>
 
         <div class="defeat-actions">
-          ${root.currentAct === "act2" && root.hasAct2Checkpoint() ? `
+          ${
+            root.currentAct === "act2" && root.hasAct2Checkpoint()
+              ? `
             <button class="defeat-btn primary-btn" data-restart-act2>
               <span class="btn-icon">🎯</span>
               <span>Restart Act 2</span>
@@ -74,12 +84,14 @@ Better luck on the next run!</p>
               <span class="btn-icon">🔄</span>
               <span>Restart from Beginning</span>
             </button>
-          ` : `
+          `
+              : `
             <button class="defeat-btn primary-btn" data-replay>
               <span class="btn-icon">🔄</span>
               <span>Try Again</span>
             </button>
-          `}
+          `
+          }
           <button class="defeat-btn secondary-btn" data-menu>
             <span class="btn-icon">🏠</span>
             <span>Main Menu</span>
