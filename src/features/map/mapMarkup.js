@@ -242,9 +242,7 @@ function renderNodes(map, currentId, nextIds, completedNodes, ENEMIES) {
                style="left: ${leftPercent}%; top: ${topPercent}%; transform: translate(-50%, -50%);"
                data-node="${isNext ? node.id : ""}"
                data-tooltip="${tooltipData.description.replace(/\n/g, "<br>")}"
-               data-avatar="${tooltipData.avatarPath || ""}"
-               onmouseenter="showTooltip(event)"
-               onmouseleave="hideTooltip()">
+               data-avatar="${tooltipData.avatarPath || ""}">
             <div class="node-background ${node.kind}"></div>
             <div class="node-content">
               <div class="node-icon">${getNodeEmoji(node.kind)}</div>

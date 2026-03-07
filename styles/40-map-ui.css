@@ -37,32 +37,6 @@
     height: auto;
 }
 
-.btn-reset-top {
-    background: linear-gradient(135deg, #dc3545 0%, #b02a37 100%);
-    color: white;
-    border: 2px solid #c82333;
-    border-radius: 8px;
-    padding: 12px 20px;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-}
-
-.btn-reset-top:hover {
-    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-    border-color: #d32f2f;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
-}
-
-.btn-reset-top:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
 .btn-reset-status {
     background: linear-gradient(135deg, #dc3545 0%, #b02a37 100%);
     color: white;
@@ -286,5 +260,4 @@
     gap: 15px;
     flex-wrap: wrap;
 }
-
 

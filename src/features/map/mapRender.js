@@ -22,5 +22,5 @@ export async function renderMap(root) {
         nextIds
     });
 
-    attachMapTooltipHandlers();
+    attachMapTooltipHandlers(root);
 }
