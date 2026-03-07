@@ -57,6 +57,7 @@ export function createGameRoot(app) {
 
         showDamageNumber,
 
+        // end the turn
         end() {
             const battleCtx = this._battleContext || (this._battleContext = makeBattleContext(this));
             endTurn(battleCtx);
@@ -107,6 +108,7 @@ export function createGameRoot(app) {
 
         async onWin() {
             this.log("Enemy defeated!");
+            this.player.block = 0;
 
             const goldReward = Math.floor(Math.random() * 20) + 15;
             this.player.gold = (this.player.gold || 0) + goldReward;
@@ -148,6 +150,7 @@ export function createGameRoot(app) {
 
         async onLose() {
             this._battleInProgress = false;
+            this.player.block = 0;
             this.clearSave();
             await this.stateMachine.setState("DEFEAT");
         },

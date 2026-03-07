@@ -8,6 +8,7 @@ export function createBattle(ctx, enemyId) {
     const enemyData = ENEMIES[enemyId];
     const enemy = { id: enemyId, name: enemyData.name, maxHp: enemyData.maxHp, hp: enemyData.maxHp, block: 0, weak: 0, vuln: 0, turn: 1, intent: enemyData.ai(1) };
     ctx.enemy = enemy;
+    ctx.player.block = 0;
     ctx.flags = {};
     ctx.lastCard = null;
     ctx._battleContext = null;
