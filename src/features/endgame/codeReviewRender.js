@@ -8,7 +8,12 @@ export async function renderCodeReviewSelection(root, cards) {
         return;
     }
 
-    root.app.innerHTML = `
+    const overlayHost = root.battleUi?.overlayHost;
+    if (!overlayHost) {
+        return;
+    }
+
+    overlayHost.innerHTML = `
         <div class="code-review-modal-overlay">
             <div class="code-review-modal">
                 <div class="code-review-header">

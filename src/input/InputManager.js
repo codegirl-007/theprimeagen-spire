@@ -9,8 +9,7 @@ import { playSound } from '../systems/audio/playSound.js';
 import {
     handleCardPlay,
     handleEndTurn,
-    handleBattleCardShortcut,
-    setupCardHoverSounds
+    handleBattleCardShortcut
 } from '../features/battle/battleInput.js';
 import { handleMapNodeClick } from '../features/map/mapInput.js';
 import { handleRewardPick } from '../features/reward/rewardInput.js';
@@ -40,7 +39,9 @@ export class InputManager {
         // Bind methods to preserve 'this' context
         this.handleGlobalKeydown = this.handleGlobalKeydown.bind(this);
         this.handleGlobalClick = this.handleGlobalClick.bind(this);
+        this.handleGlobalMouseover = this.handleGlobalMouseover.bind(this);
         this.handleMessagesModalEvent = this.handleMessagesModalEvent.bind(this);
+        this.lastHoveredBattleCard = null;
     }
 
     /**
@@ -54,6 +55,9 @@ export class InputManager {
         // Global click handling for data attributes
         document.addEventListener('click', this.handleGlobalClick);
         this.globalHandlers.add('click');
+
+        document.addEventListener('mouseover', this.handleGlobalMouseover);
+        this.globalHandlers.add('mouseover');
 
         document.addEventListener('show-messages-modal', this.handleMessagesModalEvent);
         this.globalHandlers.add('show-messages-modal');
@@ -190,6 +194,30 @@ export class InputManager {
 
         // Handle other specific buttons
         this.handleSpecificButtons(target, event);
+    }
+
+    handleGlobalMouseover(event) {
+        const currentStateName = this.root.stateMachine?.getCurrentStateName?.();
+        if (currentStateName !== 'BATTLE') {
+            this.lastHoveredBattleCard = null;
+            return;
+        }
+
+        const cardElement = event.target.closest('[data-play]');
+        if (!cardElement) {
+            this.lastHoveredBattleCard = null;
+            return;
+        }
+
+        if (cardElement === this.lastHoveredBattleCard) {
+            return;
+        }
+
+        this.lastHoveredBattleCard = cardElement;
+
+        if (cardElement.classList.contains('playable')) {
+            this.playSound('swipe.mp3');
+        }
     }
 
     /**
@@ -357,8 +385,7 @@ export class InputManager {
         if (this.root._codeReviewCards) {
             this.root._codeReviewCards = null;
             this.root._codeReviewCallback = null;
-            // Return to battle without making a choice
-            this.root.render();
+            this.root.battleUi?.overlayHost?.replaceChildren();
             return;
         }
 
@@ -420,13 +447,6 @@ export class InputManager {
         this.handleShowMessages();
     }
 
-    /**
-     * Setup card hover sound effects
-     */
-    setupCardHoverSounds() {
-        setupCardHoverSounds(this);
-    }
-
     handleBattleCardShortcut(cardIndex) {
         handleBattleCardShortcut(this, cardIndex);
     }
@@ -445,6 +465,9 @@ export class InputManager {
         }
         if (this.globalHandlers.has('click')) {
             document.removeEventListener('click', this.handleGlobalClick);
+        }
+        if (this.globalHandlers.has('mouseover')) {
+            document.removeEventListener('mouseover', this.handleGlobalMouseover);
         }
         if (this.globalHandlers.has('show-messages-modal')) {
             document.removeEventListener('show-messages-modal', this.handleMessagesModalEvent);

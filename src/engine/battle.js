@@ -4,6 +4,7 @@ import { CARDS } from "../data/cards.js";
 import { draw, endTurnDiscard, clamp, cloneCard, shuffle, peekTopCards, putCardOnBottomOfDeck, addCardToHand } from "./core.js";
 
 export function createBattle(ctx, enemyId) {
+    ctx._battleInstanceId = (ctx._battleInstanceId || 0) + 1;
     const enemyData = ENEMIES[enemyId];
     const enemy = { id: enemyId, name: enemyData.name, maxHp: enemyData.maxHp, hp: enemyData.maxHp, block: 0, weak: 0, vuln: 0, turn: 1, intent: enemyData.ai(1) };
     ctx.enemy = enemy;
@@ -126,8 +127,9 @@ export function playCard(ctx, handIndex) {
     if (ctx.enemy.hp <= 0) { ctx.enemy.hp = 0; ctx.onWin(); return; }
     if (ctx.player.hp <= 0) { ctx.onLose(); return; }
     
-    // Don't render if Code Review modal is active
+    // Keep the battle shell updated under overlay-based card flows
     if (ctx.root._codeReviewCards) {
+        ctx.render();
         return;
     }
     
@@ -302,4 +304,3 @@ export function attachRelics(root, relicIds) {
     };
     for (const r of root.relicStates) r.hooks?.onRunStart?.(relicCtx, r.state);
 }
-

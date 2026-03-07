@@ -64,16 +64,3 @@ export function handleBattleCardShortcut(manager, cardIndex) {
     }
     manager.playSound("swipe.mp3");
 }
-
-export function setupCardHoverSounds(manager) {
-    manager.root.app.querySelectorAll("[data-play]").forEach((button) => {
-        if (!button.dataset.hoverSetup) {
-            button.addEventListener("mouseenter", () => {
-                if (button.classList.contains("playable")) {
-                    manager.playSound("swipe.mp3");
-                }
-            });
-            button.dataset.hoverSetup = "true";
-        }
-    });
-}

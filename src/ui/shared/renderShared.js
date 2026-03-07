@@ -27,12 +27,14 @@ export function showDamageNumber(damage, target, isPlayer = false) {
 }
 
 export function updateCardSelection(root) {
-    root.app.querySelectorAll('.battle-card').forEach((card) => {
+    const container = root.battleUi?.handHost || root.app;
+
+    container.querySelectorAll('.battle-card').forEach((card) => {
         card.classList.remove('card-selected');
     });
 
     if (root.selectedCardIndex !== null) {
-        const selectedCard = root.app.querySelector(`[data-play="${root.selectedCardIndex}"]`);
+        const selectedCard = container.querySelector(`[data-play="${root.selectedCardIndex}"]`);
         if (selectedCard) {
             selectedCard.classList.add('card-selected');
         }

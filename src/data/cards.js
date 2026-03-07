@@ -192,6 +192,9 @@ export const CARDS = {
                     }
                 });
 
+                ctx.root._codeReviewCards = null;
+                ctx.root._codeReviewCallback = null;
+                ctx.root.battleUi?.overlayHost?.replaceChildren();
                 ctx.log(`Code review complete. Added ${selectedCard.name} to hand.`);
                 ctx.render();
             };
