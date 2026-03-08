@@ -1,7 +1,7 @@
 import { getCardArt } from "../../ui/shared/renderShared.js";
 
 export async function renderReward(root, choices) {
-  const { CARDS } = await import("../../../data/cards.js");
+  const { CARDS } = await import("../../../shared/data/cards.js");
   root.app.innerHTML = `
     <div class="reward-screen">
       <h1>Choose a Card</h1>

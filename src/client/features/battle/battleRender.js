@@ -7,6 +7,7 @@ import {
   renderImage,
   renderBackgroundImageStyle,
 } from "../../ui/shared/renderShared.js";
+import { renderCodeReviewSelection } from "../endgame/codeReviewRender.js";
 
 export { showDamageNumber, updateCardSelection };
 
@@ -15,7 +16,7 @@ export async function renderBattle(root) {
   const e = root.enemy;
 
   const { ENEMIES } = await import("../../../shared/data/enemies.js");
-  const { CARDS } = await import("../../../data/cards.js");
+  const { CARDS } = await import("../../../shared/data/cards.js");
   const enemyData = ENEMIES[e.id];
   const intentInfo = getIntentInfo(e);
 
@@ -29,6 +30,7 @@ export async function renderBattle(root) {
   updateBattleControls(root, p);
   updateBattleLog(root);
   updateBattleSelection(root);
+  updateBattleOverlay(root);
 }
 
 function getIntentInfo(enemy) {
@@ -183,6 +185,15 @@ function updateBattleLog(root) {
 
 function updateBattleSelection(root) {
   updateCardSelection(root);
+}
+
+function updateBattleOverlay(root) {
+  if (root.pendingCodeReview) {
+    renderCodeReviewSelection(root);
+    return;
+  }
+
+  root.battleUi?.overlayHost?.replaceChildren();
 }
 
 function getEnemyMarkup(root, enemyData, intentInfo, ENEMIES) {

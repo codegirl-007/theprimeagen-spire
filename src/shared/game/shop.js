@@ -1,4 +1,4 @@
-import { CARD_POOL, CARDS } from "../../data/cards.js";
+import { CARD_POOL, CARDS } from "../data/cards.js";
 import { START_RELIC_CHOICES, RELICS } from "../data/relics.js";
 
 function shuffle(cards) {

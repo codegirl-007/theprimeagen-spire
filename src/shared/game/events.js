@@ -1,4 +1,4 @@
-import { CARDS, CARD_POOL } from "../../data/cards.js";
+import { CARDS, CARD_POOL } from "../data/cards.js";
 
 const EVENT_DEFINITIONS = [
   {

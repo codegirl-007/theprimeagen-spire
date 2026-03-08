@@ -1,4 +1,4 @@
-import { CARDS, CARD_POOL } from "../../data/cards.js";
+import { CARDS, CARD_POOL } from "../data/cards.js";
 
 function shuffle(cards) {
   const next = cards.slice();

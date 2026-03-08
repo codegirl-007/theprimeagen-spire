@@ -1,10 +1,12 @@
 import { getCardArt } from "../../ui/shared/renderShared.js";
 
-export async function renderCodeReviewSelection(root, cards) {
-  const { CARDS } = await import("../../../data/cards.js");
+export async function renderCodeReviewSelection(root) {
+  const { CARDS } = await import("../../../shared/data/cards.js");
+  const pendingReview = root.pendingCodeReview;
+  const cards = pendingReview?.cardIds?.map((cardId) => CARDS[cardId]).filter(Boolean) || [];
 
   if (!cards || cards.length === 0) {
-    root.log("No cards available for code review.");
+    root.battleUi?.overlayHost?.replaceChildren();
     return;
   }
 

@@ -1,4 +1,4 @@
-import { CARDS } from "../../data/cards.js";
+import { CARDS } from "../../shared/data/cards.js";
 import { MAPS } from "../../shared/data/maps.js";
 
 export function attachPersistence(root) {
@@ -19,6 +19,7 @@ export function attachPersistence(root) {
       enemy: this.enemy,
       flags: this.flags,
       lastCard: this.lastCard,
+      pendingCodeReview: this.pendingCodeReview,
       stateMachine: this.stateMachine ? this.stateMachine.getSaveData() : null,
       timestamp: Date.now(),
     };
@@ -224,6 +225,7 @@ export function attachPersistence(root) {
         : [];
       this.logs = Array.isArray(data.logs) ? data.logs : [];
       this._battleInProgress = Boolean(data.battleInProgress);
+      this.pendingCodeReview = data.pendingCodeReview || null;
 
       if (data.stateMachine && this.stateMachine) {
         this.stateMachine.restoreFromSave(data.stateMachine);

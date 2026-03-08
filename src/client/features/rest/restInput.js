@@ -1,5 +1,5 @@
 import { RestActionCommand } from "../../commands/RestActionCommand.js";
-import { CARDS } from "../../../data/cards.js";
+import { CARDS } from "../../../shared/data/cards.js";
 
 export function handleRestAction(manager, element) {
   const action = element.dataset.act;

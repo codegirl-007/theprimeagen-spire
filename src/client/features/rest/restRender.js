@@ -34,7 +34,7 @@ export async function renderRest(root) {
 }
 
 export function renderUpgrade(root) {
-  import("../../../data/cards.js").then(({ CARDS }) => {
+  import("../../../shared/data/cards.js").then(({ CARDS }) => {
     const upgradableCards = root.player.deck
       .map((cardId, index) => ({ cardId, index }))
       .filter(({ cardId }) => {

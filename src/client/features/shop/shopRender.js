@@ -1,7 +1,7 @@
 import { getRelicArt, getCardArt, renderImage } from "../../ui/shared/renderShared.js";
 
 export async function renderShop(root) {
-  const { CARDS } = await import("../../../data/cards.js");
+  const { CARDS } = await import("../../../shared/data/cards.js");
   const { RELICS } = await import("../../../shared/data/relics.js");
   const shopCards = root.currentShopCards || [];
   const shopRelic = root.currentShopRelic;

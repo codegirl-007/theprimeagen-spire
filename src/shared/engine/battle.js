@@ -1,6 +1,6 @@
 import { ENEMIES } from "../data/enemies.js";
 import { RELICS } from "../data/relics.js";
-import { CARDS } from "../../data/cards.js";
+import { CARDS } from "../data/cards.js";
 import {
   draw,
   endTurnDiscard,
@@ -181,7 +181,7 @@ export function playCard(ctx, handIndex) {
   }
 
   // Keep the battle shell updated under overlay-based card flows
-  if (ctx.root._codeReviewCards) {
+  if (ctx.root.pendingCodeReview) {
     ctx.render();
     return;
   }
@@ -396,6 +396,53 @@ export function makeBattleContext(root) {
   });
 
   return battleContext;
+}
+
+export function resolveCodeReviewChoice(root, selectedIndex) {
+  const pendingReview = root.pendingCodeReview;
+  if (!pendingReview?.cardIds?.length) {
+    return false;
+  }
+
+  const selectedCardId = pendingReview.cardIds[selectedIndex];
+  if (!selectedCardId) {
+    return false;
+  }
+
+  const selectedCard = cloneCard(CARDS[selectedCardId]);
+  if (!selectedCard) {
+    return false;
+  }
+
+  pendingReview.cardIds.forEach((cardId) => {
+    const drawIndex = root.player.draw.findIndex((id) => id === cardId);
+    if (drawIndex >= 0) {
+      root.player.draw.splice(drawIndex, 1);
+    }
+  });
+
+  addCardToHand(root.player, selectedCard);
+
+  pendingReview.cardIds.forEach((cardId, index) => {
+    if (index !== selectedIndex) {
+      putCardOnBottomOfDeck(root.player, cardId);
+    }
+  });
+
+  root.pendingCodeReview = null;
+  root.log(`Code review complete. Added ${selectedCard.name} to hand.`);
+  root.render();
+  return true;
+}
+
+export function cancelCodeReview(root) {
+  if (!root.pendingCodeReview) {
+    return false;
+  }
+
+  root.pendingCodeReview = null;
+  root.render();
+  return true;
 }
 
 export function attachRelics(root, relicIds) {

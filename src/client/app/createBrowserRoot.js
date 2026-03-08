@@ -6,7 +6,6 @@ import {
 } from "../features/battle/battleRender.js";
 import { renderMap } from "../features/map/mapRender.js";
 import { renderUpgrade } from "../features/rest/restRender.js";
-import { renderCodeReviewSelection } from "../features/endgame/codeReviewRender.js";
 import { attachPersistence } from "./localPersistence.js";
 import { attachRewardFlow } from "../../shared/game/rewardFlow.js";
 import { createInitialGameState } from "../../shared/game/createInitialGameState.js";
@@ -23,7 +22,6 @@ export function createBrowserRoot(app) {
       renderMap,
       renderUpgrade,
       updateCardSelection,
-      renderCodeReviewSelection,
     },
 
     async render() {

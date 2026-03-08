@@ -7,6 +7,10 @@
 
 import { playSound } from "../audio/playSound.js";
 import {
+  resolveCodeReviewChoice,
+  cancelCodeReview,
+} from "../../shared/engine/battle.js";
+import {
   handleCardPlay,
   handleEndTurn,
   handleBattleCardShortcut,
@@ -95,15 +99,11 @@ export class InputManager {
     }
 
     // Handle number keys for code review selection
-    if (this.root._codeReviewCards && event.key >= "1" && event.key <= "3") {
+    if (this.root.pendingCodeReview && event.key >= "1" && event.key <= "3") {
       const selectedIndex = parseInt(event.key, 10) - 1;
-      if (selectedIndex < this.root._codeReviewCards.length) {
+      if (selectedIndex < this.root.pendingCodeReview.cardIds.length) {
         event.preventDefault();
-        if (this.root._codeReviewCallback) {
-          this.root._codeReviewCallback(selectedIndex);
-          this.root._codeReviewCards = null;
-          this.root._codeReviewCallback = null;
-        }
+        resolveCodeReviewChoice(this.root, selectedIndex);
       }
     }
 
@@ -302,16 +302,10 @@ export class InputManager {
   handleCodeReviewPick(element, event) {
     const selectedIndex = parseInt(element.dataset.codeReviewPick, 10);
 
-    if (this.root._codeReviewCallback && this.root._codeReviewCards) {
-      try {
-        // Execute the callback with selected index
-        this.root._codeReviewCallback(selectedIndex);
-
-        this.root._codeReviewCards = null;
-        this.root._codeReviewCallback = null;
-      } catch (error) {
-        console.error("Error handling code review selection:", error);
-      }
+    try {
+      resolveCodeReviewChoice(this.root, selectedIndex);
+    } catch (error) {
+      console.error("Error handling code review selection:", error);
     }
   }
 
@@ -387,10 +381,8 @@ export class InputManager {
    */
   handleEscapeKey(event) {
     // Handle code review modal cancellation
-    if (this.root._codeReviewCards) {
-      this.root._codeReviewCards = null;
-      this.root._codeReviewCallback = null;
-      this.root.battleUi?.overlayHost?.replaceChildren();
+    if (this.root.pendingCodeReview) {
+      cancelCodeReview(this.root);
       return;
     }
 

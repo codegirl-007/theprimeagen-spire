@@ -2,7 +2,7 @@ import { renderMapScreen } from "./mapMarkup.js";
 import { attachMapTooltipHandlers } from "./mapTooltip.js";
 
 export async function renderMap(root) {
-  const { CARDS } = await import("../../../data/cards.js");
+  const { CARDS } = await import("../../../shared/data/cards.js");
   const { ENEMIES } = await import("../../../shared/data/enemies.js");
   const { RELICS } = await import("../../../shared/data/relics.js");
   const { getAllMessages } = await import("../../../data/messages.js");

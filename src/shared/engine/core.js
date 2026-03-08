@@ -1,4 +1,4 @@
-import { CARDS, STARTER_DECK } from "../../data/cards.js";
+import { CARDS, STARTER_DECK } from "../data/cards.js";
 
 export function makePlayer() {
   return {
