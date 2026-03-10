@@ -7,7 +7,8 @@ export async function renderReward(root, choices) {
       <h1>Choose a Card</h1>
       <div class="reward-cards-container">
         ${choices
-          .map((c, idx) => {
+          .map((choice, idx) => {
+            const c = CARDS[choice.cardId];
             const cardType =
               c.type === "attack"
                 ? "attack"

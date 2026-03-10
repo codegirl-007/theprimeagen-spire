@@ -12,7 +12,10 @@ function shuffle(cards) {
 function pickCards(count) {
   return shuffle(CARD_POOL)
     .slice(0, count)
-    .map((id) => CARDS[id]);
+    .map((cardId, index) => ({
+      offerId: `rw_${index}_${cardId}`,
+      cardId,
+    }));
 }
 
 export function attachRewardFlow(root) {
@@ -24,10 +27,10 @@ export function attachRewardFlow(root) {
   };
 
   root.takeReward = async function takeReward(index) {
-    const card = this.currentRewardChoices?.[index];
-    if (card) {
-      this.player.deck.push(card.id);
-      this.log(`Added card: ${card.name}`);
+    const offer = this.currentRewardChoices?.[index];
+    if (offer) {
+      this.player.deck.push(offer.cardId);
+      this.log(`Added card: ${CARDS[offer.cardId].name}`);
     }
     this.currentRewardChoices = null;
     this.scheduleSave();

@@ -25,22 +25,23 @@ export async function renderShop(root) {
                   </div>
                   <div class="shop-cards">
                    ${shopCards
-                      .map((card, idx) => {
-                        const cardType =
-                          card.type === "attack"
-                            ? "attack"
-                            : card.type === "skill"
-                              ? "skill"
-                              : "power";
-                        const canAfford = (root.player.gold || 100) >= 50;
-                        const ownedCount = root.player.deck.filter(
-                          (deckCardId) => deckCardId === card.id,
-                        ).length;
-                        return `
+                       .map((offer, idx) => {
+                         const card = CARDS[offer.cardId];
+                         const cardType =
+                           card.type === "attack"
+                             ? "attack"
+                             : card.type === "skill"
+                               ? "skill"
+                               : "power";
+                         const canAfford = (root.player.gold || 100) >= offer.price;
+                         const ownedCount = root.player.deck.filter(
+                           (deckCardId) => deckCardId === offer.cardId,
+                         ).length;
+                         return `
                         <div class="shop-card-container">
-                          <div class="battle-card ${cardType} ${canAfford ? "playable" : "unplayable"} shop-card" data-buy-card="${idx}">
-                            <div class="card-glow"></div>
-                            <div class="card-frame">
+                           <div class="battle-card ${canAfford && !offer.sold ? "playable" : "unplayable"} ${cardType} shop-card" data-buy-card="${idx}">
+                             <div class="card-glow"></div>
+                             <div class="card-frame">
                               <div class="card-header-row">
                                 <div class="card-title">${card.name}</div>
                                 <div class="card-cost-orb">${card.cost}</div>
@@ -55,15 +56,15 @@ export async function renderShop(root) {
                                 <div class="card-text">${card.text}</div>
                               </div>
                             </div>
-                            <div class="shop-card-price">
-                              ${renderImage("assets/card-art/bag_of_gold.png", "Gold", "price-icon")}
-                              <span>50</span>
-                            </div>
-                            ${ownedCount > 0 ? `<div class="card-owned-indicator">Owned: ${ownedCount}</div>` : ""}
-                            ${!canAfford ? `<div class="card-disabled-overlay"><span>Need 50 gold</span></div>` : ""}
-                          </div>
-                        </div>
-                      `;
+                             <div class="shop-card-price">
+                               ${renderImage("assets/card-art/bag_of_gold.png", "Gold", "price-icon")}
+                               <span>${offer.price}</span>
+                             </div>
+                             ${ownedCount > 0 ? `<div class="card-owned-indicator">Owned: ${ownedCount}</div>` : ""}
+                             ${offer.sold ? `<div class="card-disabled-overlay"><span>SOLD</span></div>` : !canAfford ? `<div class="card-disabled-overlay"><span>Need ${offer.price} gold</span></div>` : ""}
+                           </div>
+                         </div>
+                       `;
                       })
                       .join("")}
                   </div>
@@ -79,17 +80,18 @@ export async function renderShop(root) {
                   </div>
                   <div class="shop-relics">
                     <div class="shop-relic-container">
-                      <div class="shop-relic ${(root.player.gold || 100) >= 100 ? "affordable" : "unaffordable"}" data-buy-relic>
-                        <div class="relic-icon">${getRelicArt(shopRelic.id, RELICS)}</div>
+                      <div class="shop-relic ${(root.player.gold || 100) >= shopRelic.price && !shopRelic.sold ? "affordable" : "unaffordable"}" data-buy-relic>
+                        <div class="relic-icon">${getRelicArt(shopRelic.relicId, RELICS)}</div>
                         <div class="relic-info">
-                          <h3>${shopRelic.name}</h3>
-                          <p>${shopRelic.text}</p>
+                          <h3>${RELICS[shopRelic.relicId].name}</h3>
+                          <p>${RELICS[shopRelic.relicId].text}</p>
                         </div>
                         <div class="shop-relic-price">
                           ${renderImage("assets/card-art/bag_of_gold.png", "Gold", "price-icon")}
-                          <span>100</span>
+                          <span>${shopRelic.price}</span>
                         </div>
                       </div>
+                      ${shopRelic.sold ? `<div class="relic-disabled-overlay"><span>SOLD</span></div>` : ""}
                     </div>
                   </div>
             </div>

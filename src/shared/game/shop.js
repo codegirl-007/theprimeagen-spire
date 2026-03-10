@@ -21,14 +21,26 @@ export function generateShopInventory(root) {
   const cardsToShow = availableCards.length >= 3 ? availableCards : CARD_POOL;
   const currentShopCards = shuffle(cardsToShow)
     .slice(0, 3)
-    .map((id) => CARDS[id]);
+    .map((cardId, index) => ({
+      offerId: `shop_card_${index}_${cardId}`,
+      cardId,
+      price: 50,
+      sold: false,
+    }));
 
   const ownedRelicIds = root.relicStates.map((entry) => entry.id);
   const availableRelics = START_RELIC_CHOICES.filter(
     (id) => !ownedRelicIds.includes(id),
   );
   const currentShopRelic =
-    availableRelics.length > 0 ? RELICS[availableRelics[0]] : null;
+    availableRelics.length > 0
+      ? {
+          offerId: `shop_relic_${availableRelics[0]}`,
+          relicId: availableRelics[0],
+          price: 100,
+          sold: false,
+        }
+      : null;
 
   return {
     currentShopCards,
