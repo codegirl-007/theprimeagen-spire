@@ -12,6 +12,58 @@ import {
   addCardToHand,
 } from "./core.js";
 
+function createRelicState(id, existingState = null) {
+  const relic = RELICS[id];
+  if (!relic) {
+    console.error(`Relic with ID '${id}' not found in RELICS data`);
+    return null;
+  }
+
+  return {
+    id,
+    state: {
+      ...(structuredClone(relic.state || {})),
+      ...(existingState || {}),
+    },
+  };
+}
+
+function getRelicHooks(relicId) {
+  return RELICS[relicId]?.hooks || {};
+}
+
+function runRelicHook(relicEntry, hookName, ...args) {
+  const hook = getRelicHooks(relicEntry.id)[hookName];
+  if (typeof hook !== "function") {
+    return undefined;
+  }
+
+  if (hookName === "onPlayerAttack") {
+    return hook(args[0], relicEntry.state, args[1]);
+  }
+
+  return hook(...args, relicEntry.state);
+}
+
+function createRelicContext(root) {
+  return {
+    ...root,
+    draw: (n) => draw(root.player, n, root),
+    applyWeak: (who, amt) => {
+      who.weak = (who.weak || 0) + amt;
+      root.log(
+        `${who === root.player ? "You are" : root.enemy?.name || "Enemy"} weakened for ${amt} turn${amt > 1 ? "s" : ""}.`,
+      );
+    },
+    applyVulnerable: (who, amt) => {
+      who.vuln = (who.vuln || 0) + amt;
+      root.log(
+        `${who === root.player ? "You are" : root.enemy?.name || "Enemy"} vulnerable for ${amt} turn${amt > 1 ? "s" : ""}.`,
+      );
+    },
+  };
+}
+
 export function createBattle(ctx, enemyId) {
   ctx._battleInstanceId = (ctx._battleInstanceId || 0) + 1;
   const enemyData = ENEMIES[enemyId];
@@ -37,23 +89,10 @@ export function createBattle(ctx, enemyId) {
   ctx.player.discard = [];
   ctx.player.hand = [];
 
-  const relicCtx = {
-    ...ctx,
-    draw: (n) => draw(ctx.player, n, ctx),
-    applyWeak: (who, amt) => {
-      who.weak = (who.weak || 0) + amt;
-      ctx.log(
-        `${who === ctx.player ? "You are" : ctx.enemy.name + " is"} weakened for ${amt} turn${amt > 1 ? "s" : ""}.`,
-      );
-    },
-    applyVulnerable: (who, amt) => {
-      who.vuln = (who.vuln || 0) + amt;
-      ctx.log(
-        `${who === ctx.player ? "You are" : ctx.enemy.name + " is"} vulnerable for ${amt} turn${amt > 1 ? "s" : ""}.`,
-      );
-    },
-  };
-  for (const r of ctx.relicStates) r.hooks?.onBattleStart?.(relicCtx, r.state);
+  const relicCtx = createRelicContext(ctx);
+  for (const r of ctx.relicStates) {
+    runRelicHook(r, "onBattleStart", relicCtx);
+  }
 
   ctx._battleContext = makeBattleContext(ctx);
 
@@ -77,8 +116,10 @@ export function startPlayerTurn(ctx) {
   // Clear card selection when new turn starts
   ctx.selectedCardIndex = null;
 
-  const relicCtx = { ...ctx, draw: (n) => draw(ctx.player, n, ctx) };
-  for (const r of ctx.relicStates) r.hooks?.onTurnStart?.(relicCtx, r.state);
+  const relicCtx = createRelicContext(ctx);
+  for (const r of ctx.relicStates) {
+    runRelicHook(r, "onTurnStart", relicCtx);
+  }
   ctx.log(`Your turn begins. You have ${ctx.player.energy} energy to spend.`);
 
   ctx.render();
@@ -140,8 +181,10 @@ export function playCard(ctx, handIndex) {
     }
 
     for (const r of ctx.relicStates) {
-      if (r.hooks?.onPlayerAttack)
-        amt = r.hooks.onPlayerAttack(ctx, r.state, amt);
+      const nextAmount = runRelicHook(r, "onPlayerAttack", ctx, amt);
+      if (typeof nextAmount === "number") {
+        amt = nextAmount;
+      }
     }
     prevDeal(target, amt);
   };
@@ -264,8 +307,12 @@ export function enemyTurn(ctx) {
 function applyDamage(ctx, target, raw, label) {
   let dmg = raw;
   for (const r of ctx.relicStates) {
-    if (r.hooks?.onDamageTaken && target === ctx.player)
-      dmg = r.hooks.onDamageTaken(ctx, dmg);
+    if (target === ctx.player) {
+      const nextDamage = runRelicHook(r, "onDamageTaken", ctx, dmg);
+      if (typeof nextDamage === "number") {
+        dmg = nextDamage;
+      }
+    }
   }
   const blocked = Math.min(dmg, target.block);
   const hpLoss = Math.max(0, dmg - blocked);
@@ -447,30 +494,32 @@ export function cancelCodeReview(root) {
 
 export function attachRelics(root, relicIds) {
   root.relicStates = relicIds
-    .filter((id) => {
-      if (!RELICS[id]) {
-        console.error(`Relic with ID '${id}' not found in RELICS data`);
-        return false;
-      }
-      return true;
-    })
-    .map((id) => ({
-      id,
-      hooks: RELICS[id].hooks || {},
-      state: structuredClone(RELICS[id].state || {}),
-    }));
+    .map((id) => createRelicState(id))
+    .filter(Boolean);
 
-  const relicCtx = {
-    ...root,
-    draw: (n) => draw(root.player, n),
-    applyWeak: (who, amt) => {
-      who.weak = (who.weak || 0) + amt;
-      root.log(`Weak +${amt}`);
-    },
-    applyVulnerable: (who, amt) => {
-      who.vuln = (who.vuln || 0) + amt;
-      root.log(`Vulnerable +${amt}`);
-    },
-  };
-  for (const r of root.relicStates) r.hooks?.onRunStart?.(relicCtx, r.state);
+  const relicCtx = createRelicContext(root);
+  for (const r of root.relicStates) {
+    runRelicHook(r, "onRunStart", relicCtx);
+  }
+}
+
+export function grantRelic(root, relicId) {
+  const relicEntry = createRelicState(relicId);
+  if (!relicEntry) {
+    return false;
+  }
+
+  root.relicStates = [...(root.relicStates || []), relicEntry];
+  runRelicHook(relicEntry, "onRunStart", createRelicContext(root));
+  return true;
+}
+
+export function normalizeRelicStates(relicStates) {
+  if (!Array.isArray(relicStates)) {
+    return [];
+  }
+
+  return relicStates
+    .map((entry) => createRelicState(entry?.id, entry?.state))
+    .filter(Boolean);
 }

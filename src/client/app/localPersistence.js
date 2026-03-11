@@ -1,5 +1,6 @@
 import { CARDS } from "../../shared/data/cards.js";
 import { MAPS } from "../../shared/data/maps.js";
+import { normalizeRelicStates } from "../../shared/engine/battle.js";
 
 export function attachPersistence(root) {
   root._saveDirty = false;
@@ -100,7 +101,7 @@ export function attachPersistence(root) {
           discard: [],
         },
         currentAct: "act2",
-        relicStates: this.relicStates,
+        relicStates: normalizeRelicStates(this.relicStates),
         timestamp: Date.now(),
       };
       localStorage.setItem(
@@ -129,7 +130,7 @@ export function attachPersistence(root) {
       this.map = MAPS.act2;
       this.nodeId = "n1";
       this.completedNodes = [];
-      this.relicStates = data.relicStates || [];
+      this.relicStates = normalizeRelicStates(data.relicStates);
       this._battleInProgress = false;
       this._saveDirty = false;
       this.cancelScheduledSave();
@@ -217,9 +218,7 @@ export function attachPersistence(root) {
       }
 
       this.player = data.player;
-      this.relicStates = Array.isArray(data.relicStates)
-        ? data.relicStates
-        : [];
+      this.relicStates = normalizeRelicStates(data.relicStates);
       this.completedNodes = Array.isArray(data.completedNodes)
         ? data.completedNodes
         : [];

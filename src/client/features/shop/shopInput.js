@@ -29,12 +29,17 @@ export function handleShopRelicBuy(manager, element) {
       manager.root.player.gold -= 100;
       manager.root.log(`Bought ${relic.name} for 100 gold.`);
 
+<<<<<<< Updated upstream
       import("../../../shared/engine/battle.js").then(({ attachRelics }) => {
         const currentRelicIds = manager.root.relicStates.map(
           (entry) => entry.id,
         );
         const newRelicIds = [...currentRelicIds, relic.id];
         attachRelics(manager.root, newRelicIds);
+=======
+      import("../../../shared/engine/battle.js").then(({ grantRelic }) => {
+        grantRelic(manager.root, relicOffer.relicId);
+>>>>>>> Stashed changes
       });
 
       element.disabled = true;
