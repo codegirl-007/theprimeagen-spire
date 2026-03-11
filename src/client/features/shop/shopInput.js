@@ -1,11 +1,20 @@
-export function handleShopCardBuy(manager, element) {
+export async function handleShopCardBuy(manager, element) {
+  const { CARDS } = await import("../../../shared/data/cards.js");
+
   const index = parseInt(element.dataset.buyCard, 10);
   if (manager.root.currentShopCards && manager.root.currentShopCards[index]) {
-    const card = manager.root.currentShopCards[index];
-    if (manager.root.player.gold >= 50) {
-      manager.root.player.gold -= 50;
-      manager.root.player.deck.push(card.id);
-      manager.root.log(`Bought ${card.name} for 50 gold.`);
+    const offer = manager.root.currentShopCards[index];
+    if (offer.sold) {
+      return;
+    }
+
+    const card = CARDS[offer.cardId];
+
+    if (manager.root.player.gold >= offer.price) {
+      manager.root.player.gold -= offer.price;
+      manager.root.player.deck.push(offer.cardId);
+      offer.sold = true;
+      manager.root.log(`Bought ${card?.name || offer.cardId} for ${offer.price} gold.`);
       element.disabled = true;
       element.textContent = "SOLD";
 
@@ -22,25 +31,23 @@ export function handleShopCardBuy(manager, element) {
   }
 }
 
-export function handleShopRelicBuy(manager, element) {
+export async function handleShopRelicBuy(manager, element) {
   if (manager.root.currentShopRelic) {
-    const relic = manager.root.currentShopRelic;
-    if (manager.root.player.gold >= 100) {
-      manager.root.player.gold -= 100;
-      manager.root.log(`Bought ${relic.name} for 100 gold.`);
+    const { RELICS } = await import("../../../shared/data/relics.js");
+    const { grantRelic } = await import("../../../shared/engine/battle.js");
 
-<<<<<<< Updated upstream
-      import("../../../shared/engine/battle.js").then(({ attachRelics }) => {
-        const currentRelicIds = manager.root.relicStates.map(
-          (entry) => entry.id,
-        );
-        const newRelicIds = [...currentRelicIds, relic.id];
-        attachRelics(manager.root, newRelicIds);
-=======
-      import("../../../shared/engine/battle.js").then(({ grantRelic }) => {
-        grantRelic(manager.root, relicOffer.relicId);
->>>>>>> Stashed changes
-      });
+    const relicOffer = manager.root.currentShopRelic;
+    if (relicOffer.sold) {
+      return;
+    }
+
+    const relic = RELICS[relicOffer.relicId];
+
+    if (manager.root.player.gold >= relicOffer.price) {
+      manager.root.player.gold -= relicOffer.price;
+      manager.root.log(`Bought ${relic?.name || relicOffer.relicId} for ${relicOffer.price} gold.`);
+      grantRelic(manager.root, relicOffer.relicId);
+      relicOffer.sold = true;
 
       element.disabled = true;
       element.textContent = "SOLD";
@@ -63,14 +70,19 @@ export function updateShopAffordability(manager) {
     if (!button.disabled) {
       const cardContainer = button.closest(".shop-card-container");
       const overlay = cardContainer.querySelector(".card-disabled-overlay");
+      const index = parseInt(button.dataset.buyCard, 10);
+      const offer = manager.root.currentShopCards?.[index];
+      if (offer?.sold) {
+        return;
+      }
 
-      if (manager.root.player.gold < 50) {
+      if (manager.root.player.gold < (offer?.price || 50)) {
         button.classList.remove("playable");
         button.classList.add("unplayable");
         if (!overlay) {
           const newOverlay = document.createElement("div");
           newOverlay.className = "card-disabled-overlay";
-          newOverlay.innerHTML = "<span>Need 50 gold</span>";
+          newOverlay.innerHTML = `<span>Need ${offer?.price || 50} gold</span>`;
           cardContainer.appendChild(newOverlay);
         }
       } else {
@@ -87,14 +99,17 @@ export function updateShopAffordability(manager) {
   if (relicButton && !relicButton.disabled) {
     const relicContainer = relicButton.closest(".shop-relic-container");
     const overlay = relicContainer.querySelector(".relic-disabled-overlay");
+    if (manager.root.currentShopRelic?.sold) {
+      return;
+    }
 
-    if (manager.root.player.gold < 100) {
+    if (manager.root.player.gold < (manager.root.currentShopRelic?.price || 100)) {
       relicButton.classList.remove("affordable");
       relicButton.classList.add("unaffordable");
       if (!overlay) {
         const newOverlay = document.createElement("div");
         newOverlay.className = "relic-disabled-overlay";
-        newOverlay.innerHTML = "<span>Need 100 gold</span>";
+        newOverlay.innerHTML = `<span>Need ${manager.root.currentShopRelic?.price || 100} gold</span>`;
         relicContainer.appendChild(newOverlay);
       }
     } else {
