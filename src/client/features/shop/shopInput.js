@@ -38,12 +38,17 @@ export function handleShopRelicBuy(manager, element) {
       manager.root.player.gold -= relicOffer.price;
       manager.root.log(`Bought ${relicOffer.relicId} for ${relicOffer.price} gold.`);
 
+<<<<<<< Updated upstream
       import("../../../shared/engine/battle.js").then(({ attachRelics }) => {
         const currentRelicIds = manager.root.relicStates.map(
           (entry) => entry.id,
         );
         const newRelicIds = [...currentRelicIds, relicOffer.relicId];
         attachRelics(manager.root, newRelicIds);
+=======
+      import("../../../shared/engine/battle.js").then(({ grantRelic }) => {
+        grantRelic(manager.root, relicOffer.relicId);
+>>>>>>> Stashed changes
       });
 
       relicOffer.sold = true;

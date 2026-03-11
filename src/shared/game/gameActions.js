@@ -4,7 +4,7 @@ import {
   playCard,
   endTurn,
   makeBattleContext,
-  attachRelics,
+  grantRelic,
 } from "../engine/battle.js";
 
 export function attachGameActions(root) {
@@ -140,7 +140,7 @@ export function attachGameActions(root) {
   };
 
   root.selectStartingRelic = async function selectStartingRelic(relicId) {
-    attachRelics(this, [relicId]);
+    grantRelic(this, relicId);
     this.save();
     await this.stateMachine.setState("MAP");
   };
