@@ -1,6 +1,69 @@
 import { CARDS } from "../../shared/data/cards.js";
 import { MAPS } from "../../shared/data/maps.js";
 
+export const CURRENT_SAVE_VERSION = 2;
+
+function migrateV1ToV2(saveData) {
+  return {
+    ...saveData,
+    version: 2,
+    relicStates: normalizeRelicStates(saveData.relicStates),
+    pendingCodeReview: saveData.pendingCodeReview || null,
+  };
+}
+
+function migrateCheckpointV1ToV2(checkpointData) {
+  return {
+    ...checkpointData,
+    version: 2,
+    relicStates: normalizeRelicStates(checkpointData.relicStates),
+  };
+}
+
+export function migrateSaveData(rawSaveData) {
+  if (!rawSaveData || typeof rawSaveData !== "object") {
+    throw new Error("Invalid save data format");
+  }
+
+  const saveData = { ...rawSaveData };
+  let version = Number.isInteger(saveData.version) ? saveData.version : 1;
+
+  while (version < CURRENT_SAVE_VERSION) {
+    if (version === 1) {
+      Object.assign(saveData, migrateV1ToV2(saveData));
+      version = saveData.version;
+      continue;
+    }
+
+    throw new Error(`Unsupported save version: ${version}`);
+  }
+
+  return saveData;
+}
+
+export function migrateCheckpointData(rawCheckpointData) {
+  if (!rawCheckpointData || typeof rawCheckpointData !== "object") {
+    throw new Error("Invalid checkpoint data format");
+  }
+
+  const checkpointData = { ...rawCheckpointData };
+  let version = Number.isInteger(checkpointData.version)
+    ? checkpointData.version
+    : 1;
+
+  while (version < CURRENT_SAVE_VERSION) {
+    if (version === 1) {
+      Object.assign(checkpointData, migrateCheckpointV1ToV2(checkpointData));
+      version = checkpointData.version;
+      continue;
+    }
+
+    throw new Error(`Unsupported checkpoint version: ${version}`);
+  }
+
+  return checkpointData;
+}
+
 export function attachPersistence(root) {
   root._saveDirty = false;
   root._saveScheduled = false;
@@ -9,6 +72,7 @@ export function attachPersistence(root) {
 
   root.buildSaveData = function buildSaveData() {
     return {
+      version: CURRENT_SAVE_VERSION,
       player: this.player,
       nodeId: this.nodeId,
       currentAct: this.currentAct,
@@ -88,6 +152,7 @@ export function attachPersistence(root) {
   root.saveAct2Checkpoint = function saveAct2Checkpoint() {
     try {
       const checkpointData = {
+        version: CURRENT_SAVE_VERSION,
         player: {
           ...this.player,
           hp: this.player.maxHp,
@@ -122,7 +187,7 @@ export function attachPersistence(root) {
         return false;
       }
 
-      const data = JSON.parse(checkpointData);
+      const data = migrateCheckpointData(JSON.parse(checkpointData));
       this.logs = [];
       this.player = data.player;
       this.currentAct = "act2";
@@ -175,7 +240,7 @@ export function attachPersistence(root) {
         return false;
       }
 
-      const data = JSON.parse(saveData);
+      const data = migrateSaveData(JSON.parse(saveData));
       if (!data || typeof data !== "object") {
         throw new Error("Invalid save data format");
       }
